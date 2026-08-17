@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منظومة إدارة وتقييم الأداء المؤسسي الاحترافية</title>
+    <title>منظومة إدارة وتقييم الأداء المؤسسي</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- SheetJS (xlsx) for handling Excel operations -->
@@ -31,7 +31,7 @@
                 </div>
                 <div>
                     <h1 class="font-bold text-lg leading-tight">منظومة إدارة وتقييم الأداء المؤسسي</h1>
-                    <p class="text-xs text-slate-400">إدارة الإدارات والمدراء والتقييمات الذكية</p>
+                    <p class="text-xs text-slate-400">إدارة التقييمات والمدراء الشاملة</p>
                 </div>
             </div>
             <div id="userInfoHeader" class="hidden flex items-center space-x-4 space-x-reverse">
@@ -95,10 +95,10 @@
                     <i class="fa-solid fa-file-excel text-emerald-600"></i> استيراد شيت الموظفين
                 </button>
                 <button onclick="switchAdminTab('employees')" id="tabBtn-employees" class="tab-btn px-6 py-3.5 text-sm font-semibold text-slate-600 hover:text-blue-600 transition flex items-center gap-2">
-                    <i class="fa-solid fa-users-gear text-purple-600"></i> إعدادات الموظفين والمدراء
+                    <i class="fa-solid fa-users-gear text-purple-600"></i> الموظفين والمدراء وكلمات السر
                 </button>
                 <button onclick="switchAdminTab('reports')" id="tabBtn-reports" class="tab-btn px-6 py-3.5 text-sm font-semibold text-slate-600 hover:text-blue-600 transition flex items-center gap-2">
-                    <i class="fa-solid fa-file-export text-amber-600"></i> تصدير التقييمات (Excel)
+                    <i class="fa-solid fa-clipboard-check text-amber-600"></i> إدارة وتقييمات الموظفين (تعديل مباشر)
                 </button>
             </div>
 
@@ -170,15 +170,15 @@
             </div>
 
             <!-- ADMIN TAB 2: EXCEL IMPORT -->
-            <div id="adminTab-import" class="hidden space-y-6">
+            <div id="adminTab-import" class="space-y-6">
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-3">
                         <div>
-                            <h3 class="font-bold text-slate-800 text-base">استيراد قائمة الموظفين الكاملة</h3>
-                            <p class="text-xs text-slate-500 mt-1">قم برفع شيت الإكسيل الخاص بالموظفين لمزامنة الإدارات والأقسام فوراً.</p>
+                            <h3 class="font-bold text-slate-800 text-base">استيراد الموظفين والمدراء من الإكسيل</h3>
+                            <p class="text-xs text-slate-500 mt-1">يمكنك إدراج عمود "مدير" (اكتب فيه: نعم/مدير) لتفعيل حساب المدير فوراً مع أعمدة اليوزر والباسوورد.</p>
                         </div>
                         <button onclick="downloadEmployeesTemplate()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 text-xs font-bold px-4 py-2.5 rounded-xl transition flex items-center gap-2">
-                            <i class="fa-solid fa-file-excel text-emerald-600"></i> تحميل شيت الموظفين الاسترشودي (.xlsx)
+                            <i class="fa-solid fa-file-excel text-emerald-600"></i> تحميل الشيت الاسترشادي الجديد (.xlsx)
                         </button>
                     </div>
 
@@ -188,29 +188,27 @@
                         <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-3">
                             <i class="fa-solid fa-cloud-arrow-up text-2xl"></i>
                         </div>
-                        <h4 class="font-bold text-slate-700 text-sm">اضغط هنا لرفع شيت الموظفين أو اسحب الملف هنا</h4>
-                        <p class="text-xs text-slate-400 mt-1">الأعمدة المطلوبة: كود الموظف، اسم الموظف، الوظيفة، الإدارة، القسم</p>
+                        <h4 class="font-bold text-slate-700 text-sm">اضغط هنا لرفع شيت الإكسيل أو اسحب الملف هنا</h4>
+                        <p class="text-xs text-slate-400 mt-1">الأعمدة: كود الموظف، اسم الموظف، الوظيفة، الإدارة، القسم، مدير، اسم المستخدم، كلمة السر</p>
                     </div>
 
                     <div id="importSuccessMsg" class="hidden mt-4 p-4 rounded-xl border bg-emerald-50 border-emerald-300 text-emerald-800 text-xs"></div>
                 </div>
             </div>
 
-            <!-- ADMIN TAB 3: MANAGE EMPLOYEES & MANAGERS -->
+            <!-- ADMIN TAB 3: MANAGE EMPLOYEES & MANAGERS PASSWORDS -->
             <div id="adminTab-employees" class="hidden space-y-6">
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-4 gap-3">
                         <div>
-                            <h3 class="font-bold text-slate-800 text-base">إدارة قائمة الموظفين وتعيين المدراء</h3>
-                            <p class="text-xs text-slate-500 mt-1">يمكنك اختيار أي موظف لتحويله إلى **مدير تقييم** وتعيين الإدارة المخصصة له مع إنشاء اسم مستخدم وكلمة سر.</p>
+                            <h3 class="font-bold text-slate-800 text-base">إدارة حسابات المدراء وكلمات السر</h3>
+                            <p class="text-xs text-slate-500 mt-1">عرض اليوزر والباسوورد لكل مدير مع إمكانية تعديلهما في أي وقت.</p>
                         </div>
-                        <!-- Search / Filter -->
                         <div class="w-full md:w-64">
                             <input type="text" id="empSearchInput" onkeyup="filterEmployeesTable()" placeholder="بحث باسم الموظف أو الإدارة..." class="w-full p-2 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                     </div>
 
-                    <!-- Table -->
                     <div class="overflow-x-auto">
                         <table class="w-full text-right border-collapse text-xs">
                             <thead>
@@ -218,10 +216,11 @@
                                     <th class="p-3">الكود</th>
                                     <th class="p-3">اسم الموظف</th>
                                     <th class="p-3">الوظيفة</th>
-                                    <th class="p-3">الإدارة المعين بها الموظف</th>
-                                    <th class="p-3">الصفة بالحساب</th>
-                                    <th class="p-3">الإدارة المكلف بتقييمها (إن وجد)</th>
-                                    <th class="p-3 text-center">الإجراءات</th>
+                                    <th class="p-3">الإدارة المعين بها</th>
+                                    <th class="p-3">الصفة</th>
+                                    <th class="p-3">اسم المستخدم (Username)</th>
+                                    <th class="p-3">كلمة السر (Password)</th>
+                                    <th class="p-3 text-center">تعديل الحساب</th>
                                 </tr>
                             </thead>
                             <tbody id="adminEmployeesTableBody" class="divide-y"></tbody>
@@ -230,16 +229,16 @@
                 </div>
             </div>
 
-            <!-- ADMIN TAB 4: EXPORT REPORTS -->
+            <!-- ADMIN TAB 4: EVALUATIONS & DIRECT EDITING -->
             <div id="adminTab-reports" class="hidden space-y-6">
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
-                    <div class="flex justify-between items-center border-b pb-4">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-4 gap-3">
                         <div>
-                            <h3 class="font-bold text-slate-800">تصدير جميع نتائج التقييمات في شيت إكسيل</h3>
-                            <p class="text-xs text-slate-500 mt-0.5">يمكنك تنزيل التقرير كاملاً بضغطة زر يضم جميع تفاصيل التقييمات وملاحظات المدراء.</p>
+                            <h3 class="font-bold text-slate-800 text-base">إدارة وتقييمات الموظفين (تعديل وتقييم مباشر للأدمن)</h3>
+                            <p class="text-xs text-slate-500 mt-0.5">يمكن للأدمن رؤية تقييمات كل موظف، وتعديل أي تقييم أو تقييم الموظف بنفسه وحفظ التعديلات فوراً.</p>
                         </div>
                         <button onclick="exportEvaluationsToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition flex items-center gap-2 shadow-lg shadow-emerald-600/20">
-                            <i class="fa-solid fa-file-excel text-base"></i> تنزيل شيت التقييمات Excel
+                            <i class="fa-solid fa-file-excel text-base"></i> تنزيل تقرير التقييمات Excel
                         </button>
                     </div>
 
@@ -253,7 +252,8 @@
                                     <th class="p-3">المدير المقيم</th>
                                     <th class="p-3 text-center">حالة التقييم</th>
                                     <th class="p-3">تاريخ التقييم</th>
-                                    <th class="p-3">ملاحظات والتطوير</th>
+                                    <th class="p-3">ملاحظات وتطوير</th>
+                                    <th class="p-3 text-center">الإجراء</th>
                                 </tr>
                             </thead>
                             <tbody id="adminReportsTableBody" class="divide-y"></tbody>
@@ -265,7 +265,6 @@
 
         <!-- MANAGER PANEL VIEW -->
         <div id="managerPanel" class="hidden space-y-6">
-            <!-- Manager Header Info -->
             <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-4 mb-4 gap-3">
                     <div>
@@ -282,12 +281,7 @@
                     </div>
                 </div>
 
-                <!-- Manager Employees Filter & Table -->
                 <div class="space-y-4">
-                    <div class="flex justify-between items-center">
-                        <h3 class="font-bold text-slate-700 text-sm">قائمة الموظفين في الإدارة المكلفة</h3>
-                    </div>
-
                     <div class="overflow-x-auto">
                         <table class="w-full text-right border-collapse text-xs">
                             <thead>
@@ -305,53 +299,50 @@
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- MANAGER EVALUATION MODAL / FORM CONTAINER -->
-            <div id="evalModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
-                <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full my-8 overflow-hidden border border-slate-200 flex flex-col max-h-[90vh]">
-                    <!-- Modal Header -->
-                    <div class="bg-slate-900 text-white p-4 flex justify-between items-center">
-                        <div>
-                            <h3 id="evalModalEmpName" class="font-bold text-base text-blue-300"></h3>
-                            <p id="evalModalEmpDetails" class="text-xs text-slate-400"></p>
+        <!-- EVALUATION MODAL (USED BY BOTH ADMIN & MANAGER) -->
+        <div id="evalModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full my-8 overflow-hidden border border-slate-200 flex flex-col max-h-[90vh]">
+                <div class="bg-slate-900 text-white p-4 flex justify-between items-center">
+                    <div>
+                        <h3 id="evalModalEmpName" class="font-bold text-base text-blue-300"></h3>
+                        <p id="evalModalEmpDetails" class="text-xs text-slate-400"></p>
+                    </div>
+                    <button onclick="closeEvalModal()" class="text-slate-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+
+                <div class="p-6 overflow-y-auto space-y-6 flex-grow">
+                    <form id="managerEvalForm" onsubmit="submitEmployeeEval(event)" class="space-y-6">
+                        <input type="hidden" id="evalTargetEmpId">
+
+                        <div class="space-y-4">
+                            <p class="text-xs text-slate-500 bg-amber-50 p-2.5 rounded-lg border border-amber-200 font-semibold text-amber-800">
+                                <i class="fa-solid fa-circle-info"></i> اختر الوصف السلوكي الأدق لكل عنصر بناءً على ملاحظة الأداء.
+                            </p>
+
+                            <div id="evalCriteriaList" class="space-y-4"></div>
+
+                            <div class="bg-white p-4 rounded-xl border border-slate-200 space-y-2">
+                                <label class="block text-xs font-bold text-slate-700">توصيات وملاحظات المدير المباشر وتخصيص نقاط التطوير:</label>
+                                <textarea id="evalNotesInput" rows="3" placeholder="اكتب هنا أي ملاحظات إيجابية أو أهداف تحتاج لتحسين..." class="w-full p-2.5 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+                            </div>
                         </div>
-                        <button onclick="closeEvalModal()" class="text-slate-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
-                    </div>
 
-                    <!-- Modal Body (Assessment Criteria) -->
-                    <div class="p-6 overflow-y-auto space-y-6 flex-grow">
-                        <form id="managerEvalForm" onsubmit="submitEmployeeEval(event)" class="space-y-6">
-                            <input type="hidden" id="evalTargetEmpId">
-
-                            <div class="space-y-4">
-                                <p class="text-xs text-slate-500 bg-amber-50 p-2.5 rounded-lg border border-amber-200 font-semibold text-amber-800">
-                                    <i class="fa-solid fa-circle-info"></i> يرجى اختيار الوصف السلوكي الأدق لكل عنصر بناءً على الملاحظة الفعلية لأداء الموظف.
-                                </p>
-
-                                <div id="evalCriteriaList" class="space-y-4"></div>
-
-                                <!-- Qualitative Notes -->
-                                <div class="bg-white p-4 rounded-xl border border-slate-200 space-y-2">
-                                    <label class="block text-xs font-bold text-slate-700">توصيات وملاحظات المدير المباشر وتخصيص نقاط التطوير:</label>
-                                    <textarea id="evalNotesInput" rows="3" placeholder="اكتب هنا أي ملاحظات إيجابية أو أهداف تحتاج لتحسين في الدورة التقييمية القادمة..." class="w-full p-2.5 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
-                                </div>
-                            </div>
-
-                            <div class="flex justify-end gap-2 pt-4 border-t sticky bottom-0 bg-white">
-                                <button type="button" onclick="closeEvalModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg text-xs font-bold hover:bg-slate-300">إلغاء</button>
-                                <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 shadow-md">حفظ ونشر التقييم</button>
-                            </div>
-                        </form>
-                    </div>
+                        <div class="flex justify-end gap-2 pt-4 border-t sticky bottom-0 bg-white">
+                            <button type="button" onclick="closeEvalModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg text-xs font-bold hover:bg-slate-300">إلغاء</button>
+                            <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 shadow-md">حفظ ونشر التقييم</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
 
-        <!-- MODAL: PROMOTE EMPLOYEE TO MANAGER (ADMIN) -->
+        <!-- MODAL: PROMOTE & EDIT MANAGER CREDENTIALS (ADMIN) -->
         <div id="promoteModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-200 space-y-4">
                 <div class="flex justify-between items-center border-b pb-2">
-                    <h3 class="font-bold text-slate-800 text-sm">تعيين الموظف كـ "مدير تقييم"</h3>
+                    <h3 class="font-bold text-slate-800 text-sm">إعدادات الحساب وكلمة السر للمدير</h3>
                     <button onclick="closePromoteModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
                 </div>
 
@@ -359,28 +350,33 @@
                     <input type="hidden" id="promoteEmpId">
 
                     <div>
-                        <label class="block font-bold text-slate-700 mb-1">اسم الموظف المحول لمدير:</label>
+                        <label class="block font-bold text-slate-700 mb-1">اسم الموظف / المدير:</label>
                         <input type="text" id="promoteEmpName" readonly class="w-full p-2 bg-slate-100 border border-slate-200 rounded font-bold text-slate-800">
                     </div>
 
-                    <div>
-                        <label class="block font-bold text-slate-700 mb-1">الإدارة التي سيقوم بتقييم موظفيها:</label>
-                        <select id="promoteAssignedDept" required class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"></select>
+                    <div class="flex items-center gap-2 my-2">
+                        <input type="checkbox" id="promoteIsManagerCheckbox" class="w-4 h-4 text-blue-600 rounded">
+                        <label for="promoteIsManagerCheckbox" class="font-bold text-slate-800">تفعيل صلاحية مدير تقييم</label>
                     </div>
 
                     <div>
-                        <label class="block font-bold text-slate-700 mb-1">اسم مستخدم الحساب (Username):</label>
-                        <input type="text" id="promoteUsername" required placeholder="مثال: m.ahmed" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                        <label class="block font-bold text-slate-700 mb-1">الإدارة المكلف بتقييمها:</label>
+                        <select id="promoteAssignedDept" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"></select>
+                    </div>
+
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">اسم المستخدم (Username):</label>
+                        <input type="text" id="promoteUsername" placeholder="مثال: m.ahmed" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
                     </div>
 
                     <div>
                         <label class="block font-bold text-slate-700 mb-1">كلمة السر (Password):</label>
-                        <input type="password" id="promotePassword" required placeholder="••••••••" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                        <input type="text" id="promotePassword" placeholder="••••••••" class="w-full p-2.5 border border-slate-300 rounded-lg font-mono text-blue-700 font-bold bg-blue-50/50 focus:ring-2 focus:ring-blue-500 outline-none">
                     </div>
 
                     <div class="flex justify-end gap-2 pt-2 border-t">
                         <button type="button" onclick="closePromoteModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg font-bold">إلغاء</button>
-                        <button type="submit" class="px-5 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700">تأكيد الحفظ والتكليف</button>
+                        <button type="submit" class="px-5 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700">تأكيد وحفظ البيانات</button>
                     </div>
                 </form>
             </div>
@@ -466,7 +462,7 @@
             }
         ];
 
-        let db = JSON.parse(localStorage.getItem('hr_system_v2_db')) || {
+        let db = JSON.parse(localStorage.getItem('hr_system_v3_db')) || {
             admin: { username: "admin", password: "123" },
             employees: [
                 { id: "E101", code: "EMP101", name: "أحمد محمود علي", title: "أخصائي موارد بشرية", department: "الموارد البشرية", section: "التدريب", isManager: false },
@@ -482,7 +478,7 @@
         let chartDeptsInstance = null;
 
         function saveDB() {
-            localStorage.setItem('hr_system_v2_db', JSON.stringify(db));
+            localStorage.setItem('hr_system_v3_db', JSON.stringify(db));
         }
 
         function handleLogin(e) {
@@ -552,15 +548,14 @@
 
         function downloadEmployeesTemplate() {
             const templateData = [
-                { "كود الموظف": "EMP201", "اسم الموظف": "علي حسن عبد الله", "الوظيفة": "محاسب أول", "الإدارة": "الشؤون المالية", "القسم": "الخزينة" },
-                { "كود الموظف": "EMP202", "اسم الموظف": "منى أحمد سلامة", "الوظيفة": "أخصائي مشتريات", "الإدارة": "المشتريات واللوجستيات", "القسم": "المشتريات المحلية" },
-                { "كود الموظف": "EMP203", "اسم الموظف": "حسام الدين عمر", "الوظيفة": "مهندس جودة", "الإدارة": "إدارة الجودة", "القسم": "التفتيش" }
+                { "كود الموظف": "EMP201", "اسم الموظف": "علي حسن عبد الله", "الوظيفة": "محاسب أول", "الإدارة": "الشؤون المالية", "القسم": "الخزينة", "مدير": "لا", "اسم المستخدم": "", "كلمة السر": "" },
+                { "كود الموظف": "EMP202", "اسم الموظف": "د. أحمد سلامة", "الوظيفة": "مدير المشتريات", "الإدارة": "المشتريات واللوجستيات", "القسم": "المشتريات المحلية", "مدير": "نعم", "اسم المستخدم": "a.salama", "كلمة السر": "pass2026" }
             ];
 
             const ws = XLSX.utils.json_to_sheet(templateData);
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "قائمة الموظفين");
-            XLSX.writeFile(wb, "شيت_الموظفين_الاسترشادي.xlsx");
+            XLSX.utils.book_append_sheet(wb, ws, "قائمة الموظفين والمدراء");
+            XLSX.writeFile(wb, "نموذج_استيراد_الموظفين_والمدراء.xlsx");
         }
 
         function handleEmployeesUpload(e) {
@@ -584,6 +579,10 @@
                         const title = row["الوظيفة"] || row["Title"] || "موظف";
                         const dept = row["الإدارة"] || row["Department"] || "عام";
                         const sec = row["القسم"] || row["Section"] || "عام";
+                        const isMgrVal = (row["مدير"] || row["IsManager"] || "").toString().trim().toLowerCase();
+                        const isMgr = isMgrVal === 'نعم' || isMgrVal === 'مدير' || isMgrVal === 'yes' || isMgrVal === 'true';
+                        const uName = (row["اسم المستخدم"] || row["Username"] || "").toString().trim();
+                        const pWord = (row["كلمة السر"] || row["Password"] || "").toString().trim();
 
                         if (name) {
                             let existing = db.employees.find(emp => emp.code === code || emp.name === name);
@@ -595,13 +594,22 @@
                                     title: title,
                                     department: dept,
                                     section: sec,
-                                    isManager: false
+                                    isManager: isMgr,
+                                    managerDept: isMgr ? dept : "",
+                                    username: uName || (isMgr ? (name.split(' ')[0] + '.' + code).toLowerCase() : ""),
+                                    password: pWord || (isMgr ? "123456" : "")
                                 });
                                 addedCount++;
                             } else {
                                 existing.title = title;
                                 existing.department = dept;
                                 existing.section = sec;
+                                if (isMgr) {
+                                    existing.isManager = true;
+                                    existing.managerDept = dept;
+                                    if (uName) existing.username = uName;
+                                    if (pWord) existing.password = pWord;
+                                }
                             }
                         }
                     });
@@ -609,7 +617,7 @@
                     saveDB();
 
                     const msg = document.getElementById('importSuccessMsg');
-                    msg.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i> تم رفع الشيت بنجاح! تم استيراد وتحديث <strong>${addedCount}</strong> موظف جديد.`;
+                    msg.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i> تم رفع الشيت بنجاح! تم استيراد وتحديث <strong>${addedCount}</strong> موظف ومدير.`;
                     msg.classList.remove('hidden');
 
                 } catch (err) {
@@ -633,10 +641,11 @@
                                 ? `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800"><i class="fa-solid fa-user-tie"></i> مدير تقييم</span>` 
                                 : `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">موظف</span>`}
                         </td>
-                        <td class="p-3 font-bold text-purple-700">${emp.isManager ? emp.managerDept : '-'}</td>
+                        <td class="p-3 font-mono text-blue-700 bg-blue-50/50 rounded px-2">${emp.isManager ? (emp.username || '-') : '-'}</td>
+                        <td class="p-3 font-mono text-emerald-700 bg-emerald-50/50 font-bold rounded px-2">${emp.isManager ? (emp.password || '-') : '-'}</td>
                         <td class="p-3 text-center">
                             <button onclick="openPromoteModal('${emp.id}')" class="bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold px-3 py-1.5 rounded-lg border border-blue-300 transition text-[11px] flex items-center gap-1 mx-auto">
-                                <i class="fa-solid fa-user-gear"></i> ${emp.isManager ? 'تعديل التكليف / الحساب' : 'تحويل لمدير تقييم'}
+                                <i class="fa-solid fa-user-gear"></i> ${emp.isManager ? 'تعديل اليوزر/الباسوورد' : 'تحويل لمدير وتعيين باسوورد'}
                             </button>
                         </td>
                     </tr>
@@ -659,10 +668,11 @@
 
             document.getElementById('promoteEmpId').value = emp.id;
             document.getElementById('promoteEmpName').value = emp.name;
+            document.getElementById('promoteIsManagerCheckbox').checked = !!emp.isManager;
 
             const depts = [...new Set(db.employees.map(e => e.department))];
             const deptSelect = document.getElementById('promoteAssignedDept');
-            deptSelect.innerHTML = depts.map(d => `<option value="${d}" ${emp.managerDept === d ? 'selected' : ''}>${d}</option>`).join('');
+            deptSelect.innerHTML = depts.map(d => `<option value="${d}" ${(emp.managerDept || emp.department) === d ? 'selected' : ''}>${d}</option>`).join('');
 
             document.getElementById('promoteUsername').value = emp.username || (emp.name.split(' ')[0] + '.' + emp.code).toLowerCase();
             document.getElementById('promotePassword').value = emp.password || '123456';
@@ -680,7 +690,7 @@
             const emp = db.employees.find(e => e.id === empId);
 
             if (emp) {
-                emp.isManager = true;
+                emp.isManager = document.getElementById('promoteIsManagerCheckbox').checked;
                 emp.managerDept = document.getElementById('promoteAssignedDept').value;
                 emp.username = document.getElementById('promoteUsername').value.trim();
                 emp.password = document.getElementById('promotePassword').value.trim();
@@ -688,7 +698,7 @@
                 saveDB();
                 closePromoteModal();
                 renderAdminEmployeesTable();
-                alert(`تم تعيين الموظف (${emp.name}) كمدير تقييم لإدارة (${emp.managerDept}) بنجاح.`);
+                alert(`تم تحديث بيانات الحساب لـ (${emp.name}) بنجاح.`);
             }
         }
 
@@ -791,7 +801,7 @@
 
             document.getElementById('evalTargetEmpId').value = emp.id;
             document.getElementById('evalModalEmpName').innerText = `تقييم الموظف: ${emp.name}`;
-            document.getElementById('evalModalEmpDetails').innerText = `${emp.title} | الكود: ${emp.code} | القسم: ${emp.section}`;
+            document.getElementById('evalModalEmpDetails').innerText = `${emp.title} | الكود: ${emp.code} | الإدارة: ${emp.department}`;
 
             const existingEval = db.evaluations[emp.id] || { scores: {}, notes: "" };
             document.getElementById('evalNotesInput').value = existingEval.notes || "";
@@ -845,7 +855,14 @@
 
             saveDB();
             closeEvalModal();
-            renderManagerDashboard();
+
+            if (currentUser.role === 'admin') {
+                renderAdminReportsTable();
+                renderAdminDashboardCharts();
+            } else {
+                renderManagerDashboard();
+            }
+
             alert("تم حفظ ونشر التقييم بنجاح!");
         }
 
@@ -868,6 +885,11 @@
                         </td>
                         <td class="p-3 font-mono text-slate-500">${isEval ? evalData.evaluatedAt : '-'}</td>
                         <td class="p-3 text-slate-600 max-w-xs truncate">${isEval ? (evalData.notes || 'لا يوجد') : '-'}</td>
+                        <td class="p-3 text-center">
+                            <button onclick="openEvalModal('${emp.id}')" class="px-3 py-1 rounded font-bold text-[11px] transition flex items-center gap-1 mx-auto ${isEval ? 'bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-300' : 'bg-blue-600 text-white hover:bg-blue-700'}">
+                                <i class="fa-solid ${isEval ? 'fa-pen-to-square' : 'fa-clipboard-check'}"></i> ${isEval ? 'تعديل التقييم' : 'تقييم الآن'}
+                            </button>
+                        </td>
                     </tr>
                 `;
             }).join('');
