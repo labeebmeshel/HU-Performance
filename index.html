@@ -3,33 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام تقييم الأداء المؤسسي الشامل</title>
+    <title>منظومة إدارة وتقييم الأداء المؤسسي الاحترافية</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- SheetJS (xlsx) for processing uploaded excel files -->
+    <!-- SheetJS (xlsx) for handling Excel operations -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- Chart.js for Admin Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap');
         body { font-family: 'Cairo', sans-serif; }
-        .tab-btn.active { border-bottom: 3px solid #3b82f6; color: #1d4ed8; font-weight: 700; background-color: #eff6ff; }
+        .tab-btn.active { border-bottom: 3px solid #2563eb; color: #1d4ed8; font-weight: 700; background-color: #eff6ff; }
         ::-webkit-scrollbar { height: 6px; width: 6px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
 
-    <!-- Top Navigation Header -->
+    <!-- Header Navigation -->
     <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center space-x-3 space-x-reverse">
-                <div class="bg-blue-600 p-2 rounded-lg text-white">
-                    <i class="fa-solid fa-chart-line text-xl"></i>
+                <div class="bg-blue-600 p-2.5 rounded-xl text-white shadow-lg shadow-blue-500/30">
+                    <i class="fa-solid fa-chart-pie text-xl"></i>
                 </div>
                 <div>
-                    <h1 class="font-bold text-lg leading-tight">منظومة تقييم الأداء المؤسسي</h1>
-                    <p class="text-xs text-slate-400">نظام إدارة ومتابعة مؤشرات الأداء (KPIs)</p>
+                    <h1 class="font-bold text-lg leading-tight">منظومة إدارة وتقييم الأداء المؤسسي</h1>
+                    <p class="text-xs text-slate-400">إدارة الإدارات والمدراء والتقييمات الذكية</p>
                 </div>
             </div>
             <div id="userInfoHeader" class="hidden flex items-center space-x-4 space-x-reverse">
@@ -44,24 +46,24 @@
         </div>
     </header>
 
-    <!-- Main Container -->
+    <!-- Main Content Container -->
     <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6">
 
-        <!-- LOGIN SCREEN -->
+        <!-- LOGIN SECTION -->
         <div id="loginSection" class="max-w-md mx-auto my-12 bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
-            <div class="bg-gradient-to-r from-slate-900 to-blue-900 p-8 text-white text-center relative">
-                <div class="w-16 h-16 bg-blue-600/30 backdrop-blur rounded-2xl mx-auto flex items-center justify-center mb-3 border border-blue-400/30">
-                    <i class="fa-solid fa-shield-halved text-3xl text-blue-400"></i>
+            <div class="bg-gradient-to-r from-slate-900 to-blue-900 p-8 text-white text-center">
+                <div class="w-16 h-16 bg-blue-600/30 backdrop-blur rounded-2xl mx-auto flex items-center justify-center mb-3 border border-blue-400/30 shadow-inner">
+                    <i class="fa-solid fa-user-shield text-3xl text-blue-400"></i>
                 </div>
                 <h2 class="text-2xl font-bold">تسجيل الدخول</h2>
-                <p class="text-xs text-slate-300 mt-1">قم بالدخول إلى لوحة التحكم الخاصة بك</p>
+                <p class="text-xs text-slate-300 mt-1">أدخل اسم المستخدم وكلمة السر للوصول للحساب</p>
             </div>
             
             <form id="loginForm" onsubmit="handleLogin(event)" class="p-8 space-y-5">
                 <div id="loginError" class="hidden p-3 bg-red-50 border-r-4 border-red-500 text-red-700 text-xs rounded"></div>
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">اسم المستخدم / البريد الإلكتروني</label>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">اسم المستخدم</label>
                     <div class="relative">
                         <i class="fa-solid fa-user absolute right-3 top-3 text-slate-400 text-sm"></i>
                         <input type="text" id="usernameInput" required placeholder="أدخل اسم المستخدم" class="w-full pr-9 pl-3 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition">
@@ -77,136 +79,180 @@
                 </div>
 
                 <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-lg hover:shadow-blue-500/20 transition duration-200 text-sm">
-                    دخول للنظام <i class="fa-solid fa-arrow-left mr-2"></i>
+                    تسجيل الدخول <i class="fa-solid fa-arrow-left mr-2"></i>
                 </button>
             </form>
         </div>
 
-        <!-- ADMIN DASHBOARD PANEL -->
+        <!-- ADMIN PANEL VIEW -->
         <div id="adminPanel" class="hidden space-y-6">
-            <!-- Navigation Tabs -->
+            <!-- Tabs Navigation Header -->
             <div class="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-wrap overflow-hidden">
-                <button onclick="switchAdminTab('import')" id="tabBtn-import" class="tab-btn active px-6 py-3.5 text-sm font-semibold text-slate-600 hover:text-blue-600 transition flex items-center gap-2">
-                    <i class="fa-solid fa-file-excel text-green-600"></i> استيراد الهيكل (شيت إكسيل)
+                <button onclick="switchAdminTab('dashboard')" id="tabBtn-dashboard" class="tab-btn active px-6 py-3.5 text-sm font-semibold text-slate-600 hover:text-blue-600 transition flex items-center gap-2">
+                    <i class="fa-solid fa-chart-line text-blue-600"></i> لوحة التحكم والتحليلات
                 </button>
-                <button onclick="switchAdminTab('orgView')" id="tabBtn-orgView" class="tab-btn px-6 py-3.5 text-sm font-semibold text-slate-600 hover:text-blue-600 transition flex items-center gap-2">
-                    <i class="fa-solid fa-sitemap text-blue-600"></i> استعراض الهيكل والمدراء
+                <button onclick="switchAdminTab('import')" id="tabBtn-import" class="tab-btn px-6 py-3.5 text-sm font-semibold text-slate-600 hover:text-blue-600 transition flex items-center gap-2">
+                    <i class="fa-solid fa-file-excel text-emerald-600"></i> استيراد شيت الموظفين
                 </button>
-                <button onclick="switchAdminTab('kpiView')" id="tabBtn-kpiView" class="tab-btn px-6 py-3.5 text-sm font-semibold text-slate-600 hover:text-blue-600 transition flex items-center gap-2">
-                    <i class="fa-solid fa-sliders text-purple-600"></i> معايير التقييم والأوزان
+                <button onclick="switchAdminTab('employees')" id="tabBtn-employees" class="tab-btn px-6 py-3.5 text-sm font-semibold text-slate-600 hover:text-blue-600 transition flex items-center gap-2">
+                    <i class="fa-solid fa-users-gear text-purple-600"></i> إعدادات الموظفين والمدراء
                 </button>
-                <button onclick="switchAdminTab('reportsView')" id="tabBtn-reportsView" class="tab-btn px-6 py-3.5 text-sm font-semibold text-slate-600 hover:text-blue-600 transition flex items-center gap-2">
-                    <i class="fa-solid fa-chart-pie text-amber-600"></i> تقارير التقييمات العامة
+                <button onclick="switchAdminTab('reports')" id="tabBtn-reports" class="tab-btn px-6 py-3.5 text-sm font-semibold text-slate-600 hover:text-blue-600 transition flex items-center gap-2">
+                    <i class="fa-solid fa-file-export text-amber-600"></i> تصدير التقييمات (Excel)
                 </button>
             </div>
 
-            <!-- TAB 1: EXCEL IMPORT -->
-            <div id="adminTab-import" class="space-y-6">
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                    <div class="flex justify-between items-start mb-4">
+            <!-- ADMIN TAB 1: ANALYTICS DASHBOARD -->
+            <div id="adminTab-dashboard" class="space-y-6">
+                <!-- Stat Cards Row -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
                         <div>
-                            <h3 class="font-bold text-slate-800 text-base">استيراد الهيكل التنظيمي والموظفين والمدراء</h3>
-                            <p class="text-xs text-slate-500 mt-1">يرجى رفع ملف إكسيل يضم بيانات (الإدارة، القسم، اسم المدير، بريد/حساب المدير، كلمة السر، اسم الموظف، كود الموظف، الوظيفة).</p>
+                            <p class="text-xs font-bold text-slate-500 mb-1">إجمالي الموظفين</p>
+                            <h3 id="statTotalEmployees" class="text-2xl font-black text-slate-800">0</h3>
                         </div>
-                        <button onclick="downloadSampleExcel()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 text-xs font-bold px-4 py-2 rounded-lg transition flex items-center gap-2">
-                            <i class="fa-solid fa-download"></i> تحميل نموذج إكسيل جاهز
+                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-bold text-slate-500 mb-1">إجمالي الإدارات</p>
+                            <h3 id="statTotalDepts" class="text-2xl font-black text-slate-800">0</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-sitemap"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-bold text-slate-500 mb-1">تم تقييمهم</p>
+                            <h3 id="statEvaluatedCount" class="text-2xl font-black text-emerald-600">0</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-bold text-slate-500 mb-1">في انتظار التقييم</p>
+                            <h3 id="statPendingCount" class="text-2xl font-black text-amber-600">0</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-clock"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Charts Row -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
+                        <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2 border-b pb-2">
+                            <i class="fa-solid fa-chart-pie text-blue-600"></i> نسبة اكتمال التقييمات المنجزة
+                        </h4>
+                        <div class="relative max-h-64 flex justify-center">
+                            <canvas id="chartCompletion"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
+                        <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2 border-b pb-2">
+                            <i class="fa-solid fa-chart-column text-purple-600"></i> حالة التقييمات حسب الإدارات
+                        </h4>
+                        <div class="relative max-h-64">
+                            <canvas id="chartDeptsProgress"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ADMIN TAB 2: EXCEL IMPORT -->
+            <div id="adminTab-import" class="hidden space-y-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-3">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-base">استيراد قائمة الموظفين الكاملة</h3>
+                            <p class="text-xs text-slate-500 mt-1">قم برفع شيت الإكسيل الخاص بالموظفين لمزامنة الإدارات والأقسام فوراً.</p>
+                        </div>
+                        <button onclick="downloadEmployeesTemplate()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 text-xs font-bold px-4 py-2.5 rounded-xl transition flex items-center gap-2">
+                            <i class="fa-solid fa-file-excel text-emerald-600"></i> تحميل شيت الموظفين الاسترشودي (.xlsx)
                         </button>
                     </div>
 
-                    <!-- File Drop Area -->
-                    <div class="border-2 border-dashed border-slate-300 hover:border-blue-500 rounded-2xl p-8 text-center bg-slate-50 transition cursor-pointer relative" onclick="document.getElementById('excelFileInput').click()">
-                        <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleExcelUpload(event)">
+                    <!-- Drop Area -->
+                    <div class="border-2 border-dashed border-slate-300 hover:border-blue-500 rounded-2xl p-8 text-center bg-slate-50 transition cursor-pointer relative" onclick="document.getElementById('excelEmployeesInput').click()">
+                        <input type="file" id="excelEmployeesInput" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleEmployeesUpload(event)">
                         <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-3">
                             <i class="fa-solid fa-cloud-arrow-up text-2xl"></i>
                         </div>
-                        <h4 class="font-bold text-slate-700 text-sm">اضغط هنا لرفع شيت الإكسيل أو اسحب الملف إلى هنا</h4>
-                        <p class="text-xs text-slate-400 mt-1">يدعم صيغ .XLSX, .XLS, .CSV</p>
+                        <h4 class="font-bold text-slate-700 text-sm">اضغط هنا لرفع شيت الموظفين أو اسحب الملف هنا</h4>
+                        <p class="text-xs text-slate-400 mt-1">الأعمدة المطلوبة: كود الموظف، اسم الموظف، الوظيفة، الإدارة، القسم</p>
                     </div>
 
-                    <!-- Import Log / Preview -->
-                    <div id="importStatus" class="hidden mt-6 p-4 rounded-xl border"></div>
+                    <div id="importSuccessMsg" class="hidden mt-4 p-4 rounded-xl border bg-emerald-50 border-emerald-300 text-emerald-800 text-xs"></div>
                 </div>
             </div>
 
-            <!-- TAB 2: ORG & MANAGERS STRUCTURE -->
-            <div id="adminTab-orgView" class="hidden space-y-6">
-                <!-- Managers List -->
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                    <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-user-tie text-blue-600"></i> قائمة المدراء والحسابات المعرفة
-                    </h3>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-right border-collapse text-xs">
-                            <thead>
-                                <tr class="bg-slate-100 text-slate-700 border-b">
-                                    <th class="p-3">اسم المدير</th>
-                                    <th class="p-3">حساب الدخول (Username)</th>
-                                    <th class="p-3">كلمة السر</th>
-                                    <th class="p-3">الإدارة / القسم</th>
-                                    <th class="p-3">عدد الموظفين التابعين</th>
-                                </tr>
-                            </thead>
-                            <tbody id="managersTableBody" class="divide-y"></tbody>
-                        </table>
+            <!-- ADMIN TAB 3: MANAGE EMPLOYEES & MANAGERS -->
+            <div id="adminTab-employees" class="hidden space-y-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-4 gap-3">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-base">إدارة قائمة الموظفين وتعيين المدراء</h3>
+                            <p class="text-xs text-slate-500 mt-1">يمكنك اختيار أي موظف لتحويله إلى **مدير تقييم** وتعيين الإدارة المخصصة له مع إنشاء اسم مستخدم وكلمة سر.</p>
+                        </div>
+                        <!-- Search / Filter -->
+                        <div class="w-full md:w-64">
+                            <input type="text" id="empSearchInput" onkeyup="filterEmployeesTable()" placeholder="بحث باسم الموظف أو الإدارة..." class="w-full p-2 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
                     </div>
-                </div>
 
-                <!-- Employees List -->
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                    <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-users text-slate-600"></i> قائمة الموظفين المدرجين
-                    </h3>
+                    <!-- Table -->
                     <div class="overflow-x-auto">
                         <table class="w-full text-right border-collapse text-xs">
                             <thead>
                                 <tr class="bg-slate-100 text-slate-700 border-b">
-                                    <th class="p-3">كود الموظف</th>
+                                    <th class="p-3">الكود</th>
                                     <th class="p-3">اسم الموظف</th>
                                     <th class="p-3">الوظيفة</th>
-                                    <th class="p-3">الإدارة</th>
-                                    <th class="p-3">القسم</th>
-                                    <th class="p-3">المدير المباشر</th>
-                                    <th class="p-3">حالة التقييم</th>
+                                    <th class="p-3">الإدارة المعين بها الموظف</th>
+                                    <th class="p-3">الصفة بالحساب</th>
+                                    <th class="p-3">الإدارة المكلف بتقييمها (إن وجد)</th>
+                                    <th class="p-3 text-center">الإجراءات</th>
                                 </tr>
                             </thead>
-                            <tbody id="employeesTableBody" class="divide-y"></tbody>
+                            <tbody id="adminEmployeesTableBody" class="divide-y"></tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            <!-- TAB 3: KPI CONFIGURATION -->
-            <div id="adminTab-kpiView" class="hidden space-y-6">
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                    <div class="flex justify-between items-center mb-4 border-b pb-3">
+            <!-- ADMIN TAB 4: EXPORT REPORTS -->
+            <div id="adminTab-reports" class="hidden space-y-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
+                    <div class="flex justify-between items-center border-b pb-4">
                         <div>
-                            <h3 class="font-bold text-slate-800">بنود ومعايير التقييم وأوزانها النسيبة</h3>
-                            <p class="text-xs text-slate-500 mt-0.5">يمكنك تعديل أوزان العناصر. يجب أن يكون المجموع الكلي للأوزان 100%.</p>
+                            <h3 class="font-bold text-slate-800">تصدير جميع نتائج التقييمات في شيت إكسيل</h3>
+                            <p class="text-xs text-slate-500 mt-0.5">يمكنك تنزيل التقرير كاملاً بضغطة زر يضم جميع تفاصيل التقييمات وملاحظات المدراء.</p>
                         </div>
-                        <div class="text-left">
-                            <span id="totalWeightBadge" class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
-                                المجموع الحالي: 100%
-                            </span>
-                        </div>
+                        <button onclick="exportEvaluationsToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition flex items-center gap-2 shadow-lg shadow-emerald-600/20">
+                            <i class="fa-solid fa-file-excel text-base"></i> تنزيل شيت التقييمات Excel
+                        </button>
                     </div>
 
-                    <div id="kraConfigList" class="space-y-4"></div>
-                </div>
-            </div>
-
-            <!-- TAB 4: EVALUATION REPORTS -->
-            <div id="adminTab-reportsView" class="hidden space-y-6">
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                    <h3 class="font-bold text-slate-800 mb-4">تقرير التقييمات الشامل</h3>
                     <div class="overflow-x-auto">
                         <table class="w-full text-right border-collapse text-xs">
                             <thead>
                                 <tr class="bg-slate-100 text-slate-700 border-b">
-                                    <th class="p-3">الموظف</th>
-                                    <th class="p-3">الإدارة/القسم</th>
-                                    <th class="p-3">المدير</th>
-                                    <th class="p-3 text-center">النتيجة النهائية (%)</th>
-                                    <th class="p-3 text-center">التقدير</th>
+                                    <th class="p-3">الكود</th>
+                                    <th class="p-3">اسم الموظف</th>
+                                    <th class="p-3">الإدارة</th>
+                                    <th class="p-3">المدير المقيم</th>
+                                    <th class="p-3 text-center">حالة التقييم</th>
+                                    <th class="p-3">تاريخ التقييم</th>
                                     <th class="p-3">ملاحظات والتطوير</th>
                                 </tr>
                             </thead>
@@ -217,123 +263,226 @@
             </div>
         </div>
 
-        <!-- MANAGER EVALUATION PANEL -->
+        <!-- MANAGER PANEL VIEW -->
         <div id="managerPanel" class="hidden space-y-6">
+            <!-- Manager Header Info -->
             <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-4 mb-6 gap-3">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-4 mb-4 gap-3">
                     <div>
-                        <h2 class="text-xl font-bold text-slate-800">لوحة تقييم الموظفين التابعين</h2>
-                        <p class="text-xs text-slate-500 mt-1">يظهر أدناه جميع الموظفين التابعين لإدارتك. يمكنك تقييم كل عنصر من عناصر التقييم وحفظ النتائج مباشرة.</p>
+                        <h2 class="text-xl font-bold text-slate-800">داشبورد تقييم أداء الإدارة</h2>
+                        <p id="mgrAssignedDeptBadge" class="text-xs text-blue-700 font-bold mt-1 bg-blue-50 px-3 py-1 rounded-full inline-block border border-blue-200"></p>
                     </div>
-                    <div class="flex items-center gap-2 bg-blue-50 px-4 py-2 rounded-xl border border-blue-200 text-xs text-blue-800 font-semibold">
-                        <i class="fa-solid fa-users-gear text-blue-600"></i>
-                        <span>عدد الموظفين التابعين لك: <strong id="mgrEmpCount" class="text-blue-900 font-bold">0</strong></span>
+                    <div class="flex items-center gap-2 text-xs">
+                        <span class="bg-emerald-100 text-emerald-800 px-3 py-1.5 rounded-lg font-bold border border-emerald-300">
+                            تم تقييمهم: <strong id="mgrCompletedCount">0</strong>
+                        </span>
+                        <span class="bg-amber-100 text-amber-800 px-3 py-1.5 rounded-lg font-bold border border-amber-300">
+                            لم يتم تقييمهم: <strong id="mgrPendingCount">0</strong>
+                        </span>
                     </div>
                 </div>
 
-                <!-- Manager's Employee Grid / Evaluation View -->
-                <div id="managerEmpContainer" class="space-y-8"></div>
+                <!-- Manager Employees Filter & Table -->
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-bold text-slate-700 text-sm">قائمة الموظفين في الإدارة المكلفة</h3>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-700 border-b">
+                                    <th class="p-3">الكود</th>
+                                    <th class="p-3">اسم الموظف</th>
+                                    <th class="p-3">الوظيفة</th>
+                                    <th class="p-3">القسم</th>
+                                    <th class="p-3 text-center">حالة التقييم</th>
+                                    <th class="p-3 text-center">الإجراء</th>
+                                </tr>
+                            </thead>
+                            <tbody id="mgrEmpTableBody" class="divide-y"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MANAGER EVALUATION MODAL / FORM CONTAINER -->
+            <div id="evalModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+                <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full my-8 overflow-hidden border border-slate-200 flex flex-col max-h-[90vh]">
+                    <!-- Modal Header -->
+                    <div class="bg-slate-900 text-white p-4 flex justify-between items-center">
+                        <div>
+                            <h3 id="evalModalEmpName" class="font-bold text-base text-blue-300"></h3>
+                            <p id="evalModalEmpDetails" class="text-xs text-slate-400"></p>
+                        </div>
+                        <button onclick="closeEvalModal()" class="text-slate-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+
+                    <!-- Modal Body (Assessment Criteria) -->
+                    <div class="p-6 overflow-y-auto space-y-6 flex-grow">
+                        <form id="managerEvalForm" onsubmit="submitEmployeeEval(event)" class="space-y-6">
+                            <input type="hidden" id="evalTargetEmpId">
+
+                            <div class="space-y-4">
+                                <p class="text-xs text-slate-500 bg-amber-50 p-2.5 rounded-lg border border-amber-200 font-semibold text-amber-800">
+                                    <i class="fa-solid fa-circle-info"></i> يرجى اختيار الوصف السلوكي الأدق لكل عنصر بناءً على الملاحظة الفعلية لأداء الموظف.
+                                </p>
+
+                                <div id="evalCriteriaList" class="space-y-4"></div>
+
+                                <!-- Qualitative Notes -->
+                                <div class="bg-white p-4 rounded-xl border border-slate-200 space-y-2">
+                                    <label class="block text-xs font-bold text-slate-700">توصيات وملاحظات المدير المباشر وتخصيص نقاط التطوير:</label>
+                                    <textarea id="evalNotesInput" rows="3" placeholder="اكتب هنا أي ملاحظات إيجابية أو أهداف تحتاج لتحسين في الدورة التقييمية القادمة..." class="w-full p-2.5 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-end gap-2 pt-4 border-t sticky bottom-0 bg-white">
+                                <button type="button" onclick="closeEvalModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg text-xs font-bold hover:bg-slate-300">إلغاء</button>
+                                <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 shadow-md">حفظ ونشر التقييم</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL: PROMOTE EMPLOYEE TO MANAGER (ADMIN) -->
+        <div id="promoteModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-200 space-y-4">
+                <div class="flex justify-between items-center border-b pb-2">
+                    <h3 class="font-bold text-slate-800 text-sm">تعيين الموظف كـ "مدير تقييم"</h3>
+                    <button onclick="closePromoteModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+
+                <form id="promoteForm" onsubmit="saveManagerRole(event)" class="space-y-4 text-xs">
+                    <input type="hidden" id="promoteEmpId">
+
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">اسم الموظف المحول لمدير:</label>
+                        <input type="text" id="promoteEmpName" readonly class="w-full p-2 bg-slate-100 border border-slate-200 rounded font-bold text-slate-800">
+                    </div>
+
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">الإدارة التي سيقوم بتقييم موظفيها:</label>
+                        <select id="promoteAssignedDept" required class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"></select>
+                    </div>
+
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">اسم مستخدم الحساب (Username):</label>
+                        <input type="text" id="promoteUsername" required placeholder="مثال: m.ahmed" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">كلمة السر (Password):</label>
+                        <input type="password" id="promotePassword" required placeholder="••••••••" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+
+                    <div class="flex justify-end gap-2 pt-2 border-t">
+                        <button type="button" onclick="closePromoteModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg font-bold">إلغاء</button>
+                        <button type="submit" class="px-5 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700">تأكيد الحفظ والتكليف</button>
+                    </div>
+                </form>
             </div>
         </div>
 
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 py-4 mt-auto">
+    <footer class="bg-white border-t border-slate-200 py-3 mt-auto">
         <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500">
-            نظام إدارة وتطوير وتقييم الأداء الوظيفي &copy; 2026 - جميع الحقوق محفوظة
+            نظام إدارة وتقييم الأداء المؤسسي &copy; 2026 - جميع الحقوق محفوظة
         </div>
     </footer>
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        const DEFAULT_KRAS = [
+        const KRAS = [
             {
                 id: "k1",
                 title: "المهارات الفنية والقدرات الوظيفية",
-                weight: 20,
                 levels: {
-                    1: "لا يمتلك المعرفة أو المهارات الفنية الأساسية اللازمة لأداء الوظيفة، ويحتاج إلى إشراف وتوجيه مستمر لإنجاز معظم المهام.",
-                    2: "يمتلك الحد الأدنى من المهارات الفنية، وينجز المهام الروتينية مع الحاجة إلى المتابعة والمساعدة في المواقف غير المعتادة.",
-                    3: "يمتلك المعرفة والمهارات الفنية المطلوبة للوظيفة، وينفذ معظم المهام بكفاءة واستقلالية مع الحاجة إلى دعم محدود في المهام المعقدة.",
-                    4: "يطبق المهارات الفنية باحترافية عالية، ويتعامل مع المشاكل الفنية بكفاءة، ويقدم الدعم لزملائه عند الحاجة.",
-                    5: "يمتلك خبرة فنية متقدمة، ويعد مرجعاً في تخصصه، ويبتكر حلولاً للمشاكل المعقدة، ويساهم في تطوير أساليب العمل ونقل المعرفة للآخرين."
+                    1: "مستوى يتطلب توجيه وإشراف مكثف مستمر مع إنجاز محدود للمهام الأساسية.",
+                    2: "مستوى يلبي الحد الأدنى من متطلبات العمل الروتينية مع الحاجة لمتابعة في المواقف المعتادة.",
+                    3: "مستوى جيد جداً، ينفذ معظم المهام باستقلالية وكفاءة عالية ودعم محدود.",
+                    4: "مستوى متتقدم، يطبق المهارات الفنية باحترافية وسرعة مع تقديم الدعم والحلول للزملاء.",
+                    5: "مستوى خبير ومتميز، يبتكر حلولاً نوعية، ويعد مرجعاً فنياً يطور أساليب العمل."
                 }
             },
             {
                 id: "k2",
                 title: "مهارات التواصل والتعاون",
-                weight: 15,
                 levels: {
-                    1: "يواجه صعوبة كبيرة في نقل المعلومات، ويحتاج توجيه مستمر لتحسين طريقة تواصله.",
-                    2: "يواجه صعوبة أحياناً في التواصل الواضح، ويحتاج دعم في بعض المواقف.",
-                    3: "يتواصل بفعالية في معظم المواقف اليومية ويقدم المعلومات بوضوح مقبول.",
-                    4: "يتواصل بفعالية عالية في كل المواقف ويسهّل تدفق المعلومات بين الأطراف المختلفة.",
-                    5: "يتواصل باحترافية عالية، يؤثر إيجابياً في الآخرين، ويعزز التعاون بين الفرق."
+                    1: "يواجه صعوبة ملحوظة في إيصال المعلومات، ويحتاج توجيه مستمر لأسلوب التواصل.",
+                    2: "تواصل مقبول في الظروف المعتادة ولكن يحتاج دعم في مواقف التواصل المركبة.",
+                    3: "يتواصل بوضوح وفعالية في بيئة العمل مع إبداء روح تعاون إيجابية مع الجميع.",
+                    4: "تواصل ممتاز، يسهل تدفق المعلومات بسلاسة ويؤثر إيجابياً في نتائج الفريق.",
+                    5: "احترافي للغاية، يبني جسور تعاون متينة ويقود بيئة العمل بنجاح ودبلوماسية."
                 }
             },
             {
                 id: "k3",
                 title: "تحليل المشاكل واتخاذ الحلول",
-                weight: 20,
                 levels: {
-                    1: "يواجه صعوبة في تحديد المشكلة نفسها أو اقتراح أي حل.",
-                    2: "يحتاج دعم كبير لتحليل المشاكل واقتراح حلول مناسبة.",
-                    3: "يحلل المشاكل المعتادة ويقدم حلولاً عملية بشكل مستقل.",
-                    4: "يحلل المشاكل المعقدة نسبياً ويقترح حلولاً فعالة دون توجيه يذكر.",
-                    5: "يحدد الأسباب الجذرية بسرعة ويبتكر حلولاً مستدامة تتجاوز المشكلة الفورية."
+                    1: "يواجه صعوبة في تشخيص المشكلات أو تقديم اقتراحات أولية للحل.",
+                    2: "يتعامل مع المشكلات البسيطة ويحتاج توجيه مباشر في المواقف غير المألوفة.",
+                    3: "يحلل المشاكل المعتادة بشكل مستقل ويقدم حلولاً عملية وسريعة.",
+                    4: "يحلل المشكلات المركبة بمهارة ويقترح خيارات حلول فعالة وناجحة.",
+                    5: "يتنبأ بالمخاطر، يحدد الأسباب الجذرية بسرعة، ويبتكر حلولاً مستدامة طويلة الأمد."
                 }
             },
             {
                 id: "k4",
                 title: "المبادرة والتطوير المستمر",
-                weight: 15,
                 levels: {
-                    1: "ينتظر التوجيهات بالكامل ولا يبادر أبداً بخطوات إضافية.",
-                    2: "نادراً ما يبادر، ويحتاج تحفيزاً خارجياً لتقديم أي تحسين.",
-                    3: "يبادر أحياناً بأفكار أو تحسينات بسيطة تدعم سير العمل.",
-                    4: "يبادر بانتظام بأفكار تحسّن الكفاءة أو الجودة في نطاق عمله.",
-                    5: "يبحث باستمرار عن فرص التطوير ويقود مبادرات إيجابية تتجاوز نطاق دوره."
+                    1: "يعتمد بالكامل على التعليمات المباشرة دون إبداء أي مبادرة إضافية.",
+                    2: "يبادر أحياناً عندما يطلب منه ذلك بشكل صريح.",
+                    3: "يبادر بانتظام بأفكار وتحسينات بسيطة تدعم جودة وكفاءة العمل.",
+                    4: "نشط ومبادر بطبيعة عمله، يقتني الفرص لتحسين جودة المخرجات وتطوير الأداء.",
+                    5: "قائد للمبادرات التطويرية المبتكرة التي تتجاوز نطاق مهامه اليومية."
                 }
             },
             {
                 id: "k5",
-                title: "الاستدامة والمسؤولية المجتمعية",
-                weight: 15,
+                title: "الاستدامة والمسؤولية المجتمعية والمؤسسية",
                 levels: {
-                    1: "لا يلتزم بممارسات الاستدامة ويحتاج متابعة مستمرة.",
-                    2: "التزام غير منتظم بسياسات الاستدامة.",
-                    3: "يلتزم بممارسات الاستدامة في معظم الأوقات.",
-                    4: "يلتزم بانتظام ويشارك في الأنشطة والمبادرات ذات الصلة.",
-                    5: "يطبق مبادئ الاستدامة باستمرار، ويقترح مبادرات، ويشجع الآخرين على تبنيها."
+                    1: "التزام ضعيف بمعايير الممارسات المستدامة ويحتاج تذكير دائم.",
+                    2: "التزام متوسط وغير منتظم بالسياسات والتوجيهات المؤسسية.",
+                    3: "يلتزم بالمعايير والسياسات المؤسسية بشكل جيد ومستمر.",
+                    4: "يلتزم بانتظام ويشارك بفعالية في مبادرات وأنشطة التوعية والممارسة المستدامة.",
+                    5: "نموذج يحتذى به في تطبيق ونشر ثقافة الاستدامة والمسؤولية بين زملائه."
                 }
             },
             {
                 id: "k6",
                 title: "القيادة وتحمل المسؤولية",
-                weight: 15,
                 levels: {
-                    1: "يتجنب تحمل مسؤولية مهامه ويحتاج متابعة.",
-                    2: "يحتاج متابعة منتظمة لضمان إنجاز المهام.",
-                    3: "يتحمل مسؤولية مهامه الأساسية ضمن نطاق عمله المحدد.",
-                    4: "يتحمل مسؤولية نتائج عمله بالكامل ويتعاون بفعالية مع الفريق.",
-                    5: "يتحمل مسؤولية استباقية، يدعم زملاءه، ويعتمد عليه في المهام الحرجة."
+                    1: "يتجنب تحمل المسؤولية المباشرة ويحتاج متابعة لتنفيذ الواجبات.",
+                    2: "يتحمل جزءاً من المسؤولية ويحتاج إلى متابعة دورية.",
+                    3: "يتحمل كامل مسؤولية مهامه الأساسية الموكلة إليه باقتدار.",
+                    4: "يتحمل مسؤولية النتائج بوضوح ويدعم زملائه بفعالية للوصول للأهداف.",
+                    5: "قيادي استباقي يعتمد عليه في أوقات الأزمات والمهام الحرجة بثقة مطلقة."
                 }
             }
         ];
 
-        let db = JSON.parse(localStorage.getItem('hr_kpi_system_db')) || {
+        let db = JSON.parse(localStorage.getItem('hr_system_v2_db')) || {
             admin: { username: "admin", password: "123" },
-            managers: [],
-            employees: [],
-            kras: DEFAULT_KRAS,
+            employees: [
+                { id: "E101", code: "EMP101", name: "أحمد محمود علي", title: "أخصائي موارد بشرية", department: "الموارد البشرية", section: "التدريب", isManager: false },
+                { id: "E102", code: "EMP102", name: "د. محمد متولي", title: "مدير موارد بشرية", department: "الموارد البشرية", section: "الإدارة العامة", isManager: true, managerDept: "الموارد البشرية", username: "m.metwally", password: "123" },
+                { id: "E103", code: "EMP103", name: "سارة إبراهيم حسن", title: "مهندسة برمجيات", department: "تكنولوجيا المعلومات", section: "التطوير", isManager: false },
+                { id: "E104", code: "EMP104", name: "م. شريف خالد", title: "مدير النظم", department: "تكنولوجيا المعلومات", section: "البنية التحتية", isManager: true, managerDept: "تكنولوجيا المعلومات", username: "s.khaled", password: "123" }
+            ],
             evaluations: {}
         };
 
         let currentUser = null;
+        let chartCompletionInstance = null;
+        let chartDeptsInstance = null;
 
         function saveDB() {
-            localStorage.setItem('hr_kpi_system_db', JSON.stringify(db));
+            localStorage.setItem('hr_system_v2_db', JSON.stringify(db));
         }
 
         function handleLogin(e) {
@@ -346,18 +495,18 @@
 
             if (uInput === db.admin.username && pInput === db.admin.password) {
                 currentUser = { role: 'admin', name: 'مسؤول النظام (Admin)', username: 'admin' };
-                showSystemView();
+                showView();
                 return;
             }
 
-            const mgr = db.managers.find(m => (m.username === uInput || m.email === uInput) && m.password === pInput);
-            if (mgr) {
-                currentUser = { role: 'manager', name: mgr.name, username: mgr.username, mgrData: mgr };
-                showSystemView();
+            const mgrEmp = db.employees.find(e => e.isManager && e.username === uInput && e.password === pInput);
+            if (mgrEmp) {
+                currentUser = { role: 'manager', name: mgrEmp.name, username: mgrEmp.username, empData: mgrEmp };
+                showView();
                 return;
             }
 
-            errDiv.innerText = "اسم المستخدم أو كلمة السر غير صحيحة. يرجى المحاولة مرة أخرى.";
+            errDiv.innerText = "اسم المستخدم أو كلمة السر غير صحيحة. يرجى التثبت والمحاولة مرة أخرى.";
             errDiv.classList.remove('hidden');
         }
 
@@ -370,72 +519,51 @@
             document.getElementById('loginForm').reset();
         }
 
-        function showSystemView() {
+        function showView() {
             document.getElementById('loginSection').classList.add('hidden');
             document.getElementById('userInfoHeader').classList.remove('hidden');
             document.getElementById('userNameBadge').innerText = currentUser.name;
-            document.getElementById('userRoleBadge').innerText = currentUser.role === 'admin' ? 'صلاحية أدمن' : 'صلاحية مدير مباشر';
+            document.getElementById('userRoleBadge').innerText = currentUser.role === 'admin' ? 'صلاحية مسؤول النظام' : `مدير تقييم إدارة (${currentUser.empData.managerDept})`;
 
             if (currentUser.role === 'admin') {
                 document.getElementById('adminPanel').classList.remove('hidden');
                 document.getElementById('managerPanel').classList.add('hidden');
-                switchAdminTab('import');
-                renderAdminTables();
-                renderKPIConfig();
+                switchAdminTab('dashboard');
             } else {
                 document.getElementById('adminPanel').classList.add('hidden');
                 document.getElementById('managerPanel').classList.remove('hidden');
-                renderManagerView();
+                renderManagerDashboard();
             }
         }
 
         function switchAdminTab(tabName) {
-            const tabs = ['import', 'orgView', 'kpiView', 'reportsView'];
-            tabs.forEach(t => {
+            ['dashboard', 'import', 'employees', 'reports'].forEach(t => {
                 document.getElementById('adminTab-' + t).classList.add('hidden');
-                const btn = document.getElementById('tabBtn-' + t);
-                if (btn) btn.classList.remove('active');
+                document.getElementById('tabBtn-' + t).classList.remove('active');
             });
 
             document.getElementById('adminTab-' + tabName).classList.remove('hidden');
             document.getElementById('tabBtn-' + tabName).classList.add('active');
 
-            if (tabName === 'orgView') renderAdminTables();
-            if (tabName === 'kpiView') renderKPIConfig();
-            if (tabName === 'reportsView') renderAdminReports();
+            if (tabName === 'dashboard') renderAdminDashboardCharts();
+            if (tabName === 'employees') renderAdminEmployeesTable();
+            if (tabName === 'reports') renderAdminReportsTable();
         }
 
-        function downloadSampleExcel() {
-            const sampleData = [
-                {
-                    "كود الموظف": "EMP101",
-                    "اسم الموظف": "أحمد محمود علي",
-                    "الوظيفة": "أخصائي موارد بشرية",
-                    "الإدارة": "الموارد البشرية",
-                    "القسم": "التطوير والتدريب",
-                    "اسم المدير المباشر": "د. محمد متولي",
-                    "اسم مستخدم المدير": "m.metwally",
-                    "كلمة سر المدير": "pass123"
-                },
-                {
-                    "كود الموظف": "EMP102",
-                    "اسم الموظف": "سارة إبراهيم حسن",
-                    "الوظيفة": "مطور نظم معلومات",
-                    "الإدارة": "تكنولوجيا المعلومات",
-                    "القسم": "البرمجيات",
-                    "اسم المدير المباشر": "مهندس/ شريف خالد",
-                    "اسم مستخدم المدير": "s.khaled",
-                    "كلمة سر المدير": "tech2026"
-                }
+        function downloadEmployeesTemplate() {
+            const templateData = [
+                { "كود الموظف": "EMP201", "اسم الموظف": "علي حسن عبد الله", "الوظيفة": "محاسب أول", "الإدارة": "الشؤون المالية", "القسم": "الخزينة" },
+                { "كود الموظف": "EMP202", "اسم الموظف": "منى أحمد سلامة", "الوظيفة": "أخصائي مشتريات", "الإدارة": "المشتريات واللوجستيات", "القسم": "المشتريات المحلية" },
+                { "كود الموظف": "EMP203", "اسم الموظف": "حسام الدين عمر", "الوظيفة": "مهندس جودة", "الإدارة": "إدارة الجودة", "القسم": "التفتيش" }
             ];
 
-            const ws = XLSX.utils.json_to_sheet(sampleData);
+            const ws = XLSX.utils.json_to_sheet(templateData);
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "الهيكل المرفوع");
-            XLSX.writeFile(wb, "نموذج_استيراد_الموظفين_والمدراء.xlsx");
+            XLSX.utils.book_append_sheet(wb, ws, "قائمة الموظفين");
+            XLSX.writeFile(wb, "شيت_الموظفين_الاسترشادي.xlsx");
         }
 
-        function handleExcelUpload(e) {
+        function handleEmployeesUpload(e) {
             const file = e.target.files[0];
             if (!file) return;
 
@@ -447,321 +575,335 @@
                     const firstSheet = workbook.SheetNames[0];
                     const rows = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
 
-                    if (rows.length === 0) {
-                        alert("الملف المرفوع فارغ!");
-                        return;
-                    }
+                    if (rows.length === 0) { alert("الشيت فارغ!"); return; }
 
-                    processImportedRows(rows);
+                    let addedCount = 0;
+                    rows.forEach((row, idx) => {
+                        const code = row["كود الموظف"] || row["Code"] || ("EMP-" + (idx + 100));
+                        const name = row["اسم الموظف"] || row["Name"];
+                        const title = row["الوظيفة"] || row["Title"] || "موظف";
+                        const dept = row["الإدارة"] || row["Department"] || "عام";
+                        const sec = row["القسم"] || row["Section"] || "عام";
+
+                        if (name) {
+                            let existing = db.employees.find(emp => emp.code === code || emp.name === name);
+                            if (!existing) {
+                                db.employees.push({
+                                    id: 'E_' + Date.now() + '_' + Math.floor(Math.random()*1000),
+                                    code: code,
+                                    name: name,
+                                    title: title,
+                                    department: dept,
+                                    section: sec,
+                                    isManager: false
+                                });
+                                addedCount++;
+                            } else {
+                                existing.title = title;
+                                existing.department = dept;
+                                existing.section = sec;
+                            }
+                        }
+                    });
+
+                    saveDB();
+
+                    const msg = document.getElementById('importSuccessMsg');
+                    msg.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i> تم رفع الشيت بنجاح! تم استيراد وتحديث <strong>${addedCount}</strong> موظف جديد.`;
+                    msg.classList.remove('hidden');
+
                 } catch (err) {
-                    alert("حدث خطأ أثناء قراءة شيت الإكسيل: " + err.message);
+                    alert("حدث خطأ أثناء قراءة ملف الإكسيل: " + err.message);
                 }
             };
             reader.readAsArrayBuffer(file);
         }
 
-        function processImportedRows(rows) {
-            let addedMgrs = 0;
-            let addedEmps = 0;
-
-            rows.forEach((row, idx) => {
-                const empCode = row["كود الموظف"] || row["Code"] || ("EMP-" + (idx + 1));
-                const empName = row["اسم الموظف"] || row["Employee Name"] || row["Name"];
-                const empTitle = row["الوظيفة"] || row["Title"] || row["Position"] || "موظف";
-                const dept = row["الإدارة"] || row["Department"] || "عام";
-                const sec = row["القسم"] || row["Section"] || "عام";
-                const mgrName = row["اسم المدير المباشر"] || row["Manager Name"] || "المدير المباشر";
-                const mgrUser = (row["اسم مستخدم المدير"] || row["Manager Username"] || mgrName.replace(/\s+/g, '.').toLowerCase()).toString().trim();
-                const mgrPass = (row["كلمة سر المدير"] || row["Manager Password"] || "123456").toString().trim();
-
-                if (!empName) return;
-
-                let mgrObj = db.managers.find(m => m.username === mgrUser);
-                if (!mgrObj) {
-                    mgrObj = { username: mgrUser, password: mgrPass, name: mgrName, department: dept, section: sec };
-                    db.managers.push(mgrObj);
-                    addedMgrs++;
-                } else {
-                    if (mgrPass) mgrObj.password = mgrPass;
-                    if (mgrName) mgrObj.name = mgrName;
-                }
-
-                let empObj = db.employees.find(e => e.code === empCode || e.name === empName);
-                if (!empObj) {
-                    empObj = {
-                        id: 'E_' + Date.now() + '_' + Math.floor(Math.random()*1000),
-                        code: empCode,
-                        name: empName,
-                        title: empTitle,
-                        department: dept,
-                        section: sec,
-                        managerUsername: mgrUser
-                    };
-                    db.employees.push(empObj);
-                    addedEmps++;
-                } else {
-                    empObj.title = empTitle;
-                    empObj.department = dept;
-                    empObj.section = sec;
-                    empObj.managerUsername = mgrUser;
-                }
-            });
-
-            saveDB();
-
-            const statusDiv = document.getElementById('importStatus');
-            statusDiv.className = "mt-6 p-4 rounded-xl border bg-emerald-50 border-emerald-300 text-emerald-800 text-xs";
-            statusDiv.innerHTML = `
-                <div class="flex items-center gap-2 font-bold text-sm mb-1">
-                    <i class="fa-solid fa-circle-check text-emerald-600 text-base"></i> تم رفع ومعالجة البيانات بنجاح!
-                </div>
-                <p>• تم إضافة / تحديث <strong>${addedMgrs}</strong> حساب مدير جديد.</p>
-                <p>• تم إضافة / تحديث <strong>${addedEmps}</strong> موظف وإسنادهم لمدراءهم المعنيين.</p>
-            `;
-            statusDiv.classList.remove('hidden');
-
-            renderAdminTables();
-        }
-
-        function renderAdminTables() {
-            const mgrTbody = document.getElementById('managersTableBody');
-            mgrTbody.innerHTML = db.managers.map(m => {
-                const subCount = db.employees.filter(e => e.managerUsername === m.username).length;
+        function renderAdminEmployeesTable() {
+            const tbody = document.getElementById('adminEmployeesTableBody');
+            tbody.innerHTML = db.employees.map(emp => {
                 return `
                     <tr class="hover:bg-slate-50 transition">
-                        <td class="p-3 font-bold text-slate-800">${m.name}</td>
-                        <td class="p-3 font-mono text-blue-700 bg-blue-50/50 rounded px-2 inline-block my-1">${m.username}</td>
-                        <td class="p-3 font-mono text-slate-600">${m.password}</td>
-                        <td class="p-3">${m.department} - ${m.section}</td>
-                        <td class="p-3"><span class="px-2 py-0.5 rounded-full text-xs bg-slate-100 font-bold">${subCount} موظفين</span></td>
-                    </tr>
-                `;
-            }).join('');
-
-            const empTbody = document.getElementById('employeesTableBody');
-            empTbody.innerHTML = db.employees.map(e => {
-                const mgr = db.managers.find(m => m.username === e.managerUsername);
-                const isEvaluated = !!db.evaluations[e.id];
-                return `
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="p-3 font-mono font-bold text-slate-600">${e.code}</td>
-                        <td class="p-3 font-bold text-slate-800">${e.name}</td>
-                        <td class="p-3 text-slate-600">${e.title}</td>
-                        <td class="p-3">${e.department}</td>
-                        <td class="p-3">${e.section}</td>
-                        <td class="p-3 font-semibold text-blue-800">${mgr ? mgr.name : e.managerUsername}</td>
+                        <td class="p-3 font-mono font-bold text-slate-600">${emp.code}</td>
+                        <td class="p-3 font-bold text-slate-800">${emp.name}</td>
+                        <td class="p-3 text-slate-600">${emp.title}</td>
+                        <td class="p-3 font-semibold text-blue-900">${emp.department}</td>
                         <td class="p-3">
-                            ${isEvaluated 
-                                ? '<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800"><i class="fa-solid fa-check text-xs"></i> تم التقييم</span>' 
-                                : '<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800">قيد الانتظار</span>'}
+                            ${emp.isManager 
+                                ? `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800"><i class="fa-solid fa-user-tie"></i> مدير تقييم</span>` 
+                                : `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">موظف</span>`}
+                        </td>
+                        <td class="p-3 font-bold text-purple-700">${emp.isManager ? emp.managerDept : '-'}</td>
+                        <td class="p-3 text-center">
+                            <button onclick="openPromoteModal('${emp.id}')" class="bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold px-3 py-1.5 rounded-lg border border-blue-300 transition text-[11px] flex items-center gap-1 mx-auto">
+                                <i class="fa-solid fa-user-gear"></i> ${emp.isManager ? 'تعديل التكليف / الحساب' : 'تحويل لمدير تقييم'}
+                            </button>
                         </td>
                     </tr>
                 `;
             }).join('');
         }
 
-        function renderKPIConfig() {
-            const container = document.getElementById('kraConfigList');
-            let totalWeight = 0;
+        function filterEmployeesTable() {
+            const q = document.getElementById('empSearchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('#adminEmployeesTableBody tr');
+            rows.forEach(r => {
+                const text = r.innerText.toLowerCase();
+                r.style.display = text.includes(q) ? '' : 'none';
+            });
+        }
 
-            container.innerHTML = db.kras.map((k, idx) => {
-                totalWeight += parseFloat(k.weight || 0);
+        function openPromoteModal(empId) {
+            const emp = db.employees.find(e => e.id === empId);
+            if (!emp) return;
+
+            document.getElementById('promoteEmpId').value = emp.id;
+            document.getElementById('promoteEmpName').value = emp.name;
+
+            const depts = [...new Set(db.employees.map(e => e.department))];
+            const deptSelect = document.getElementById('promoteAssignedDept');
+            deptSelect.innerHTML = depts.map(d => `<option value="${d}" ${emp.managerDept === d ? 'selected' : ''}>${d}</option>`).join('');
+
+            document.getElementById('promoteUsername').value = emp.username || (emp.name.split(' ')[0] + '.' + emp.code).toLowerCase();
+            document.getElementById('promotePassword').value = emp.password || '123456';
+
+            document.getElementById('promoteModal').classList.remove('hidden');
+        }
+
+        function closePromoteModal() {
+            document.getElementById('promoteModal').classList.add('hidden');
+        }
+
+        function saveManagerRole(e) {
+            e.preventDefault();
+            const empId = document.getElementById('promoteEmpId').value;
+            const emp = db.employees.find(e => e.id === empId);
+
+            if (emp) {
+                emp.isManager = true;
+                emp.managerDept = document.getElementById('promoteAssignedDept').value;
+                emp.username = document.getElementById('promoteUsername').value.trim();
+                emp.password = document.getElementById('promotePassword').value.trim();
+
+                saveDB();
+                closePromoteModal();
+                renderAdminEmployeesTable();
+                alert(`تم تعيين الموظف (${emp.name}) كمدير تقييم لإدارة (${emp.managerDept}) بنجاح.`);
+            }
+        }
+
+        function renderAdminDashboardCharts() {
+            const totalEmps = db.employees.length;
+            const depts = [...new Set(db.employees.map(e => e.department))];
+            const evalKeys = Object.keys(db.evaluations);
+            const evaluatedCount = evalKeys.length;
+            const pendingCount = totalEmps - evaluatedCount;
+
+            document.getElementById('statTotalEmployees').innerText = totalEmps;
+            document.getElementById('statTotalDepts').innerText = depts.length;
+            document.getElementById('statEvaluatedCount').innerText = evaluatedCount;
+            document.getElementById('statPendingCount').innerText = pendingCount > 0 ? pendingCount : 0;
+
+            const ctxCompletion = document.getElementById('chartCompletion').getContext('2d');
+            if (chartCompletionInstance) chartCompletionInstance.destroy();
+
+            chartCompletionInstance = new Chart(ctxCompletion, {
+                type: 'doughnut',
+                data: {
+                    labels: ['تم التقييم', 'في الانتظار'],
+                    datasets: [{
+                        data: [evaluatedCount, pendingCount > 0 ? pendingCount : 0],
+                        backgroundColor: ['#10b981', '#f59e0b']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            const ctxDepts = document.getElementById('chartDeptsProgress').getContext('2d');
+            if (chartDeptsInstance) chartDeptsInstance.destroy();
+
+            const deptsEvaluated = depts.map(d => {
+                const empsInDept = db.employees.filter(e => e.department === d);
+                return empsInDept.filter(e => db.evaluations[e.id]).length;
+            });
+
+            const deptsPending = depts.map(d => {
+                const empsInDept = db.employees.filter(e => e.department === d);
+                const evalInDept = empsInDept.filter(e => db.evaluations[e.id]).length;
+                return empsInDept.length - evalInDept;
+            });
+
+            chartDeptsInstance = new Chart(ctxDepts, {
+                type: 'bar',
+                data: {
+                    labels: depts,
+                    datasets: [
+                        { label: 'مكتمل', data: deptsEvaluated, backgroundColor: '#10b981' },
+                        { label: 'متبقي', data: deptsPending, backgroundColor: '#f59e0b' }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } }
+                }
+            });
+        }
+
+        function renderManagerDashboard() {
+            const mgr = currentUser.empData;
+            document.getElementById('mgrAssignedDeptBadge').innerText = `الإدارة المكلفة بالتقييم: ${mgr.managerDept}`;
+
+            const deptEmps = db.employees.filter(e => e.department === mgr.managerDept);
+            const evalCount = deptEmps.filter(e => db.evaluations[e.id]).length;
+            const pendingCount = deptEmps.length - evalCount;
+
+            document.getElementById('mgrCompletedCount').innerText = evalCount;
+            document.getElementById('mgrPendingCount').innerText = pendingCount;
+
+            const tbody = document.getElementById('mgrEmpTableBody');
+            tbody.innerHTML = deptEmps.map(emp => {
+                const isEvaluated = !!db.evaluations[emp.id];
                 return `
-                    <div class="p-4 border rounded-xl bg-slate-50/50 space-y-3">
-                        <div class="flex flex-col md:flex-row justify-between md:items-center gap-2">
-                            <span class="font-bold text-slate-800 text-sm">${idx + 1}. ${k.title}</span>
-                            <div class="flex items-center gap-2">
-                                <label class="text-xs font-bold text-slate-600">الوزن النسبي (%):</label>
-                                <input type="number" min="0" max="100" value="${k.weight}" onchange="updateKRAWeight('${k.id}', this.value)" class="w-20 p-1.5 border rounded-lg text-center font-bold text-blue-700 bg-white focus:ring-2 focus:ring-blue-500 outline-none text-xs">
-                            </div>
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="p-3 font-mono font-bold text-slate-600">${emp.code}</td>
+                        <td class="p-3 font-bold text-slate-800">${emp.name}</td>
+                        <td class="p-3 text-slate-600">${emp.title}</td>
+                        <td class="p-3 text-slate-600">${emp.section}</td>
+                        <td class="p-3 text-center">
+                            ${isEvaluated 
+                                ? `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800"><i class="fa-solid fa-check"></i> تم التقييم</span>` 
+                                : `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800"><i class="fa-solid fa-clock"></i> لم يكتمل</span>`}
+                        </td>
+                        <td class="p-3 text-center">
+                            <button onclick="openEvalModal('${emp.id}')" class="px-3 py-1.5 rounded-lg font-bold text-xs transition flex items-center gap-1 mx-auto ${isEvaluated ? 'bg-slate-100 text-slate-700 hover:bg-slate-200' : 'bg-blue-600 text-white hover:bg-blue-700 shadow-md'}">
+                                <i class="fa-solid ${isEvaluated ? 'fa-pen-to-square' : 'fa-clipboard-check'}"></i> ${isEvaluated ? 'تعديل التقييم' : 'بدء التقييم'}
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function openEvalModal(empId) {
+            const emp = db.employees.find(e => e.id === empId);
+            if (!emp) return;
+
+            document.getElementById('evalTargetEmpId').value = emp.id;
+            document.getElementById('evalModalEmpName').innerText = `تقييم الموظف: ${emp.name}`;
+            document.getElementById('evalModalEmpDetails').innerText = `${emp.title} | الكود: ${emp.code} | القسم: ${emp.section}`;
+
+            const existingEval = db.evaluations[emp.id] || { scores: {}, notes: "" };
+            document.getElementById('evalNotesInput').value = existingEval.notes || "";
+
+            const container = document.getElementById('evalCriteriaList');
+            container.innerHTML = KRAS.map((kra, idx) => {
+                const selectedVal = existingEval.scores[kra.id] || 0;
+                return `
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                        <div class="font-bold text-slate-800 text-xs border-b pb-1">
+                            ${idx + 1}. ${kra.title}
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-5 gap-2 pt-2 border-t text-[11px]">
+                        <div class="space-y-2">
                             ${[1,2,3,4,5].map(lvl => `
-                                <div class="bg-white p-2 rounded border border-slate-200">
-                                    <span class="block font-bold text-blue-800 mb-1">المستوى ${lvl}:</span>
-                                    <p class="text-slate-600 leading-tight">${k.levels[lvl]}</p>
-                                </div>
+                                <label class="flex items-start gap-2.5 p-2 rounded-lg border border-slate-200 bg-white hover:border-blue-400 hover:bg-blue-50/30 transition cursor-pointer text-xs">
+                                    <input type="radio" name="kra_${kra.id}" value="${lvl}" ${selectedVal == lvl ? 'checked' : ''} required class="mt-0.5 text-blue-600 focus:ring-blue-500">
+                                    <span class="text-slate-700 leading-relaxed">${kra.levels[lvl]}</span>
+                                </label>
                             `).join('')}
                         </div>
                     </div>
                 `;
             }).join('');
 
-            const badge = document.getElementById('totalWeightBadge');
-            badge.innerText = `المجموع الحالي: ${totalWeight}%`;
-            badge.className = totalWeight === 100 
-                ? "inline-block px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800"
-                : "inline-block px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800";
+            document.getElementById('evalModal').classList.remove('hidden');
         }
 
-        function updateKRAWeight(kraId, val) {
-            const kra = db.kras.find(k => k.id === kraId);
-            if (kra) {
-                kra.weight = parseFloat(val) || 0;
-                saveDB();
-                renderKPIConfig();
-            }
+        function closeEvalModal() {
+            document.getElementById('evalModal').classList.add('hidden');
         }
 
-        function renderManagerView() {
-            const myEmps = db.employees.filter(e => e.managerUsername === currentUser.username);
-            document.getElementById('mgrEmpCount').innerText = myEmps.length;
-
-            const container = document.getElementById('managerEmpContainer');
-            if (myEmps.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-12 bg-slate-50 rounded-2xl border border-dashed border-slate-300">
-                        <i class="fa-solid fa-users-slash text-4xl text-slate-300 mb-2"></i>
-                        <p class="font-bold text-slate-600">لا يوجد موظفين مسندين لك حالياً في الهيكل التنظيمي.</p>
-                        <p class="text-xs text-slate-400 mt-1">تواصل مع أدمن النظام لإدراج موظفيك عبر شيت الإكسيل.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            container.innerHTML = myEmps.map(emp => {
-                const evalData = db.evaluations[emp.id] || { scores: {}, notes: "" };
-                const finalResult = calculateEmployeeScore(emp.id);
-
-                return `
-                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 shadow-sm space-y-5">
-                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-4 rounded-xl border border-slate-200 gap-3">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 bg-blue-100 text-blue-700 font-bold rounded-xl flex items-center justify-center text-sm">
-                                    ${emp.name.charAt(0)}
-                                </div>
-                                <div>
-                                    <h4 class="font-bold text-slate-900 text-base leading-tight">${emp.name}</h4>
-                                    <p class="text-xs text-slate-500">${emp.title} | الكود: <span class="font-mono text-slate-700">${emp.code}</span> | الإدارة: ${emp.department}</p>
-                                </div>
-                            </div>
-                            <div id="scoreDisplay-${emp.id}" class="text-left bg-slate-50 px-4 py-2 rounded-xl border border-slate-200">
-                                ${finalResult.evaluated 
-                                    ? `<span class="block text-xs text-slate-500 font-bold">النتيجة الإجمالية</span>
-                                       <span class="text-lg font-extrabold text-blue-700">${finalResult.score}%</span>
-                                       <span class="inline-block mr-2 px-2 py-0.5 rounded text-[10px] font-bold ${finalResult.gradeColor}">${finalResult.grade}</span>`
-                                    : `<span class="text-xs font-bold text-amber-600">لم يتم حفظ التقييم بعد</span>`}
-                            </div>
-                        </div>
-
-                        <form onsubmit="saveManagerEval(event, '${emp.id}')" class="space-y-4">
-                            <div class="grid grid-cols-1 gap-4">
-                                ${db.kras.map(kra => {
-                                    const selectedScore = evalData.scores[kra.id] || 0;
-                                    return `
-                                        <div class="bg-white p-4 rounded-xl border border-slate-200 space-y-3">
-                                            <div class="flex justify-between items-center border-b pb-2">
-                                                <span class="font-bold text-sm text-slate-800">${kra.title}</span>
-                                                <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full">الوزن النسبي: ${kra.weight}%</span>
-                                            </div>
-
-                                            <div class="space-y-2 pt-1">
-                                                ${[1,2,3,4,5].map(lvl => `
-                                                    <label class="flex items-start gap-3 p-2.5 rounded-lg border border-slate-100 hover:border-blue-300 hover:bg-blue-50/40 transition cursor-pointer">
-                                                        <input type="radio" name="kra_${emp.id}_${kra.id}" value="${lvl}" ${selectedScore == lvl ? 'checked' : ''} required class="mt-1 text-blue-600 focus:ring-blue-500">
-                                                        <div class="text-xs leading-relaxed">
-                                                            <strong class="text-blue-900">المستوى ${lvl}:</strong> 
-                                                            <span class="text-slate-700">${kra.levels[lvl]}</span>
-                                                        </div>
-                                                    </label>
-                                                `).join('')}
-                                            </div>
-                                        </div>
-                                    `;
-                                }).join('')}
-                            </div>
-
-                            <div class="bg-white p-4 rounded-xl border border-slate-200 space-y-2">
-                                <label class="block text-xs font-bold text-slate-700">ملاحظات المدير المباشر وتوصيات التطوير المهني:</label>
-                                <textarea name="notes_${emp.id}" rows="2" placeholder="أدخل أي ملاحظات إيجابية أو نقاط تحتاج لتطوير لدى الموظف..." class="w-full p-2.5 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none">${evalData.notes || ''}</textarea>
-                            </div>
-
-                            <div class="flex justify-end">
-                                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2.5 rounded-xl shadow-md transition duration-200 text-xs flex items-center gap-2">
-                                    <i class="fa-solid fa-floppy-disk"></i> حفظ تقييم الموظف (${emp.name})
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function saveManagerEval(e, empId) {
+        function submitEmployeeEval(e) {
             e.preventDefault();
+            const empId = document.getElementById('evalTargetEmpId').value;
             const formData = new FormData(e.target);
             const scores = {};
 
-            db.kras.forEach(kra => {
-                const val = formData.get(`kra_${empId}_${kra.id}`);
+            KRAS.forEach(kra => {
+                const val = formData.get(`kra_${kra.id}`);
                 if (val) scores[kra.id] = parseInt(val);
             });
 
-            const notes = formData.get(`notes_${empId}`) || "";
+            const notes = document.getElementById('evalNotesInput').value;
 
             db.evaluations[empId] = {
                 scores: scores,
                 notes: notes,
-                evaluatedAt: new Date().toISOString()
+                evaluatedBy: currentUser.name,
+                evaluatedAt: new Date().toLocaleDateString('ar-EG')
             };
 
             saveDB();
-            alert("تم حفظ التقييم بنجاح!");
-            renderManagerView();
+            closeEvalModal();
+            renderManagerDashboard();
+            alert("تم حفظ ونشر التقييم بنجاح!");
         }
 
-        function calculateEmployeeScore(empId) {
-            const evalData = db.evaluations[empId];
-            if (!evalData || !evalData.scores) return { evaluated: false, score: 0, grade: "غير مقيم", gradeColor: "bg-slate-200 text-slate-700" };
-
-            let totalWeightedScore = 0;
-            let totalWeight = 0;
-
-            db.kras.forEach(kra => {
-                const score = evalData.scores[kra.id];
-                if (score) {
-                    const weight = parseFloat(kra.weight || 0);
-                    totalWeightedScore += (score / 5) * weight;
-                    totalWeight += weight;
-                }
-            });
-
-            const finalPercentage = totalWeight > 0 ? ((totalWeightedScore / totalWeight) * 100).toFixed(1) : 0;
-
-            let grade = "مقبول";
-            let gradeColor = "bg-amber-100 text-amber-800";
-
-            if (finalPercentage >= 90) { grade = "ممتاز مرتفع"; gradeColor = "bg-emerald-100 text-emerald-800"; }
-            else if (finalPercentage >= 80) { grade = "ممتاز"; gradeColor = "bg-emerald-50 text-emerald-700"; }
-            else if (finalPercentage >= 70) { grade = "جيد جداً"; gradeColor = "bg-blue-100 text-blue-800"; }
-            else if (finalPercentage >= 60) { grade = "جيد"; gradeColor = "bg-blue-50 text-blue-700"; }
-            else { grade = "ضعيف / يحتاج تحسين"; gradeColor = "bg-red-100 text-red-800"; }
-
-            return { evaluated: true, score: finalPercentage, grade: grade, gradeColor: gradeColor };
-        }
-
-        function renderAdminReports() {
+        function renderAdminReportsTable() {
             const tbody = document.getElementById('adminReportsTableBody');
-            tbody.innerHTML = db.employees.map(e => {
-                const mgr = db.managers.find(m => m.username === e.managerUsername);
-                const evalResult = calculateEmployeeScore(e.id);
-                const evalData = db.evaluations[e.id] || {};
+            tbody.innerHTML = db.employees.map(emp => {
+                const evalData = db.evaluations[emp.id];
+                const isEval = !!evalData;
 
                 return `
                     <tr class="hover:bg-slate-50 transition">
-                        <td class="p-3 font-bold text-slate-800">${e.name}<span class="block text-[10px] text-slate-400">${e.title}</span></td>
-                        <td class="p-3">${e.department} - ${e.section}</td>
-                        <td class="p-3">${mgr ? mgr.name : e.managerUsername}</td>
-                        <td class="p-3 text-center font-bold text-blue-700 text-sm">${evalResult.evaluated ? evalResult.score + '%' : '-'}</td>
+                        <td class="p-3 font-mono font-bold text-slate-600">${emp.code}</td>
+                        <td class="p-3 font-bold text-slate-800">${emp.name}</td>
+                        <td class="p-3">${emp.department}</td>
+                        <td class="p-3 font-semibold text-blue-800">${isEval ? evalData.evaluatedBy : '-'}</td>
                         <td class="p-3 text-center">
-                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${evalResult.gradeColor}">
-                                ${evalResult.grade}
-                            </span>
+                            ${isEval 
+                                ? `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800"><i class="fa-solid fa-check"></i> تم التقييم</span>` 
+                                : `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">قيد الانتظار</span>`}
                         </td>
-                        <td class="p-3 text-slate-500 max-w-xs truncate">${evalData.notes || '-'}</td>
+                        <td class="p-3 font-mono text-slate-500">${isEval ? evalData.evaluatedAt : '-'}</td>
+                        <td class="p-3 text-slate-600 max-w-xs truncate">${isEval ? (evalData.notes || 'لا يوجد') : '-'}</td>
                     </tr>
                 `;
             }).join('');
+        }
+
+        function exportEvaluationsToExcel() {
+            const exportRows = db.employees.map(emp => {
+                const evalData = db.evaluations[emp.id];
+                const row = {
+                    "كود الموظف": emp.code,
+                    "اسم الموظف": emp.name,
+                    "الوظيفة": emp.title,
+                    "الإدارة": emp.department,
+                    "القسم": emp.section,
+                    "حالة التقييم": evalData ? "تم التقييم" : "قيد الانتظار",
+                    "تاريخ التقييم": evalData ? evalData.evaluatedAt : "-",
+                    "المقيم": evalData ? evalData.evaluatedBy : "-"
+                };
+
+                KRAS.forEach(kra => {
+                    if (evalData && evalData.scores[kra.id]) {
+                        const lvl = evalData.scores[kra.id];
+                        row[kra.title] = kra.levels[lvl];
+                    } else {
+                        row[kra.title] = "غير مقيم";
+                    }
+                });
+
+                row["ملاحظات وتوصيات المدير"] = evalData ? (evalData.notes || "") : "";
+                return row;
+            });
+
+            const ws = XLSX.utils.json_to_sheet(exportRows);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "تقرير التقييمات");
+            XLSX.writeFile(wb, `تقرير_تقييمات_الأداء_${new Date().toISOString().slice(0,10)}.xlsx`);
         }
     </script>
 </body>
