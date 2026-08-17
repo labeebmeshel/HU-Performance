@@ -1,17 +1,23 @@
-<!DOCTYPE html>
+# Creating updated index.html code including Firebase integration and multi-attribute filters across all tabs
+firebase_html_code = """<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منظومة إدارة وتقييم الأداء المؤسسي</title>
+    <title>منظومة إدارة وتقييم الأداء المؤسسي - Firebase</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- SheetJS (xlsx) for handling Excel operations -->
+    <!-- SheetJS (xlsx) -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <!-- Chart.js for Admin Analytics -->
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- FontAwesome Icons -->
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Firebase SDK (v9/v10 Compatibility mode for seamless single-file script usage) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap');
         body { font-family: 'Cairo', sans-serif; }
@@ -27,11 +33,11 @@
         <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center space-x-3 space-x-reverse">
                 <div class="bg-blue-600 p-2.5 rounded-xl text-white shadow-lg shadow-blue-500/30">
-                    <i class="fa-solid fa-chart-pie text-xl"></i>
+                    <i class="fa-solid fa-fire text-xl"></i>
                 </div>
                 <div>
-                    <h1 class="font-bold text-lg leading-tight">منظومة إدارة وتقييم الأداء المؤسسي</h1>
-                    <p class="text-xs text-slate-400">إدارة التقييمات وتحليلات المستويات وتوزيع الأداء</p>
+                    <h1 class="font-bold text-lg leading-tight">منظومة إدارة وتقييم الأداء (مربوط بقاعدة Firebase)</h1>
+                    <p class="text-xs text-slate-400">تحديث لحظي وسحابي + فلاتر شاملة لكل البيانات</p>
                 </div>
             </div>
             <div id="userInfoHeader" class="hidden flex items-center space-x-4 space-x-reverse">
@@ -56,7 +62,7 @@
                     <i class="fa-solid fa-user-shield text-3xl text-blue-400"></i>
                 </div>
                 <h2 class="text-2xl font-bold">تسجيل الدخول</h2>
-                <p class="text-xs text-slate-300 mt-1">أدخل اسم المستخدم وكلمة السر للوصول للحساب</p>
+                <p class="text-xs text-slate-300 mt-1">أدخل اسم المستخدم وكلمة السر للوصول للحساب السحابي</p>
             </div>
             
             <form id="loginForm" onsubmit="handleLogin(event)" class="p-8 space-y-5">
@@ -95,15 +101,37 @@
                     <i class="fa-solid fa-file-excel text-emerald-600"></i> استيراد شيت الموظفين
                 </button>
                 <button onclick="switchAdminTab('employees')" id="tabBtn-employees" class="tab-btn px-6 py-3.5 text-sm font-semibold text-slate-600 hover:text-blue-600 transition flex items-center gap-2">
-                    <i class="fa-solid fa-users-gear text-purple-600"></i> إدارة الحسابات والموظفين (تعديل وحذف)
+                    <i class="fa-solid fa-users-gear text-purple-600"></i> إدارة الموظفين والحسابات
                 </button>
                 <button onclick="switchAdminTab('reports')" id="tabBtn-reports" class="tab-btn px-6 py-3.5 text-sm font-semibold text-slate-600 hover:text-blue-600 transition flex items-center gap-2">
-                    <i class="fa-solid fa-clipboard-check text-amber-600"></i> التقييمات والدرجات الإجمالية (Total)
+                    <i class="fa-solid fa-clipboard-check text-amber-600"></i> التقييمات السحابية والـ Total
+                </button>
+                <button onclick="switchAdminTab('firebase')" id="tabBtn-firebase" class="tab-btn px-6 py-3.5 text-sm font-semibold text-slate-600 hover:text-blue-600 transition flex items-center gap-2">
+                    <i class="fa-solid fa-fire text-orange-600"></i> إعدادات Firebase
                 </button>
             </div>
 
             <!-- ADMIN TAB 1: ANALYTICS DASHBOARD & LEVEL PERCENTAGES -->
             <div id="adminTab-dashboard" class="space-y-6">
+                <!-- Dashboard Filters Bar -->
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap gap-3 items-center text-xs">
+                    <span class="font-bold text-slate-700 flex items-center gap-1"><i class="fa-solid fa-filter text-blue-600"></i> تصفية التحليلات:</span>
+                    
+                    <select id="dashFilterDept" onchange="renderAdminDashboardCharts()" class="p-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">جميع الإدارات</option>
+                    </select>
+
+                    <select id="dashFilterSection" onchange="renderAdminDashboardCharts()" class="p-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">جميع الأقسام</option>
+                    </select>
+
+                    <select id="dashFilterManager" onchange="renderAdminDashboardCharts()" class="p-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">جميع المدراء المقيمين</option>
+                    </select>
+
+                    <button onclick="resetDashFilters()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-2 rounded-lg font-bold">إعادة ضبط</button>
+                </div>
+
                 <!-- Top Summary Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
@@ -152,7 +180,7 @@
                     <div class="flex justify-between items-center border-b pb-3">
                         <div>
                             <h3 class="font-bold text-slate-800 text-base">توزيع نسب ومستويات التقييم (Level Breakdown)</h3>
-                            <p class="text-xs text-slate-500 mt-0.5">نسب الموظفين لكل مستوى تقييمي بناءً على متوسط الدرجة الإجمالية لكل عنصر</p>
+                            <p class="text-xs text-slate-500 mt-0.5">نسب الموظفين لكل مستوى تقييمي بناءً على الفلاتر المحددة</p>
                         </div>
                         <button onclick="exportLevelPercentagesToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition flex items-center gap-2 shadow-sm">
                             <i class="fa-solid fa-file-excel"></i> تنزيل نسب المستويات Excel
@@ -166,7 +194,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
                         <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2 border-b pb-2">
-                            <i class="fa-solid fa-chart-pie text-blue-600"></i> توزيع مستويات التقييم الخمسه (Levels 1 - 5)
+                            <i class="fa-solid fa-chart-pie text-blue-600"></i> توزيع مستويات التقييم (Levels 1 - 5)
                         </h4>
                         <div class="relative max-h-64 flex justify-center">
                             <canvas id="chartLevels"></canvas>
@@ -189,8 +217,8 @@
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-3">
                         <div>
-                            <h3 class="font-bold text-slate-800 text-base">استيراد الموظفين والمدراء بكود المدير المباشر</h3>
-                            <p class="text-xs text-slate-500 mt-1">يحتوي الشيت على عمود "كود المدير المباشر" لربط الموظف بمديره المباشر بدقة كاملة.</p>
+                            <h3 class="font-bold text-slate-800 text-base">استيراد الموظفين والمدراء بكود المدير المباشر لـ Firebase</h3>
+                            <p class="text-xs text-slate-500 mt-1">يتم رفع شيت الإكسيل ومزامنة كافة البيانات آلياً مع السحابة مباشرة.</p>
                         </div>
                         <button onclick="downloadEmployeesTemplate()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 text-xs font-bold px-4 py-2.5 rounded-xl transition flex items-center gap-2">
                             <i class="fa-solid fa-file-excel text-emerald-600"></i> تحميل الشيت الاسترشادي (.xlsx)
@@ -210,17 +238,33 @@
                 </div>
             </div>
 
-            <!-- ADMIN TAB 3: MANAGE EMPLOYEES & DELETE -->
+            <!-- ADMIN TAB 3: MANAGE EMPLOYEES & FILTERS -->
             <div id="adminTab-employees" class="hidden space-y-6">
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-4 gap-3">
                         <div>
-                            <h3 class="font-bold text-slate-800 text-base">إدارة حسابات الموظفين والمدراء وحذفهم</h3>
-                            <p class="text-xs text-slate-500 mt-1">عرض البيانات، تعديل المدير المباشر، وحذف الموظف أو المدير من النظام نهائياً.</p>
+                            <h3 class="font-bold text-slate-800 text-base">إدارة وتعديل وحذف حسابات الموظفين والمدراء</h3>
+                            <p class="text-xs text-slate-500 mt-1">تعديل بيانات الحساب، تفعيل/إلغاء صلاحية التقييم للمدراء، وحذف الحسابات نهائياً من السحابة.</p>
                         </div>
-                        <div class="w-full md:w-64">
-                            <input type="text" id="empSearchInput" onkeyup="filterEmployeesTable()" placeholder="بحث باسم الموظف أو الكود..." class="w-full p-2 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500">
-                        </div>
+                    </div>
+
+                    <!-- Multi-field Filter Bar for Employees -->
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 grid grid-cols-1 md:grid-cols-5 gap-2 text-xs">
+                        <input type="text" id="empFilterSearch" onkeyup="filterEmployeesTable()" placeholder="بحث بالاسم أو الكود..." class="p-2 border border-slate-300 rounded-lg outline-none">
+                        <select id="empFilterDept" onchange="filterEmployeesTable()" class="p-2 border border-slate-300 rounded-lg outline-none">
+                            <option value="">كل الإدارات</option>
+                        </select>
+                        <select id="empFilterSection" onchange="filterEmployeesTable()" class="p-2 border border-slate-300 rounded-lg outline-none">
+                            <option value="">كل الأقسام</option>
+                        </select>
+                        <select id="empFilterRole" onchange="filterEmployeesTable()" class="p-2 border border-slate-300 rounded-lg outline-none">
+                            <option value="">كل الصفات (مدير / موظف)</option>
+                            <option value="mgr">مدير تقييم فقط</option>
+                            <option value="emp">موظف فقط</option>
+                        </select>
+                        <select id="empFilterDirectMgr" onchange="filterEmployeesTable()" class="p-2 border border-slate-300 rounded-lg outline-none">
+                            <option value="">كل المدراء المباشرين</option>
+                        </select>
                     </div>
 
                     <div class="overflow-x-auto">
@@ -231,6 +275,7 @@
                                     <th class="p-3">اسم الموظف</th>
                                     <th class="p-3">الوظيفة</th>
                                     <th class="p-3">الإدارة</th>
+                                    <th class="p-3">القسم</th>
                                     <th class="p-3">الصفة</th>
                                     <th class="p-3">المدير المباشر</th>
                                     <th class="p-3">اسم المستخدم</th>
@@ -244,17 +289,41 @@
                 </div>
             </div>
 
-            <!-- ADMIN TAB 4: EVALUATIONS, SCORES & TOTAL -->
+            <!-- ADMIN TAB 4: EVALUATIONS & TOTAL REPORTS WITH FILTERS -->
             <div id="adminTab-reports" class="hidden space-y-6">
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-4 gap-3">
                         <div>
-                            <h3 class="font-bold text-slate-800 text-base">سجل التقييمات وحساب المجموع الكلي (Total) والنسبة المئوية</h3>
-                            <p class="text-xs text-slate-500 mt-0.5">يتضمن المجموع الكلي والنسبة المئوية لكل موظف بناءً على أداء كافة العناصر.</p>
+                            <h3 class="font-bold text-slate-800 text-base">سجل التقييمات السحابي المباشر والـ Total</h3>
+                            <p class="text-xs text-slate-500 mt-0.5">يعرض نتائج التقييم المحفوظة في قاعدة بيانات Firebase مباشرةً مع فلترة تفصيلية.</p>
                         </div>
                         <button onclick="exportEvaluationsToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition flex items-center gap-2 shadow-lg shadow-emerald-600/20">
-                            <i class="fa-solid fa-file-excel text-base"></i> تنزيل تقرير التقييمات بالـ Total Excel
+                            <i class="fa-solid fa-file-excel text-base"></i> تنزيل تقرير التقييمات Excel
                         </button>
+                    </div>
+
+                    <!-- Multi-field Filter Bar for Reports -->
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 grid grid-cols-1 md:grid-cols-5 gap-2 text-xs">
+                        <input type="text" id="rptFilterSearch" onkeyup="filterReportsTable()" placeholder="بحث باسم الموظف أو الكود..." class="p-2 border border-slate-300 rounded-lg outline-none">
+                        <select id="rptFilterDept" onchange="filterReportsTable()" class="p-2 border border-slate-300 rounded-lg outline-none">
+                            <option value="">كل الإدارات</option>
+                        </select>
+                        <select id="rptFilterStatus" onchange="filterReportsTable()" class="p-2 border border-slate-300 rounded-lg outline-none">
+                            <option value="">كل حالات التقييم</option>
+                            <option value="done">تم التقييم</option>
+                            <option value="pending">قيد الانتظار</option>
+                        </select>
+                        <select id="rptFilterLevel" onchange="filterReportsTable()" class="p-2 border border-slate-300 rounded-lg outline-none">
+                            <option value="">كل المستويات (1-5)</option>
+                            <option value="1">مستوى 1</option>
+                            <option value="2">مستوى 2</option>
+                            <option value="3">مستوى 3</option>
+                            <option value="4">مستوى 4</option>
+                            <option value="5">مستوى 5</option>
+                        </select>
+                        <select id="rptFilterEvaluator" onchange="filterReportsTable()" class="p-2 border border-slate-300 rounded-lg outline-none">
+                            <option value="">كل المدراء المقيمين</option>
+                        </select>
                     </div>
 
                     <div class="overflow-x-auto">
@@ -277,6 +346,44 @@
                     </div>
                 </div>
             </div>
+
+            <!-- ADMIN TAB 5: FIREBASE CONFIGURATION -->
+            <div id="adminTab-firebase" class="hidden space-y-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 max-w-2xl mx-auto space-y-4">
+                    <div class="border-b pb-3">
+                        <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                            <i class="fa-solid fa-fire text-orange-500"></i> إعدادات الربط المباشر بقاعدة بيانات Firebase Realtime Database
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-1">ضع هنا مفاتيح مشروع Firebase الخاص بك ليتم ربط الحسابات والتقييمات سحابياً بالكامل.</p>
+                    </div>
+
+                    <form onsubmit="saveFirebaseSettings(event)" class="space-y-4 text-xs">
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">API Key:</label>
+                            <input type="text" id="fbApiKey" required placeholder="AIzaSy..." class="w-full p-2.5 border border-slate-300 rounded-lg outline-none font-mono">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">Auth Domain:</label>
+                            <input type="text" id="fbAuthDomain" required placeholder="your-app.firebaseapp.com" class="w-full p-2.5 border border-slate-300 rounded-lg outline-none font-mono">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">Database URL:</label>
+                            <input type="text" id="fbDatabaseURL" required placeholder="https://your-app-default-rtdb.firebaseio.com" class="w-full p-2.5 border border-slate-300 rounded-lg outline-none font-mono">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">Project ID:</label>
+                            <input type="text" id="fbProjectId" required placeholder="your-app-id" class="w-full p-2.5 border border-slate-300 rounded-lg outline-none font-mono">
+                        </div>
+
+                        <div class="pt-2 flex justify-between items-center border-t">
+                            <span id="firebaseConnStatus" class="font-bold text-amber-600 text-xs">جاري استخدام الحفظ المحلي المؤقت...</span>
+                            <button type="submit" class="bg-orange-600 hover:bg-orange-700 text-white font-bold px-6 py-2.5 rounded-lg transition shadow-md">
+                                حفظ واتصال بـ Firebase
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
 
         <!-- MANAGER PANEL VIEW -->
@@ -295,6 +402,19 @@
                             لم يتم تقييمهم: <strong id="mgrPendingCount">0</strong>
                         </span>
                     </div>
+                </div>
+
+                <!-- Manager Filter Bar -->
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 grid grid-cols-1 md:grid-cols-4 gap-2 text-xs mb-4">
+                    <input type="text" id="mgrFilterSearch" onkeyup="filterManagerEmpTable()" placeholder="بحث باسم الموظف أو الكود..." class="p-2 border border-slate-300 rounded-lg outline-none">
+                    <select id="mgrFilterSection" onchange="filterManagerEmpTable()" class="p-2 border border-slate-300 rounded-lg outline-none">
+                        <option value="">كل الأقسام</option>
+                    </select>
+                    <select id="mgrFilterStatus" onchange="filterManagerEmpTable()" class="p-2 border border-slate-300 rounded-lg outline-none">
+                        <option value="">كل حالات التقييم</option>
+                        <option value="done">تم التقييم</option>
+                        <option value="pending">لم يكتمل</option>
+                    </select>
                 </div>
 
                 <div class="space-y-4">
@@ -319,7 +439,7 @@
             </div>
         </div>
 
-        <!-- EVALUATION MODAL (USED BY BOTH ADMIN & MANAGER) -->
+        <!-- EVALUATION MODAL -->
         <div id="evalModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
             <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full my-8 overflow-hidden border border-slate-200 flex flex-col max-h-[90vh]">
                 <div class="bg-slate-900 text-white p-4 flex justify-between items-center">
@@ -336,7 +456,7 @@
 
                         <div class="space-y-4">
                             <p class="text-xs text-slate-500 bg-amber-50 p-2.5 rounded-lg border border-amber-200 font-semibold text-amber-800">
-                                <i class="fa-solid fa-circle-info"></i> اختر الوصف السلوكي الأدق لكل عنصر بناءً على ملاحظة الأداء.
+                                <i class="fa-solid fa-circle-info"></i> اختر الوصف السلوكي الأدق لكل عنصر وسيتم الحفظ سحابياً في Firebase فوراً.
                             </p>
 
                             <div id="evalCriteriaList" class="space-y-4"></div>
@@ -349,14 +469,14 @@
 
                         <div class="flex justify-end gap-2 pt-4 border-t sticky bottom-0 bg-white">
                             <button type="button" onclick="closeEvalModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg text-xs font-bold hover:bg-slate-300">إلغاء</button>
-                            <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 shadow-md">حفظ ونشر التقييم</button>
+                            <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 shadow-md">حفظ ونشر التقييم للسحابة</button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
 
-        <!-- MODAL: EDIT MANAGER CREDENTIALS & DIRECT MANAGER (ADMIN) -->
+        <!-- EDIT PROMOTIONS & DIRECT MANAGER MODAL -->
         <div id="promoteModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-200 space-y-4">
                 <div class="flex justify-between items-center border-b pb-2">
@@ -385,7 +505,7 @@
                     </div>
 
                     <div>
-                        <label class="block font-bold text-slate-700 mb-1">اسم المستخدم (Username) للمدير:</label>
+                        <label class="block font-bold text-slate-700 mb-1">اسم المستخدم (Username):</label>
                         <input type="text" id="promoteUsername" placeholder="مثال: m.ahmed" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
                     </div>
 
@@ -407,7 +527,7 @@
     <!-- Footer -->
     <footer class="bg-white border-t border-slate-200 py-3 mt-auto">
         <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500">
-            نظام إدارة وتقييم الأداء المؤسسي &copy; 2026 - جميع الحقوق محفوظة
+            نظام إدارة وتقييم الأداء المؤسسي &copy; 2026 - الربط المباشر بـ Firebase Realtime Database
         </div>
     </footer>
 
@@ -482,9 +602,12 @@
             }
         ];
 
-        const MAX_POSSIBLE_SCORE = KRAS.length * 5; // 6 * 5 = 30 درجة
+        const MAX_POSSIBLE_SCORE = KRAS.length * 5; // 30
 
-        let db = JSON.parse(localStorage.getItem('hr_system_v6_db')) || {
+        let firebaseApp = null;
+        let firebaseDB = null;
+
+        let db = {
             admin: { username: "admin", password: "123" },
             employees: [
                 { id: "E101", code: "EMP101", name: "أحمد محمود علي", title: "أخصائي موارد بشرية", department: "الموارد البشرية", section: "التدريب", isManager: false, directManagerCode: "EMP102" },
@@ -499,8 +622,69 @@
         let chartLevelsInstance = null;
         let chartDeptsInstance = null;
 
+        // Init Firebase if config exists
+        function initFirebase() {
+            const savedCfg = JSON.parse(localStorage.getItem('hr_firebase_config'));
+            if (savedCfg) {
+                try {
+                    if (!firebase.apps.length) {
+                        firebaseApp = firebase.initializeApp(savedCfg);
+                    } else {
+                        firebaseApp = firebase.app();
+                    }
+                    firebaseDB = firebase.database();
+
+                    document.getElementById('firebaseConnStatus').innerText = "متصل مباشرة بسحابة Firebase ✓";
+                    document.getElementById('firebaseConnStatus').className = "font-bold text-emerald-600 text-xs";
+
+                    // Sync database from cloud realtime
+                    firebaseDB.ref('hr_system').on('value', (snapshot) => {
+                        const cloudData = snapshot.val();
+                        if (cloudData) {
+                            db = cloudData;
+                            if (!db.evaluations) db.evaluations = {};
+                            if (!db.employees) db.employees = [];
+                            refreshActiveViews();
+                        }
+                    });
+
+                    // Populate form fields
+                    document.getElementById('fbApiKey').value = savedCfg.apiKey || '';
+                    document.getElementById('fbAuthDomain').value = savedCfg.authDomain || '';
+                    document.getElementById('fbDatabaseURL').value = savedCfg.databaseURL || '';
+                    document.getElementById('fbProjectId').value = savedCfg.projectId || '';
+
+                } catch (err) {
+                    console.error("Firebase init error:", err);
+                    document.getElementById('firebaseConnStatus').innerText = "خطأ في الاتصال بـ Firebase!";
+                    document.getElementById('firebaseConnStatus').className = "font-bold text-red-600 text-xs";
+                }
+            } else {
+                const localData = localStorage.getItem('hr_system_v7_db');
+                if (localData) db = JSON.parse(localData);
+            }
+        }
+
         function saveDB() {
-            localStorage.setItem('hr_system_v6_db', JSON.stringify(db));
+            if (firebaseDB) {
+                firebaseDB.ref('hr_system').set(db);
+            } else {
+                localStorage.setItem('hr_system_v7_db', JSON.stringify(db));
+            }
+        }
+
+        function saveFirebaseSettings(e) {
+            e.preventDefault();
+            const cfg = {
+                apiKey: document.getElementById('fbApiKey').value.trim(),
+                authDomain: document.getElementById('fbAuthDomain').value.trim(),
+                databaseURL: document.getElementById('fbDatabaseURL').value.trim(),
+                projectId: document.getElementById('fbProjectId').value.trim()
+            };
+
+            localStorage.setItem('hr_firebase_config', JSON.stringify(cfg));
+            alert("تم حفظ إعدادات Firebase! سيتم إعادة تحميل الصفحة للتوصيل.");
+            location.reload();
         }
 
         function calculateEmpScore(empId) {
@@ -525,6 +709,42 @@
             };
         }
 
+        function populateFilterDropdowns() {
+            const depts = [...new Set(db.employees.map(e => e.department).filter(Boolean))];
+            const secs = [...new Set(db.employees.map(e => e.section).filter(Boolean))];
+            const mgrs = db.employees.filter(e => e.isManager);
+
+            // Dashboard filters
+            fillSelect('dashFilterDept', depts, 'جميع الإدارات');
+            fillSelect('dashFilterSection', secs, 'جميع الأقسام');
+            fillSelect('dashFilterManager', mgrs.map(m => m.name), 'جميع المدراء المقيمين');
+
+            // Employee tab filters
+            fillSelect('empFilterDept', depts, 'كل الإدارات');
+            fillSelect('empFilterSection', secs, 'كل الأقسام');
+            fillSelect('empFilterDirectMgr', mgrs.map(m => `${m.name} (${m.code})`), 'كل المدراء المباشرين');
+
+            // Reports tab filters
+            fillSelect('rptFilterDept', depts, 'كل الإدارات');
+            fillSelect('rptFilterEvaluator', mgrs.map(m => m.name), 'كل المدراء المقيمين');
+
+            // Manager tab filters
+            if (currentUser && currentUser.empData) {
+                const myEmps = db.employees.filter(e => e.directManagerCode === currentUser.empData.code);
+                const mySecs = [...new Set(myEmps.map(e => e.section).filter(Boolean))];
+                fillSelect('mgrFilterSection', mySecs, 'كل الأقسام');
+            }
+        }
+
+        function fillSelect(elemId, items, defaultText) {
+            const el = document.getElementById(elemId);
+            if (!el) return;
+            const currentVal = el.value;
+            el.innerHTML = `<option value="">${defaultText}</option>` + 
+                items.map(i => `<option value="${i}">${i}</option>`).join('');
+            el.value = currentVal;
+        }
+
         function handleLogin(e) {
             e.preventDefault();
             const uInput = document.getElementById('usernameInput').value.trim();
@@ -546,7 +766,7 @@
                 return;
             }
 
-            errDiv.innerText = "اسم المستخدم أو كلمة السر غير صحيحة. يرجى التثبت والمحاولة مرة أخرى.";
+            errDiv.innerText = "اسم المستخدم أو كلمة السر غير صحيحة.";
             errDiv.classList.remove('hidden');
         }
 
@@ -568,6 +788,8 @@
                 ? 'صلاحية مسؤول النظام' 
                 : `مدير تقييم (الكود: ${currentUser.empData.code})`;
 
+            populateFilterDropdowns();
+
             if (currentUser.role === 'admin') {
                 document.getElementById('adminPanel').classList.remove('hidden');
                 document.getElementById('managerPanel').classList.add('hidden');
@@ -579,8 +801,21 @@
             }
         }
 
+        function refreshActiveViews() {
+            populateFilterDropdowns();
+            if (currentUser) {
+                if (currentUser.role === 'admin') {
+                    renderAdminDashboardCharts();
+                    renderAdminEmployeesTable();
+                    renderAdminReportsTable();
+                } else {
+                    renderManagerDashboard();
+                }
+            }
+        }
+
         function switchAdminTab(tabName) {
-            ['dashboard', 'import', 'employees', 'reports'].forEach(t => {
+            ['dashboard', 'import', 'employees', 'reports', 'firebase'].forEach(t => {
                 document.getElementById('adminTab-' + t).classList.add('hidden');
                 document.getElementById('tabBtn-' + t).classList.remove('active');
             });
@@ -597,20 +832,17 @@
             const emp = db.employees.find(e => e.id === empId);
             if (!emp) return;
 
-            if (confirm(`هل أنت تأكد من إرادتك لحذف الموظف/المدير (${emp.name})؟ سيتم مسح بياناته وتقييماته تماماً.`)) {
+            if (confirm(`هل أنت متأكد من حذف (${emp.name})؟ سيتم الحذف من Firebase تماماً.`)) {
                 db.employees = db.employees.filter(e => e.id !== empId);
                 delete db.evaluations[empId];
 
-                // تنظيف أي موظفين مرؤوسين لهذا المدير
                 db.employees.forEach(e => {
-                    if (e.directManagerCode === emp.code) {
-                        e.directManagerCode = "";
-                    }
+                    if (e.directManagerCode === emp.code) e.directManagerCode = "";
                 });
 
                 saveDB();
-                renderAdminEmployeesTable();
-                alert("تم حذف الموظف بنجاح.");
+                refreshActiveViews();
+                alert("تم الحذف بنجاح!");
             }
         }
 
@@ -684,9 +916,10 @@
                     });
 
                     saveDB();
+                    refreshActiveViews();
 
                     const msg = document.getElementById('importSuccessMsg');
-                    msg.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i> تم رفع الشيت بنجاح! تم استيراد وتحديث <strong>${addedCount}</strong> موظف ومدير.`;
+                    msg.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i> تم التحديث والمزامنة مع السحابة! تم استيراد وتحديث <strong>${addedCount}</strong> موظف ومدير.`;
                     msg.classList.remove('hidden');
 
                 } catch (err) {
@@ -697,8 +930,31 @@
         }
 
         function renderAdminEmployeesTable() {
+            filterEmployeesTable();
+        }
+
+        function filterEmployeesTable() {
+            const q = (document.getElementById('empFilterSearch').value || '').toLowerCase();
+            const dept = document.getElementById('empFilterDept').value;
+            const sec = document.getElementById('empFilterSection').value;
+            const role = document.getElementById('empFilterRole').value;
+            const directMgr = document.getElementById('empFilterDirectMgr').value;
+
+            const filtered = db.employees.filter(emp => {
+                const matchQ = !q || emp.name.toLowerCase().includes(q) || emp.code.toLowerCase().includes(q);
+                const matchDept = !dept || emp.department === dept;
+                const matchSec = !sec || emp.section === sec;
+                const matchRole = !role || (role === 'mgr' ? emp.isManager : !emp.isManager);
+
+                const mgrObj = db.employees.find(m => m.code === emp.directManagerCode);
+                const mgrNameText = mgrObj ? `${mgrObj.name} (${mgrObj.code})` : (emp.directManagerCode || '');
+                const matchMgr = !directMgr || mgrNameText.includes(directMgr.split(' ')[0]);
+
+                return matchQ && matchDept && matchSec && matchRole && matchMgr;
+            });
+
             const tbody = document.getElementById('adminEmployeesTableBody');
-            tbody.innerHTML = db.employees.map(emp => {
+            tbody.innerHTML = filtered.map(emp => {
                 const mgrObj = db.employees.find(m => m.code === emp.directManagerCode);
                 const mgrNameText = mgrObj ? `${mgrObj.name} (${mgrObj.code})` : (emp.directManagerCode || '-');
 
@@ -708,6 +964,7 @@
                         <td class="p-3 font-bold text-slate-800">${emp.name}</td>
                         <td class="p-3 text-slate-600">${emp.title}</td>
                         <td class="p-3 font-semibold text-blue-900">${emp.department}</td>
+                        <td class="p-3 font-semibold text-slate-600">${emp.section || '-'}</td>
                         <td class="p-3">
                             ${emp.isManager 
                                 ? `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800"><i class="fa-solid fa-user-tie"></i> مدير تقييم</span>` 
@@ -727,15 +984,6 @@
                     </tr>
                 `;
             }).join('');
-        }
-
-        function filterEmployeesTable() {
-            const q = document.getElementById('empSearchInput').value.toLowerCase();
-            const rows = document.querySelectorAll('#adminEmployeesTableBody tr');
-            rows.forEach(r => {
-                const text = r.innerText.toLowerCase();
-                r.style.display = text.includes(q) ? '' : 'none';
-            });
         }
 
         function openPromoteModal(empId) {
@@ -774,30 +1022,51 @@
 
                 saveDB();
                 closePromoteModal();
-                renderAdminEmployeesTable();
+                refreshActiveViews();
                 alert(`تم تحديث بيانات (${emp.name}) بنجاح.`);
             }
         }
 
-        function renderAdminDashboardCharts() {
-            const totalEmps = db.employees.length;
-            const depts = [...new Set(db.employees.map(e => e.department))];
-            const evalKeys = Object.keys(db.evaluations);
-            const evaluatedCount = evalKeys.length;
-            const pendingCount = totalEmps - evaluatedCount;
+        function resetDashFilters() {
+            document.getElementById('dashFilterDept').value = "";
+            document.getElementById('dashFilterSection').value = "";
+            document.getElementById('dashFilterManager').value = "";
+            renderAdminDashboardCharts();
+        }
 
-            // حساب درجات كل الموظفين
+        function renderAdminDashboardCharts() {
+            const selDept = document.getElementById('dashFilterDept').value;
+            const selSec = document.getElementById('dashFilterSection').value;
+            const selMgr = document.getElementById('dashFilterManager').value;
+
+            // Apply filters to list of employees for analytics
+            const filteredEmps = db.employees.filter(emp => {
+                const matchDept = !selDept || emp.department === selDept;
+                const matchSec = !selSec || emp.section === selSec;
+                
+                const evalData = db.evaluations[emp.id];
+                const matchMgr = !selMgr || (evalData && evalData.evaluatedBy === selMgr);
+
+                return matchDept && matchSec && matchMgr;
+            });
+
+            const totalEmps = filteredEmps.length;
+            const depts = [...new Set(filteredEmps.map(e => e.department))];
+            
+            let evaluatedCount = 0;
             let levelCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
             let grandTotalPct = 0;
 
-            db.employees.forEach(emp => {
+            filteredEmps.forEach(emp => {
                 const res = calculateEmpScore(emp.id);
                 if (res) {
+                    evaluatedCount++;
                     levelCounts[res.level] = (levelCounts[res.level] || 0) + 1;
                     grandTotalPct += res.percentage;
                 }
             });
 
+            const pendingCount = totalEmps - evaluatedCount;
             const avgPct = evaluatedCount > 0 ? (grandTotalPct / evaluatedCount).toFixed(1) : 0;
 
             document.getElementById('statTotalEmployees').innerText = totalEmps;
@@ -805,7 +1074,7 @@
             document.getElementById('statEvaluatedCount').innerText = evaluatedCount;
             document.getElementById('statPendingCount').innerText = pendingCount > 0 ? pendingCount : 0;
 
-            // عرض بطاقات النسب للمستويات (Level Breakdown Cards)
+            // Render Level Cards
             const levelTitles = {
                 1: "المستوى 1 (ضعيف)",
                 2: "المستوى 2 (مقبول)",
@@ -837,14 +1106,14 @@
                             <strong>${pctOfEvaluated}%</strong>
                         </div>
                         <div class="text-[10px] opacity-80 flex justify-between">
-                            <span>من إجمالي الشركة:</span>
+                            <span>من المجموع المفلتر:</span>
                             <span>${pctOfTotal}%</span>
                         </div>
                     </div>
                 `;
             }).join('');
 
-            // رسم رسم بياني دائري للمستويات
+            // Chart Levels Pie
             const ctxLevels = document.getElementById('chartLevels').getContext('2d');
             if (chartLevelsInstance) chartLevelsInstance.destroy();
 
@@ -860,12 +1129,12 @@
                 options: { responsive: true, maintainAspectRatio: false }
             });
 
-            // رسم درجات الإدارات
+            // Chart Depts Bar
             const ctxDepts = document.getElementById('chartDeptsProgress').getContext('2d');
             if (chartDeptsInstance) chartDeptsInstance.destroy();
 
             const deptsAvgScores = depts.map(d => {
-                const empsInDept = db.employees.filter(e => e.department === d);
+                const empsInDept = filteredEmps.filter(e => e.department === d);
                 let deptTotal = 0;
                 let deptCount = 0;
                 empsInDept.forEach(e => {
@@ -921,8 +1190,11 @@
         }
 
         function renderManagerDashboard() {
+            filterManagerEmpTable();
+        }
+
+        function filterManagerEmpTable() {
             const mgr = currentUser.empData;
-            
             document.getElementById('mgrAssignedDeptBadge').innerText = `المرؤوسين المباشرين للمدير: ${mgr.name} (الكود: ${mgr.code})`;
 
             const mySubordinates = db.employees.filter(e => e.directManagerCode === mgr.code);
@@ -932,8 +1204,21 @@
             document.getElementById('mgrCompletedCount').innerText = evalCount;
             document.getElementById('mgrPendingCount').innerText = pendingCount;
 
+            const q = (document.getElementById('mgrFilterSearch').value || '').toLowerCase();
+            const sec = document.getElementById('mgrFilterSection').value;
+            const status = document.getElementById('mgrFilterStatus').value;
+
+            const filtered = mySubordinates.filter(emp => {
+                const isEval = !!db.evaluations[emp.id];
+                const matchQ = !q || emp.name.toLowerCase().includes(q) || emp.code.toLowerCase().includes(q);
+                const matchSec = !sec || emp.section === sec;
+                const matchStatus = !status || (status === 'done' ? isEval : !isEval);
+
+                return matchQ && matchSec && matchStatus;
+            });
+
             const tbody = document.getElementById('mgrEmpTableBody');
-            tbody.innerHTML = mySubordinates.map(emp => {
+            tbody.innerHTML = filtered.map(emp => {
                 const isEvaluated = !!db.evaluations[emp.id];
                 const res = calculateEmpScore(emp.id);
 
@@ -943,7 +1228,7 @@
                         <td class="p-3 font-bold text-slate-800">${emp.name}</td>
                         <td class="p-3 text-slate-600">${emp.title}</td>
                         <td class="p-3 font-semibold text-blue-900">${emp.department}</td>
-                        <td class="p-3 text-slate-600">${emp.section}</td>
+                        <td class="p-3 text-slate-600">${emp.section || '-'}</td>
                         <td class="p-3 text-center font-bold text-blue-700">
                             ${res ? `${res.totalScore} / ${res.maxScore} (${res.percentage}%)` : '-'}
                         </td>
@@ -1022,20 +1307,38 @@
 
             saveDB();
             closeEvalModal();
+            refreshActiveViews();
 
-            if (currentUser.role === 'admin') {
-                renderAdminReportsTable();
-                renderAdminDashboardCharts();
-            } else {
-                renderManagerDashboard();
-            }
-
-            alert("تم حفظ ونشر التقييم بنجاح!");
+            alert("تم حفظ ونشر التقييم للسحابة بنجاح!");
         }
 
         function renderAdminReportsTable() {
+            filterReportsTable();
+        }
+
+        function filterReportsTable() {
+            const q = (document.getElementById('rptFilterSearch').value || '').toLowerCase();
+            const dept = document.getElementById('rptFilterDept').value;
+            const status = document.getElementById('rptFilterStatus').value;
+            const level = document.getElementById('rptFilterLevel').value;
+            const evaluator = document.getElementById('rptFilterEvaluator').value;
+
+            const filtered = db.employees.filter(emp => {
+                const evalData = db.evaluations[emp.id];
+                const isEval = !!evalData;
+                const res = calculateEmpScore(emp.id);
+
+                const matchQ = !q || emp.name.toLowerCase().includes(q) || emp.code.toLowerCase().includes(q);
+                const matchDept = !dept || emp.department === dept;
+                const matchStatus = !status || (status === 'done' ? isEval : !isEval);
+                const matchLevel = !level || (res && res.level == level);
+                const matchEvaluator = !evaluator || (evalData && evalData.evaluatedBy === evaluator);
+
+                return matchQ && matchDept && matchStatus && matchLevel && matchEvaluator;
+            });
+
             const tbody = document.getElementById('adminReportsTableBody');
-            tbody.innerHTML = db.employees.map(emp => {
+            tbody.innerHTML = filtered.map(emp => {
                 const evalData = db.evaluations[emp.id];
                 const isEval = !!evalData;
                 const res = calculateEmpScore(emp.id);
@@ -1044,7 +1347,7 @@
                     <tr class="hover:bg-slate-50 transition">
                         <td class="p-3 font-mono font-bold text-slate-600">${emp.code}</td>
                         <td class="p-3 font-bold text-slate-800">${emp.name}</td>
-                        <td class="p-3">${emp.department}</td>
+                        <td class="p-3 font-semibold text-slate-600">${emp.department}</td>
                         <td class="p-3 font-semibold text-blue-800">${isEval ? evalData.evaluatedBy : '-'}</td>
                         <td class="p-3 text-center">
                             ${isEval 
@@ -1101,9 +1404,20 @@
 
             const ws = XLSX.utils.json_to_sheet(exportRows);
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "تقرير التقييمات بالـ Total");
-            XLSX.writeFile(wb, `تقرير_تقييمات_الأداء_الشامل_${new Date().toISOString().slice(0,10)}.xlsx`);
+            XLSX.utils.book_append_sheet(wb, ws, "تقرير التقييمات السحابي");
+            XLSX.writeFile(wb, `تقرير_تقييمات_الأداء_Firebase_${new Date().toISOString().slice(0,10)}.xlsx`);
         }
+
+        // Initialize on load
+        window.onload = function() {
+            initFirebase();
+        };
     </script>
 </body>
 </html>
+"""
+
+with open("index.html", "w", encoding="utf-8") as f:
+    f.write(firebase_html_code)
+
+print("Updated index.html with Firebase integration & individual multi-field filters across all tabs.")
