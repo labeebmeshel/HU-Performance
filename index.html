@@ -1,586 +1,3 @@
-
-Gemini
-New chat
-Search chats
-Images
-Videos
-Library
-New notebook
-Personnel
-Legal Standards for Labor Resignation and Employment Disputes
-All notebooks
-تقييم الأداء
-الميثاق الذكي
-تطوير الألعاب: بداية رحلة برمجية
-احتساب أجر شهر التعيين والشهور غير المكتملة
-استعادة الأسماء عند نسيان قفل الشاشة
-تفعيل ويندوز 11 برو للاب توب
-مشكلة عدم العثور على جهاز الإقلاع
-وظائف قريبة من مسؤول سياسات
-إنشاء قاعدة بيانات Excel بالبيانات المطلوبة
-تذكير بموعد الكشف الطبي للموارد البشرية
-مراجعة قانونية لميثاق سياسات الشركة
-حل مشكلة المراجع الدائرية في إكسيل
-أفضل خلاط بـ ٢٠٠٠ جنيه مصري
-التحقق من مهندس عبر نقابة المهندسين
-مشكلة تنزيل مع حلول مقترحة
-تحويل جدول لـ Google Form
-حذف الصور المكررة في كانفا
-Saludo y Ofrecimiento de Ayuda
-بناء أداة تقييم شخصية DISC
-حلول تعليق لاب HP 255 G4
-حل مشكلة GTA Vice City c0000005
-Razek Galaxy OS Launcher: One UI 6
-بناء لانشر هواتف ذكية متكامل
-بناء لانشر احترافي بواجهة سامسونج
-تطوير لانشر تفاعلي للهواتف الذكية
-معلومات أساسية عن النمسا
-تجاهل الأخطاء الإملائية في الوورد
-اقتراحات تطبيقات روبوت تفاعلي
-Conversation with Gemini
-عايز تعمل اداة جديدة بلغة ال HTML
-
-واقدر احطها على GithuB
-
-مطلوب اداة لتقييم الأداء:
-
-1- صفحة لل Admin ويقدر من خلالها:
-
-إضافة (إدارة - قسم - اسماء موظفين)
-
-إضافة User لكل مدير مع كلمة سر
-
-إضافة بنود التقييم
-
-تعديل وزن كل عنصر
-
-العناصر مقسمة KRA وتحتها KPI (وياريت تراجع الحتة دي طبقاً لعلم الموارد البشرية)
-
-وإضافة كل ما هو مناسب للاداة زي داشبورد مثلاً
-
-
-
-
-
-2- صفحة تانية لدخول كل مدير ومجرد ما يسجل ايميله يظهر اسماء الموظفين وكل موطف اماهه التقييم الخاص به (عناصر التقييم مرفقة)
-
-لتطوير الأداة ورفعها على GitHub (عن طريق GitHub Pages لتعمل كـ Single Page Application بملف واحد متكامل index.html شامل الـ CSS والـ JavaScript)، قمت بتصميم هيكل متكامل بناءً على الملف المرفق وأحدث ممارسات إدارة الموارد البشرية.
-
-المراجعة المنهجية طبقاً لعلم الموارد البشرية (HR Best Practices)
-الفرق بين KRA و KPI:
-
-KRA (Key Result Area): النطاق أو المجال الرئيسي للنتائج (مثل: المهارات الفنية والقدرات الوظيفية).
-
-KPI (Key Performance Indicator): مؤشر الأداء القياسي أو السلوك القابل للقياس داخل هذا النطاق (مثل: درجة امتلاك المعرفة والمهارات المتقدمة من 1 إلى 5).
-
-أوزان التقييم (Weights):
-
-المجموع الكلي لأوزان الـ KRAs يجب أن يساوي 100%.
-
-الأداة تحسب الدرجة الموزونة لكل موظف تلقائياً:
-
-Final Score=∑(( 
-Max Rating
-Rating
-​
- )×KRA Weight)
-معايير التقييم الخمسة (Behavioral & Technical Scale):
-تم دمج مقياس التقييم الخماسي (1 إلى 5) من الملف المرفق بنفس المسميات والوصف:
-
-المهارات الفنية والقدرات الوظيفية
-
-مهارات التواصل والتعاون
-
-تحليل المشاكل واتخاذ الحلول
-
-المبادرة والتطوير المستمر
-
-الاستدامة والمسؤولية المجتمعية
-
-القيادة وتحمل المسؤولية
-
-الكود الكامل للأداة (index.html)
-يمكنك نسخ الكود التالي وحفظه باسم index.html وتجربته مباشرة على المتصفح أو رفعه على GitHub Pages:
-
-HTML
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام إدارة وتقييم الأداء الوظيفي (KPIs & KRAs)</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body { font-family: system-ui, -apple-system, sans-serif; }
-    </style>
-</head>
-<body class="bg-slate-50 text-slate-800 min-h-screen">
-
-    <!-- Navbar -->
-    <nav class="bg-indigo-900 text-white shadow-md p-4 flex justify-between items-center">
-        <h1 class="text-xl font-bold">نظام تقييم الأداء المؤسسي</h1>
-        <div id="userInfo" class="text-sm"></div>
-    </nav>
-
-    <div class="container mx-auto p-6">
-        <!-- Auth Screen -->
-        <div id="authScreen" class="max-w-md mx-auto bg-white p-8 rounded-xl shadow-md border border-slate-200 mt-10">
-            <h2 class="text-2xl font-bold mb-6 text-center text-indigo-900">تسجيل الدخول</h2>
-            <form id="loginForm" onsubmit="handleLogin(event)">
-                <div class="mb-4">
-                    <label class="block text-sm font-medium mb-1">البريد الإلكتروني</label>
-                    <input type="email" id="loginEmail" required class="w-full p-2 border rounded focus:ring-2 focus:ring-indigo-500 outline-none">
-                </div>
-                <div class="mb-6">
-                    <label class="block text-sm font-medium mb-1">كلمة السر</label>
-                    <input type="password" id="loginPassword" required class="w-full p-2 border rounded focus:ring-2 focus:ring-indigo-500 outline-none">
-                </div>
-                <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 transition">دخول</button>
-            </form>
-            <p class="text-xs text-slate-500 mt-4 text-center">حساب المسؤول الافتراضي: admin@system.com / admin123</p>
-        </div>
-
-        <!-- App Container -->
-        <div id="appContainer" class="hidden space-y-6">
-            <button onclick="logout()" class="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 float-left">تسجيل الخروج</button>
-            
-            <!-- ADMIN VIEW -->
-            <div id="adminView" class="space-y-8 hidden">
-                <div class="flex border-b border-slate-300">
-                    <button onclick="switchTab('dashboard')" class="tab-btn px-4 py-2 font-semibold border-b-2 border-indigo-600 text-indigo-600" id="tab-dashboard">لوحة التحكم</button>
-                    <button onclick="switchTab('org')" class="tab-btn px-4 py-2 font-semibold text-slate-600" id="tab-org">الهيكل الإداري والموظفين</button>
-                    <button onclick="switchTab('users')" class="tab-btn px-4 py-2 font-semibold text-slate-600" id="tab-users">إدارة المدراء</button>
-                    <button onclick="switchTab('kpi')" class="tab-btn px-4 py-2 font-semibold text-slate-600" id="tab-kpi">عناصر التقييم والأوزان</button>
-                </div>
-
-                <!-- Dashboard Section -->
-                <div id="sec-dashboard" class="space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="bg-white p-4 rounded-lg shadow border-r-4 border-indigo-500">
-                            <p class="text-sm text-slate-500">إجمالي الموظفين</p>
-                            <p id="statEmpCount" class="text-2xl font-bold">0</p>
-                        </div>
-                        <div class="bg-white p-4 rounded-lg shadow border-r-4 border-green-500">
-                            <p class="text-sm text-slate-500">التقييمات المكتملة</p>
-                            <p id="statCompletedEval" class="text-2xl font-bold">0</p>
-                        </div>
-                        <div class="bg-white p-4 rounded-lg shadow border-r-4 border-amber-500">
-                            <p class="text-sm text-slate-500">متوسط الأداء العام</p>
-                            <p id="statAvgScore" class="text-2xl font-bold">0%</p>
-                        </div>
-                    </div>
-                    <div class="bg-white p-4 rounded-lg shadow">
-                        <h3 class="font-bold mb-4">متوسط التقييم حسب مجالات النتائج الرئيسية (KRAs)</h3>
-                        <canvas id="kraChart" class="max-h-64"></canvas>
-                    </div>
-                </div>
-
-                <!-- Org Section -->
-                <div id="sec-org" class="hidden grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-white p-4 rounded-lg shadow space-y-4">
-                        <h3 class="font-bold border-b pb-2">إضافة إدارة وقسم</h3>
-                        <div>
-                            <label class="block text-sm">اسم الإدارة</label>
-                            <input type="text" id="deptName" class="w-full p-2 border rounded">
-                            <button onclick="addDepartment()" class="mt-2 bg-indigo-600 text-white px-4 py-1.5 rounded text-sm">إضافة إدارة</button>
-                        </div>
-                    </div>
-                    <div class="bg-white p-4 rounded-lg shadow space-y-4">
-                        <h3 class="font-bold border-b pb-2">إضافة موظف جديد</h3>
-                        <input type="text" id="empName" placeholder="اسم الموظف" class="w-full p-2 border rounded mb-2">
-                        <select id="empDept" class="w-full p-2 border rounded mb-2"></select>
-                        <select id="empManager" class="w-full p-2 border rounded mb-2"></select>
-                        <button onclick="addEmployee()" class="bg-indigo-600 text-white px-4 py-1.5 rounded text-sm">إضافة الموظف</button>
-                    </div>
-                </div>
-
-                <!-- Users Section -->
-                <div id="sec-users" class="hidden bg-white p-4 rounded-lg shadow space-y-4">
-                    <h3 class="font-bold border-b pb-2">إضافة مدير جديد</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <input type="text" id="mgrName" placeholder="اسم المدير" class="p-2 border rounded">
-                        <input type="email" id="mgrEmail" placeholder="البريد الإلكتروني" class="p-2 border rounded">
-                        <input type="password" id="mgrPass" placeholder="كلمة السر" class="p-2 border rounded">
-                    </div>
-                    <button onclick="addManager()" class="bg-indigo-600 text-white px-4 py-1.5 rounded text-sm">حفظ البيانات</button>
-                    
-                    <h4 class="font-bold mt-6">قائمة المدراء</h4>
-                    <table class="w-full text-right border-collapse border">
-                        <thead><tr class="bg-slate-100"><th class="p-2 border">الاسم</th><th class="p-2 border">البريد الإلكتروني</th></tr></thead>
-                        <tbody id="mgrTable"></tbody>
-                    </table>
-                </div>
-
-                <!-- KPI & KRA Section -->
-                <div id="sec-kpi" class="hidden bg-white p-4 rounded-lg shadow space-y-4">
-                    <h3 class="font-bold border-b pb-2">إدارة بنود التقييم والأوزان النسبية (مجموع الأوزان يجب أن يساوي 100%)</h3>
-                    <div id="kraList" class="space-y-4"></div>
-                </div>
-            </div>
-
-            <!-- MANAGER VIEW -->
-            <div id="managerView" class="space-y-6 hidden">
-                <div class="bg-white p-4 rounded-lg shadow">
-                    <h2 class="text-xl font-bold text-indigo-900 mb-2">قائمة التقييمات للموظفين التابعين</h2>
-                    <p class="text-sm text-slate-500 mb-4">اختر الموظف لإجراء التقييم بناءً على المؤشرات القياسية.</p>
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div class="col-span-1 border-l pl-4">
-                            <h3 class="font-bold mb-2">الموظفين</h3>
-                            <ul id="myEmpList" class="space-y-1"></ul>
-                        </div>
-                        <div class="col-span-3" id="evalFormContainer">
-                            <p class="text-slate-400">اختر موظفاً من القائمة للبدء في التقييم.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Data Structures & Storage
-        const defaultKRAs = [
-            { id: 1, name: "المهارات الفنية والقدرات الوظيفية", weight: 20, desc: "مستوى المعرفة والتخصص الفني والتنفيذ المتقن للمهام." },
-            { id: 2, name: "مهارات التواصل والتعاون", weight: 15, desc: "القدرة على نقل المعلومات وفعالية التواصل مع أفراد الفريق." },
-            { id: 3, name: "تحليل المشاكل واتخاذ الحلول", weight: 20, desc: "تحديد المشكلات واقتراح حلول جذرية ومستدامة." },
-            { id: 4, name: "المبادرة والتطوير المستمر", weight: 15, desc: "تقديم أفكار مبتكرة والبحث عن فرص تحسين كفاءة العمل." },
-            { id: 5, name: "الاستدامة والمسؤولية المجتمعية", weight: 15, desc: "الالتزام بسياسات وممارسات الاستدامة البيئية والمؤسسية." },
-            { id: 6, name: "القيادة وتحمل المسؤولية", weight: 15, desc: "الاعتمادية وتولي قيادة المهام الحرجة ودعم الزملاء." }
-        ];
-
-        const scaleDescs = {
-            1: "لا يمتلك الحد الأدنى، يحتاج إشراف وتوجيه مستمر.",
-            2: "يمتلك الحد الأدنى، يحتاج مساعدة في المواقف غير المعتادة.",
-            3: "يمتلك المعرفة المطلوبة، ينفذ معظم المهام بكفاءة واستقلالية.",
-            4: "يطبق المهارات باحترافية عالية، ويقدم الدعم لزملائه.",
-            5: "خبرة متقدمة، يعد مرجعاً ويقود حلولاً مبتكرة."
-        };
-
-        let store = JSON.parse(localStorage.getItem('hr_eval_db')) || {
-            users: [{ email: "admin@system.com", pass: "admin123", role: "admin", name: "مدير النظام" }],
-            departments: ["الموارد البشرية", "تكنولوجيا المعلومات"],
-            employees: [],
-            kras: defaultKRAs,
-            evaluations: {} // { empId: { kraId: score } }
-        };
-
-        let currentUser = null;
-        let selectedEmpId = null;
-
-        function saveData() {
-            localStorage.setItem('hr_eval_db', JSON.stringify(store));
-        }
-
-        // Auth Logic
-        function handleLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const pass = document.getElementById('loginPassword').value;
-
-            const user = store.users.find(u => u.email === email && u.pass === pass);
-            if (user) {
-                currentUser = user;
-                document.getElementById('authScreen').classList.add('hidden');
-                document.getElementById('appContainer').classList.remove('hidden');
-                document.getElementById('userInfo').innerText = `${user.name} (${user.role === 'admin' ? 'الأدمن' : 'مدير'})`;
-                
-                if (user.role === 'admin') {
-                    document.getElementById('adminView').classList.remove('hidden');
-                    document.getElementById('managerView').classList.add('hidden');
-                    renderAdmin();
-                } else {
-                    document.getElementById('adminView').classList.add('hidden');
-                    document.getElementById('managerView').classList.remove('hidden');
-                    renderManager();
-                }
-            } else {
-                alert('بيانات الدخول غير صحيحة');
-            }
-        }
-
-        function logout() {
-            currentUser = null;
-            document.getElementById('authScreen').classList.remove('hidden');
-            document.getElementById('appContainer').classList.add('hidden');
-        }
-
-        // Admin Render Logic
-        function renderAdmin() {
-            renderDashboard();
-            renderOrgDropdowns();
-            renderManagersList();
-            renderKRASettings();
-        }
-
-        function switchTab(tab) {
-            ['dashboard', 'org', 'users', 'kpi'].forEach(t => {
-                document.getElementById(`sec-${t}`).classList.add('hidden');
-                document.getElementById(`tab-${t}`).classList.remove('border-indigo-600', 'text-indigo-600');
-            });
-            document.getElementById(`sec-${tab}`).classList.remove('hidden');
-            document.getElementById(`tab-${tab}`).classList.add('border-indigo-600', 'text-indigo-600');
-        }
-
-        function addDepartment() {
-            const val = document.getElementById('deptName').value;
-            if (val) {
-                store.departments.push(val);
-                saveData();
-                renderOrgDropdowns();
-                document.getElementById('deptName').value = '';
-            }
-        }
-
-        function addManager() {
-            const name = document.getElementById('mgrName').value;
-            const email = document.getElementById('mgrEmail').value;
-            const pass = document.getElementById('mgrPass').value;
-            if (name && email && pass) {
-                store.users.push({ name, email, pass, role: 'manager' });
-                saveData();
-                renderManagersList();
-                renderOrgDropdowns();
-                document.getElementById('mgrName').value = '';
-                document.getElementById('mgrEmail').value = '';
-                document.getElementById('mgrPass').value = '';
-            }
-        }
-
-        function renderManagersList() {
-            const tbody = document.getElementById('mgrTable');
-            tbody.innerHTML = store.users.filter(u => u.role === 'manager').map(u => 
-                `<tr><td class="p-2 border">${u.name}</td><td class="p-2 border">${u.email}</td></tr>`
-            ).join('');
-        }
-
-        function renderOrgDropdowns() {
-            const deptSelect = document.getElementById('empDept');
-            deptSelect.innerHTML = store.departments.map(d => `<option value="${d}">${d}</option>`).join('');
-
-            const mgrSelect = document.getElementById('empManager');
-            mgrSelect.innerHTML = store.users.filter(u => u.role === 'manager').map(u => `<option value="${u.email}">${u.name}</option>`).join('');
-        }
-
-        function addEmployee() {
-            const name = document.getElementById('empName').value;
-            const dept = document.getElementById('empDept').value;
-            const managerEmail = document.getElementById('empManager').value;
-            if (name) {
-                store.employees.push({ id: Date.now(), name, dept, managerEmail });
-                saveData();
-                document.getElementById('empName').value = '';
-                alert('تمت إضافة الموظف بنجاح');
-                renderDashboard();
-            }
-        }
-
-        function renderKRASettings() {
-            const container = document.getElementById('kraList');
-            container.innerHTML = store.kras.map(k => `
-                <div class="flex items-center justify-between border p-3 rounded">
-                    <div>
-                        <p class="font-bold">${k.name}</p>
-                        <p class="text-xs text-slate-500">${k.desc}</p>
-                    </div>
-                    <div class="flex items-center space-x-2 space-x-reverse">
-                        <label class="text-sm">الوزن النسبى (%):</label>
-                        <input type="number" value="${k.weight}" onchange="updateKRAWeight(${k.id}, this.value)" class="w-16 p-1 border rounded text-center">
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function updateKRAWeight(id, val) {
-            const kra = store.kras.find(k => k.id === id);
-            if (kra) {
-                kra.weight = parseFloat(val) || 0;
-                saveData();
-            }
-        }
-
-        function renderDashboard() {
-            document.getElementById('statEmpCount').innerText = store.employees.length;
-            const evalCount = Object.keys(store.evaluations).length;
-            document.getElementById('statCompletedEval').innerText = evalCount;
-
-            // Chart rendering
-            const ctx = document.getElementById('kraChart').getContext('2d');
-            if (window.myChart) window.myChart.destroy();
-
-            const avgScores = store.kras.map(k => {
-                let sum = 0, count = 0;
-                Object.values(store.evaluations).forEach(e => {
-                    if (e[k.id]) { sum += e[k.id]; count++; }
-                });
-                return count ? (sum / count).toFixed(1) : 0;
-            });
-
-            window.myChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: store.kras.map(k => k.name),
-                    datasets: [{
-                        label: 'متوسط الدرجات (من 5)',
-                        data: avgScores,
-                        backgroundColor: 'rgba(79, 70, 229, 0.6)'
-                    }]
-                },
-                options: { scales: { y: { min: 0, max: 5 } } }
-            });
-        }
-
-        // Manager Render Logic
-        function renderManager() {
-            const myEmps = store.employees.filter(e => e.managerEmail === currentUser.email);
-            const list = document.getElementById('myEmpList');
-            list.innerHTML = myEmps.map(e => `
-                <li>
-                    <button onclick="selectEmpForEval(${e.id})" class="w-full text-right p-2 rounded hover:bg-indigo-50 border-b ${selectedEmpId === e.id ? 'bg-indigo-100 font-bold' : ''}">
-                        ${e.name}
-                        <span class="block text-xs text-slate-500">${e.dept}</span>
-                    </button>
-                </li>
-            `).join('');
-        }
-
-        function selectEmpForEval(empId) {
-            selectedEmpId = empId;
-            renderManager();
-            const emp = store.employees.find(e => e.id === empId);
-            const evalData = store.evaluations[empId] || {};
-
-            const container = document.getElementById('evalFormContainer');
-            container.innerHTML = `
-                <h3 class="font-bold text-lg mb-4">تقييم الموظف: ${emp.name}</h3>
-                <form onsubmit="saveEvaluation(event, ${empId})" class="space-y-6">
-                    ${store.kras.map(k => `
-                        <div class="border p-4 rounded bg-slate-50">
-                            <div class="flex justify-between mb-2">
-                                <span class="font-bold text-indigo-900">${k.name} (الوزن: ${k.weight}%)</span>
-                            </div>
-                            <p class="text-xs text-slate-600 mb-3">${k.desc}</p>
-                            <div class="space-y-2">
-                                ${[1, 2, 3, 4, 5].map(score => `
-                                    <label class="flex items-start space-x-2 space-x-reverse text-sm cursor-pointer hover:bg-white p-1.5 rounded">
-                                        <input type="radio" name="kra_${k.id}" value="${score}" ${evalData[k.id] == score ? 'checked' : ''} required class="mt-1">
-                                        <div>
-                                            <span class="font-bold">${score} - </span>
-                                            <span class="text-slate-700">${scaleDescs[score]}</span>
-                                        </div>
-                                    </label>
-                                `).join('')}
-                            </div>
-                        </div>
-                    `).join('')}
-                    <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded font-bold hover:bg-indigo-700">حفظ التقييم النهائي</button>
-                </form>
-            `;
-        }
-
-        function saveEvaluation(e, empId) {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const evalResult = {};
-            store.kras.forEach(k => {
-                evalResult[k.id] = parseInt(formData.get(`kra_${k.id}`));
-            });
-            store.evaluations[empId] = evalResult;
-            saveData();
-            alert('تم حفظ التقييم بنجاح!');
-        }
-    </script>
-</body>
-</html>
-خطوات الرفع على GitHub Pages
-قم بإنشاء Repository جديد على حسابك في GitHub بأي اسم (مثال: hr-kpi-tool).
-
-قم بإنشاء ملف جديد داخل المستودع واسمه index.html.
-
-انسخ الكود أعلاه بالكامل وضعه داخل الملف واضغط Commit changes.
-
-اذهب إلى Settings الخاصة بالمستودع → Pages (من القائمة الجانبية).
-
-تحت جزئية Build and deployment:
-
-اختر الـ Branch باسم main أو master.
-
-اضغط Save.
-
-في خلال دقيقة، سيظهر لك رابط مباشر لتشغيل الأداة أونلاين على المتصفح.
-
-الاداة بدائية جداً
-
-
-
-عايز صفحة فيها User و pass
-
-والادمين اعمل user و pass من غير ما تكتبه على الصفحة
-
-عايز اقدر اضيف (ادارة - قسم - مدير - موظفين) عن طريق رفع شيت اكسيل
-
-عايز لما المدير يخش الحساب بتاعه يظهرله فقط اسماء الموظفين وكل موظف قدامه التقييم بتاعه (كل العناصر)
-
-تم تطوير وتطوير الأداة بالكامل لتصبح نظاماً متكاملاً لإدارة وتقييم الأداء المؤسسي يفي بجميع الملاحظات والمتطلبات بشكل دقيق.
-
-النموذج متاح في ملف جاهز للاستخدام والرفع المباشر:
-
-HTML icon
-index
- HTML 
-Open
-أهم التحسينات والمميزات في التحديث الجديد
-صفحة تسجيل دخول آمنة ونظيفة (Login System):
-
-تفتح الصفحة على واجهة تسجل الدخول فقططلب اسم المستخدم وكلمة السر.
-
-حساب الأدمن الافتراضي: اسم المستخدم: admin | كلمة السر: 123 (مخفية داخل النظام ولا تظهر على الواجهة).
-
-رفع الهيكل بالكامل عبر شيت إكسيل (Excel Import):
-
-توفر الأداة خيار "تحميل نموذج إكسيل جاهز" يضم الأعمدة المطلوب تعبئتها:
-
-كود الموظف | اسم الموظف | الوظيفة | الإدارة | القسم | اسم المدير المباشر | اسم مستخدم المدير | كلمة سر المدير.
-
-بمجرد رفع الشيت، يقوم النظام آلياً بـ:
-
-إنشاء حسابات المدراء بكلمات السر المحددة في الشيت.
-
-إضافة الموظفين وإسنادهم مباشرة للمدير المعني بناءً على اسم المستخدم الخاص به.
-
-واجهة مخصصة لكل مدير (Manager Dashboard):
-
-بمجرد تسجيل المدير لدخوله ببياناته (المعرفة في الإكسيل)، لن يرى سوى أسماء الموظفين التابعين له فقط.
-
-يظهر أمام كل موظف جميع عناصر التقييم الـ 6 المعتمدة (المأخوذة من شيت HU KPI.xlsx بنفس النصوص الوصفية للدراجات من 1 إلى 5).
-
-يستطيع المدير اختيار الدرجة المناسبة لكل عنصر، إضافة ملاحظات وتوصيات التطوير، ثم الضغط على حفظ تقييم الموظف.
-
-لوحة تحكم الأدمن (Admin Dashboard):
-
-استعراض الهيكل: عرض قائمة جميع المدراء وحساباتهم وعدد الموظفين لدى كل مدير.
-
-إدارة أوزان التقييم (KRAs): إمكانية تعديل الوزن النسبي لكل عنصر مع التحقق التلقائي من أن مجموع الأوزان = 100%.
-
-تقرير التقييمات الشامل: استعراض درجات جميع الموظفين والنسبة المئوية النهائية والتقدير (ممتاز، جيد جداً،...) بمجرد قيام مدراءهم بالتقييم.
-
-كيفية تشغيل الأداة على GitHub Pages
-احفظ كود الملف المرفق باسم index.html.
-
-ارفعه إلى مستودعك (Repository) على GitHub.
-
-اذهب إلى Settings → Pages واختر الـ Branch (main) ثم اضغط Save.
-
-سيعمل الموقع مباشرة، ويمكنك تحميل شيت الإكسيل التجريبي منه ورفعه فوراً لتجربة النظام.
-
-
-
-
-Gemini is AI and can make mistakes.
-
-Analyzing
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -597,7 +14,6 @@ Analyzing
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap');
         body { font-family: 'Cairo', sans-serif; }
         .tab-btn.active { border-bottom: 3px solid #3b82f6; color: #1d4ed8; font-weight: 700; background-color: #eff6ff; }
-        /* Custom scrollbar for tables */
         ::-webkit-scrollbar { height: 6px; width: 6px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
     </style>
@@ -789,7 +205,7 @@ Analyzing
                                     <th class="p-3">الموظف</th>
                                     <th class="p-3">الإدارة/القسم</th>
                                     <th class="p-3">المدير</th>
-                                    <th class="p-3 text-center">النتيجة النهائية (%</th>
+                                    <th class="p-3 text-center">النتيجة النهائية (%)</th>
                                     <th class="p-3 text-center">التقدير</th>
                                     <th class="p-3">ملاحظات والتطوير</th>
                                 </tr>
@@ -807,7 +223,7 @@ Analyzing
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-4 mb-6 gap-3">
                     <div>
                         <h2 class="text-xl font-bold text-slate-800">لوحة تقييم الموظفين التابعين</h2>
-                        <p class="text-xs text-slate-500 mt-1">يظهر أدناه جميع الموظفين التابعين ل إدارتك. يمكنك تقييم كل عنصر من عناصر التقييم وحفظ النتائج مباشرة.</p>
+                        <p class="text-xs text-slate-500 mt-1">يظهر أدناه جميع الموظفين التابعين لإدارتك. يمكنك تقييم كل عنصر من عناصر التقييم وحفظ النتائج مباشرة.</p>
                     </div>
                     <div class="flex items-center gap-2 bg-blue-50 px-4 py-2 rounded-xl border border-blue-200 text-xs text-blue-800 font-semibold">
                         <i class="fa-solid fa-users-gear text-blue-600"></i>
@@ -831,7 +247,6 @@ Analyzing
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        // HR Standard Standard Ratings & Descriptions (From HU KPI.xlsx)
         const DEFAULT_KRAS = [
             {
                 id: "k1",
@@ -907,13 +322,12 @@ Analyzing
             }
         ];
 
-        // System Data Initialization
         let db = JSON.parse(localStorage.getItem('hr_kpi_system_db')) || {
             admin: { username: "admin", password: "123" },
-            managers: [],   // { username, password, name, department, section }
-            employees: [],  // { id, code, name, title, department, section, managerUsername }
+            managers: [],
+            employees: [],
             kras: DEFAULT_KRAS,
-            evaluations: {} // { employeeId: { scores: { k1: 4, k2: 3... }, notes: "..." } }
+            evaluations: {}
         };
 
         let currentUser = null;
@@ -922,7 +336,6 @@ Analyzing
             localStorage.setItem('hr_kpi_system_db', JSON.stringify(db));
         }
 
-        // Login System
         function handleLogin(e) {
             e.preventDefault();
             const uInput = document.getElementById('usernameInput').value.trim();
@@ -931,14 +344,12 @@ Analyzing
 
             errDiv.classList.add('hidden');
 
-            // Check Admin Login
             if (uInput === db.admin.username && pInput === db.admin.password) {
                 currentUser = { role: 'admin', name: 'مسؤول النظام (Admin)', username: 'admin' };
                 showSystemView();
                 return;
             }
 
-            // Check Manager Login
             const mgr = db.managers.find(m => (m.username === uInput || m.email === uInput) && m.password === pInput);
             if (mgr) {
                 currentUser = { role: 'manager', name: mgr.name, username: mgr.username, mgrData: mgr };
@@ -978,7 +389,6 @@ Analyzing
             }
         }
 
-        // Admin Tab Switching
         function switchAdminTab(tabName) {
             const tabs = ['import', 'orgView', 'kpiView', 'reportsView'];
             tabs.forEach(t => {
@@ -995,7 +405,6 @@ Analyzing
             if (tabName === 'reportsView') renderAdminReports();
         }
 
-        // Excel Template Generation
         function downloadSampleExcel() {
             const sampleData = [
                 {
@@ -1017,16 +426,6 @@ Analyzing
                     "اسم المدير المباشر": "مهندس/ شريف خالد",
                     "اسم مستخدم المدير": "s.khaled",
                     "كلمة سر المدير": "tech2026"
-                },
-                {
-                    "كود الموظف": "EMP103",
-                    "اسم الموظف": "محمود عبد السلام",
-                    "الوظيفة": "مهندس شبكات",
-                    "الإدارة": "تكنولوجيا المعلومات",
-                    "القسم": "الدعم الفني",
-                    "اسم المدير المباشر": "مهندس/ شريف خالد",
-                    "اسم مستخدم المدير": "s.khaled",
-                    "كلمة سر المدير": "tech2026"
                 }
             ];
 
@@ -1036,7 +435,6 @@ Analyzing
             XLSX.writeFile(wb, "نموذج_استيراد_الموظفين_والمدراء.xlsx");
         }
 
-        // Handle Excel Processing
         function handleExcelUpload(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -1078,25 +476,16 @@ Analyzing
 
                 if (!empName) return;
 
-                // 1. Check or Add Manager
                 let mgrObj = db.managers.find(m => m.username === mgrUser);
                 if (!mgrObj) {
-                    mgrObj = {
-                        username: mgrUser,
-                        password: mgrPass,
-                        name: mgrName,
-                        department: dept,
-                        section: sec
-                    };
+                    mgrObj = { username: mgrUser, password: mgrPass, name: mgrName, department: dept, section: sec };
                     db.managers.push(mgrObj);
                     addedMgrs++;
                 } else {
-                    // Update password or name if provided
                     if (mgrPass) mgrObj.password = mgrPass;
                     if (mgrName) mgrObj.name = mgrName;
                 }
 
-                // 2. Check or Add Employee
                 let empObj = db.employees.find(e => e.code === empCode || e.name === empName);
                 if (!empObj) {
                     empObj = {
@@ -1111,7 +500,6 @@ Analyzing
                     db.employees.push(empObj);
                     addedEmps++;
                 } else {
-                    // Update employee details
                     empObj.title = empTitle;
                     empObj.department = dept;
                     empObj.section = sec;
@@ -1135,9 +523,7 @@ Analyzing
             renderAdminTables();
         }
 
-        // Render Admin Tables
         function renderAdminTables() {
-            // Managers
             const mgrTbody = document.getElementById('managersTableBody');
             mgrTbody.innerHTML = db.managers.map(m => {
                 const subCount = db.employees.filter(e => e.managerUsername === m.username).length;
@@ -1152,7 +538,6 @@ Analyzing
                 `;
             }).join('');
 
-            // Employees
             const empTbody = document.getElementById('employeesTableBody');
             empTbody.innerHTML = db.employees.map(e => {
                 const mgr = db.managers.find(m => m.username === e.managerUsername);
@@ -1175,7 +560,6 @@ Analyzing
             }).join('');
         }
 
-        // Render KPI Configuration
         function renderKPIConfig() {
             const container = document.getElementById('kraConfigList');
             let totalWeight = 0;
@@ -1205,11 +589,9 @@ Analyzing
 
             const badge = document.getElementById('totalWeightBadge');
             badge.innerText = `المجموع الحالي: ${totalWeight}%`;
-            if (totalWeight === 100) {
-                badge.className = "inline-block px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800";
-            } else {
-                badge.className = "inline-block px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800";
-            }
+            badge.className = totalWeight === 100 
+                ? "inline-block px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800"
+                : "inline-block px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800";
         }
 
         function updateKRAWeight(kraId, val) {
@@ -1221,7 +603,6 @@ Analyzing
             }
         }
 
-        // MANAGER VIEW RENDER
         function renderManagerView() {
             const myEmps = db.employees.filter(e => e.managerUsername === currentUser.username);
             document.getElementById('mgrEmpCount').innerText = myEmps.length;
@@ -1244,7 +625,6 @@ Analyzing
 
                 return `
                     <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 shadow-sm space-y-5">
-                        <!-- Employee Info Bar -->
                         <div class="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-4 rounded-xl border border-slate-200 gap-3">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 bg-blue-100 text-blue-700 font-bold rounded-xl flex items-center justify-center text-sm">
@@ -1264,7 +644,6 @@ Analyzing
                             </div>
                         </div>
 
-                        <!-- Evaluation Criteria List -->
                         <form onsubmit="saveManagerEval(event, '${emp.id}')" class="space-y-4">
                             <div class="grid grid-cols-1 gap-4">
                                 ${db.kras.map(kra => {
@@ -1276,7 +655,6 @@ Analyzing
                                                 <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full">الوزن النسبي: ${kra.weight}%</span>
                                             </div>
 
-                                            <!-- 5 Levels Selection -->
                                             <div class="space-y-2 pt-1">
                                                 ${[1,2,3,4,5].map(lvl => `
                                                     <label class="flex items-start gap-3 p-2.5 rounded-lg border border-slate-100 hover:border-blue-300 hover:bg-blue-50/40 transition cursor-pointer">
@@ -1293,13 +671,11 @@ Analyzing
                                 }).join('')}
                             </div>
 
-                            <!-- Additional Notes & Improvement Plan -->
                             <div class="bg-white p-4 rounded-xl border border-slate-200 space-y-2">
                                 <label class="block text-xs font-bold text-slate-700">ملاحظات المدير المباشر وتوصيات التطوير المهني:</label>
                                 <textarea name="notes_${emp.id}" rows="2" placeholder="أدخل أي ملاحظات إيجابية أو نقاط تحتاج لتطوير لدى الموظف..." class="w-full p-2.5 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none">${evalData.notes || ''}</textarea>
                             </div>
 
-                            <!-- Submit Button -->
                             <div class="flex justify-end">
                                 <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2.5 rounded-xl shadow-md transition duration-200 text-xs flex items-center gap-2">
                                     <i class="fa-solid fa-floppy-disk"></i> حفظ تقييم الموظف (${emp.name})
@@ -1311,7 +687,6 @@ Analyzing
             }).join('');
         }
 
-        // Save Evaluation Data
         function saveManagerEval(e, empId) {
             e.preventDefault();
             const formData = new FormData(e.target);
@@ -1335,7 +710,6 @@ Analyzing
             renderManagerView();
         }
 
-        // Calculate Final Score
         function calculateEmployeeScore(empId) {
             const evalData = db.evaluations[empId];
             if (!evalData || !evalData.scores) return { evaluated: false, score: 0, grade: "غير مقيم", gradeColor: "bg-slate-200 text-slate-700" };
@@ -1366,7 +740,6 @@ Analyzing
             return { evaluated: true, score: finalPercentage, grade: grade, gradeColor: gradeColor };
         }
 
-        // Admin General Reports View
         function renderAdminReports() {
             const tbody = document.getElementById('adminReportsTableBody');
             tbody.innerHTML = db.employees.map(e => {
@@ -1393,5 +766,3 @@ Analyzing
     </script>
 </body>
 </html>
-index.html
-Displaying index.html.
