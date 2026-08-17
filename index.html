@@ -31,7 +31,7 @@
                 </div>
                 <div>
                     <h1 class="font-bold text-lg leading-tight">منظومة إدارة وتقييم الأداء المؤسسي</h1>
-                    <p class="text-xs text-slate-400">إدارة التقييمات والمدراء متعددة الإدارات</p>
+                    <p class="text-xs text-slate-400">إدارة التقييمات بربط كود المدير المباشر</p>
                 </div>
             </div>
             <div id="userInfoHeader" class="hidden flex items-center space-x-4 space-x-reverse">
@@ -104,7 +104,6 @@
 
             <!-- ADMIN TAB 1: ANALYTICS DASHBOARD -->
             <div id="adminTab-dashboard" class="space-y-6">
-                <!-- Stat Cards Row -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
                         <div>
@@ -147,7 +146,6 @@
                     </div>
                 </div>
 
-                <!-- Interactive Charts Row -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
                         <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2 border-b pb-2">
@@ -174,22 +172,21 @@
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-3">
                         <div>
-                            <h3 class="font-bold text-slate-800 text-base">استيراد الموظفين والمدراء من الإكسيل</h3>
-                            <p class="text-xs text-slate-500 mt-1">يمكنك إدراج عمود "مدير" (اكتب فيه: نعم/مدير) لتفعيل حساب المدير، وإمكانية تكلِيفه بأكثر من إدارة بفصل الإدارات بفاصلة (مثال: الموارد البشرية, الشؤون المالية).</p>
+                            <h3 class="font-bold text-slate-800 text-base">استيراد الموظفين والمدراء بكود المدير المباشر</h3>
+                            <p class="text-xs text-slate-500 mt-1">يحتوي الشيت على عمود "كود المدير المباشر" لربط الموظف بمديره المباشر بدقة كاملة.</p>
                         </div>
                         <button onclick="downloadEmployeesTemplate()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 text-xs font-bold px-4 py-2.5 rounded-xl transition flex items-center gap-2">
-                            <i class="fa-solid fa-file-excel text-emerald-600"></i> تحميل الشيت الاسترشادي الجديد (.xlsx)
+                            <i class="fa-solid fa-file-excel text-emerald-600"></i> تحميل الشيت الاسترشادي (.xlsx)
                         </button>
                     </div>
 
-                    <!-- Drop Area -->
                     <div class="border-2 border-dashed border-slate-300 hover:border-blue-500 rounded-2xl p-8 text-center bg-slate-50 transition cursor-pointer relative" onclick="document.getElementById('excelEmployeesInput').click()">
                         <input type="file" id="excelEmployeesInput" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleEmployeesUpload(event)">
                         <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-3">
                             <i class="fa-solid fa-cloud-arrow-up text-2xl"></i>
                         </div>
                         <h4 class="font-bold text-slate-700 text-sm">اضغط هنا لرفع شيت الإكسيل أو اسحب الملف هنا</h4>
-                        <p class="text-xs text-slate-400 mt-1">الأعمدة: كود الموظف، اسم الموظف، الوظيفة، الإدارة، القسم، مدير، اسم المستخدم، كلمة السر</p>
+                        <p class="text-xs text-slate-400 mt-1">الأعمدة: كود الموظف، اسم الموظف، الوظيفة، الإدارة، القسم، مدير، كود المدير المباشر، اسم المستخدم، كلمة السر</p>
                     </div>
 
                     <div id="importSuccessMsg" class="hidden mt-4 p-4 rounded-xl border bg-emerald-50 border-emerald-300 text-emerald-800 text-xs"></div>
@@ -201,11 +198,11 @@
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-4 gap-3">
                         <div>
-                            <h3 class="font-bold text-slate-800 text-base">إدارة حسابات المدراء وتكليفات الإدارات وكلمات السر</h3>
-                            <p class="text-xs text-slate-500 mt-1">عرض وتعديل اليوزر والباسوورد مع إمكانية تكليف المدير بإدارة واحدة أو إدارات متعددة للتقييم.</p>
+                            <h3 class="font-bold text-slate-800 text-base">إدارة حسابات المدراء وتحديد كود المدير المباشر</h3>
+                            <p class="text-xs text-slate-500 mt-1">عرض وتعديل بيانات الموظفين والمدراء وتحديد المدير المباشر لكل موظف.</p>
                         </div>
                         <div class="w-full md:w-64">
-                            <input type="text" id="empSearchInput" onkeyup="filterEmployeesTable()" placeholder="بحث باسم الموظف أو الإدارة..." class="w-full p-2 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500">
+                            <input type="text" id="empSearchInput" onkeyup="filterEmployeesTable()" placeholder="بحث باسم الموظف أو الكود..." class="w-full p-2 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                     </div>
 
@@ -216,12 +213,12 @@
                                     <th class="p-3">الكود</th>
                                     <th class="p-3">اسم الموظف</th>
                                     <th class="p-3">الوظيفة</th>
-                                    <th class="p-3">الإدارة المعين بها</th>
+                                    <th class="p-3">الإدارة</th>
                                     <th class="p-3">الصفة</th>
-                                    <th class="p-3">الإدارات المكلف بتقييمها</th>
-                                    <th class="p-3">اسم المستخدم (Username)</th>
-                                    <th class="p-3">كلمة السر (Password)</th>
-                                    <th class="p-3 text-center">تعديل الحساب</th>
+                                    <th class="p-3">المدير المباشر</th>
+                                    <th class="p-3">اسم المستخدم</th>
+                                    <th class="p-3">كلمة السر</th>
+                                    <th class="p-3 text-center">الإجراء والتعديل</th>
                                 </tr>
                             </thead>
                             <tbody id="adminEmployeesTableBody" class="divide-y"></tbody>
@@ -269,7 +266,7 @@
             <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-4 mb-4 gap-3">
                     <div>
-                        <h2 class="text-xl font-bold text-slate-800">داشبورد تقييم أداء الإدارات المكلفة</h2>
+                        <h2 class="text-xl font-bold text-slate-800">داشبورد تقييم المرؤوسين المباشرين</h2>
                         <p id="mgrAssignedDeptBadge" class="text-xs text-blue-700 font-bold mt-1 bg-blue-50 px-3 py-1 rounded-full inline-block border border-blue-200"></p>
                     </div>
                     <div class="flex items-center gap-2 text-xs">
@@ -340,11 +337,11 @@
             </div>
         </div>
 
-        <!-- MODAL: PROMOTE & EDIT MANAGER CREDENTIALS AND MULTIPLE DEPTS (ADMIN) -->
+        <!-- MODAL: EDIT MANAGER CREDENTIALS & DIRECT MANAGER (ADMIN) -->
         <div id="promoteModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-200 space-y-4">
                 <div class="flex justify-between items-center border-b pb-2">
-                    <h3 class="font-bold text-slate-800 text-sm">إعدادات الحساب وتكليف الإدارات الملتزمة بالتقييم</h3>
+                    <h3 class="font-bold text-slate-800 text-sm">إعدادات الحساب وتعيين المدير المباشر</h3>
                     <button onclick="closePromoteModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
                 </div>
 
@@ -362,13 +359,14 @@
                     </div>
 
                     <div>
-                        <label class="block font-bold text-slate-700 mb-1">الإدارات المكلف بتقييمها (اضغط Ctrl / Cmd لاختيار أكثر من إدارة):</label>
-                        <select id="promoteAssignedDept" multiple size="4" class="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"></select>
-                        <p class="text-[10px] text-slate-400 mt-1">* يمكنك اختيار إدارات متعددة لتكون تحت سلطة التقييم لهذا المدير.</p>
+                        <label class="block font-bold text-slate-700 mb-1">المدير المباشر لهذا الموظف:</label>
+                        <select id="promoteDirectManagerSelect" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="">-- بدون مدير مباشر --</option>
+                        </select>
                     </div>
 
                     <div>
-                        <label class="block font-bold text-slate-700 mb-1">اسم المستخدم (Username):</label>
+                        <label class="block font-bold text-slate-700 mb-1">اسم المستخدم (Username) للمدير:</label>
                         <input type="text" id="promoteUsername" placeholder="مثال: m.ahmed" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
                     </div>
 
@@ -404,7 +402,7 @@
                     1: "مستوى يتطلب توجيه وإشراف مكثف مستمر مع إنجاز محدود للمهام الأساسية.",
                     2: "مستوى يلبي الحد الأدنى من متطلبات العمل الروتينية مع الحاجة لمتابعة في المواقف المعتادة.",
                     3: "مستوى جيد جداً، ينفذ معظم المهام باستقلالية وكفاءة عالية ودعم محدود.",
-                    4: "مستوى متتقدم، يطبق المهارات الفنية باحترافية وسرعة مع تقديم الدعم والحلول للزملاء.",
+                    4: "مستوى متقدم، يطبق المهارات الفنية باحترافية وسرعة مع تقديم الدعم والحلول للزملاء.",
                     5: "مستوى خبير ومتميز، يبتكر حلولاً نوعية، ويعد مرجعاً فنياً يطور أساليب العمل."
                 }
             },
@@ -465,13 +463,13 @@
             }
         ];
 
-        let db = JSON.parse(localStorage.getItem('hr_system_v4_db')) || {
+        let db = JSON.parse(localStorage.getItem('hr_system_v5_db')) || {
             admin: { username: "admin", password: "123" },
             employees: [
-                { id: "E101", code: "EMP101", name: "أحمد محمود علي", title: "أخصائي موارد بشرية", department: "الموارد البشرية", section: "التدريب", isManager: false },
-                { id: "E102", code: "EMP102", name: "د. محمد متولي", title: "مدير موارد بشرية", department: "الموارد البشرية", section: "الإدارة العامة", isManager: true, managerDept: ["الموارد البشرية", "تكنولوجيا المعلومات"], username: "m.metwally", password: "123" },
-                { id: "E103", code: "EMP103", name: "سارة إبراهيم حسن", title: "مهندسة برمجيات", department: "تكنولوجيا المعلومات", section: "التطوير", isManager: false },
-                { id: "E104", code: "EMP104", name: "م. شريف خالد", title: "مدير النظم", department: "تكنولوجيا المعلومات", section: "البنية التحتية", isManager: true, managerDept: ["تكنولوجيا المعلومات"], username: "s.khaled", password: "123" }
+                { id: "E101", code: "EMP101", name: "أحمد محمود علي", title: "أخصائي موارد بشرية", department: "الموارد البشرية", section: "التدريب", isManager: false, directManagerCode: "EMP102" },
+                { id: "E102", code: "EMP102", name: "د. محمد متولي", title: "مدير موارد بشرية", department: "الموارد البشرية", section: "الإدارة العامة", isManager: true, directManagerCode: "", username: "m.metwally", password: "123" },
+                { id: "E103", code: "EMP103", name: "سارة إبراهيم حسن", title: "مهندسة برمجيات", department: "تكنولوجيا المعلومات", section: "التطوير", isManager: false, directManagerCode: "EMP102" },
+                { id: "E104", code: "EMP104", name: "م. شريف خالد", title: "مدير النظم", department: "تكنولوجيا المعلومات", section: "البنية التحتية", isManager: true, directManagerCode: "", username: "s.khaled", password: "123" }
             ],
             evaluations: {}
         };
@@ -481,7 +479,7 @@
         let chartDeptsInstance = null;
 
         function saveDB() {
-            localStorage.setItem('hr_system_v4_db', JSON.stringify(db));
+            localStorage.setItem('hr_system_v5_db', JSON.stringify(db));
         }
 
         function handleLogin(e) {
@@ -518,19 +516,14 @@
             document.getElementById('loginForm').reset();
         }
 
-        function getAssignedDeptsArray(mgrData) {
-            if (!mgrData || !mgrData.managerDept) return [];
-            if (Array.isArray(mgrData.managerDept)) return mgrData.managerDept;
-            return mgrData.managerDept.split(',').map(d => d.trim()).filter(Boolean);
-        }
-
         function showView() {
             document.getElementById('loginSection').classList.add('hidden');
             document.getElementById('userInfoHeader').classList.remove('hidden');
             document.getElementById('userNameBadge').innerText = currentUser.name;
             
-            const deptsList = currentUser.role === 'manager' ? getAssignedDeptsArray(currentUser.empData).join(' - ') : '';
-            document.getElementById('userRoleBadge').innerText = currentUser.role === 'admin' ? 'صلاحية مسؤول النظام' : `مدير تقييم إدارات (${deptsList})`;
+            document.getElementById('userRoleBadge').innerText = currentUser.role === 'admin' 
+                ? 'صلاحية مسؤول النظام' 
+                : `مدير تقييم (الكود: ${currentUser.empData.code})`;
 
             if (currentUser.role === 'admin') {
                 document.getElementById('adminPanel').classList.remove('hidden');
@@ -559,14 +552,14 @@
 
         function downloadEmployeesTemplate() {
             const templateData = [
-                { "كود الموظف": "EMP201", "اسم الموظف": "علي حسن عبد الله", "الوظيفة": "محاسب أول", "الإدارة": "الشؤون المالية", "القسم": "الخزينة", "مدير": "لا", "اسم المستخدم": "", "كلمة السر": "" },
-                { "كود الموظف": "EMP202", "اسم الموظف": "د. أحمد سلامة", "الوظيفة": "مدير عام", "الإدارة": "المشتريات واللوجستيات", "القسم": "المشتريات المحلية", "مدير": "نعم", "اسم المستخدم": "a.salama", "كلمة السر": "pass2026" }
+                { "كود الموظف": "EMP101", "اسم الموظف": "د. أحمد سلامة", "الوظيفة": "مدير عام", "الإدارة": "المشتريات", "القسم": "العقود", "مدير": "نعم", "كود المدير المباشر": "", "اسم المستخدم": "a.salama", "كلمة السر": "pass2026" },
+                { "كود الموظف": "EMP102", "اسم الموظف": "علي حسن عبد الله", "الوظيفة": "محاسب أول", "الإدارة": "الشؤون المالية", "القسم": "الخزينة", "مدير": "لا", "كود المدير المباشر": "EMP101", "اسم المستخدم": "", "كلمة السر": "" }
             ];
 
             const ws = XLSX.utils.json_to_sheet(templateData);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "قائمة الموظفين والمدراء");
-            XLSX.writeFile(wb, "نموذج_استيراد_الموظفين_والمدراء.xlsx");
+            XLSX.writeFile(wb, "نموذج_ربط_المدير_المباشر.xlsx");
         }
 
         function handleEmployeesUpload(e) {
@@ -585,17 +578,16 @@
 
                     let addedCount = 0;
                     rows.forEach((row, idx) => {
-                        const code = row["كود الموظف"] || row["Code"] || ("EMP-" + (idx + 100));
+                        const code = (row["كود الموظف"] || row["Code"] || ("EMP-" + (idx + 100))).toString().trim();
                         const name = row["اسم الموظف"] || row["Name"];
                         const title = row["الوظيفة"] || row["Title"] || "موظف";
                         const dept = row["الإدارة"] || row["Department"] || "عام";
                         const sec = row["القسم"] || row["Section"] || "عام";
                         const isMgrVal = (row["مدير"] || row["IsManager"] || "").toString().trim().toLowerCase();
                         const isMgr = isMgrVal === 'نعم' || isMgrVal === 'مدير' || isMgrVal === 'yes' || isMgrVal === 'true';
+                        const mgrCode = (row["كود المدير المباشر"] || row["ManagerCode"] || "").toString().trim();
                         const uName = (row["اسم المستخدم"] || row["Username"] || "").toString().trim();
                         const pWord = (row["كلمة السر"] || row["Password"] || "").toString().trim();
-
-                        const parsedDepts = dept.split(',').map(d => d.trim()).filter(Boolean);
 
                         if (name) {
                             let existing = db.employees.find(emp => emp.code === code || emp.name === name);
@@ -605,21 +597,21 @@
                                     code: code,
                                     name: name,
                                     title: title,
-                                    department: parsedDepts[0] || "عام",
+                                    department: dept,
                                     section: sec,
                                     isManager: isMgr,
-                                    managerDept: isMgr ? parsedDepts : [],
+                                    directManagerCode: mgrCode,
                                     username: uName || (isMgr ? (name.split(' ')[0] + '.' + code).toLowerCase() : ""),
                                     password: pWord || (isMgr ? "123456" : "")
                                 });
                                 addedCount++;
                             } else {
                                 existing.title = title;
-                                existing.department = parsedDepts[0] || existing.department;
+                                existing.department = dept;
                                 existing.section = sec;
+                                existing.directManagerCode = mgrCode;
                                 if (isMgr) {
                                     existing.isManager = true;
-                                    existing.managerDept = parsedDepts;
                                     if (uName) existing.username = uName;
                                     if (pWord) existing.password = pWord;
                                 }
@@ -643,7 +635,9 @@
         function renderAdminEmployeesTable() {
             const tbody = document.getElementById('adminEmployeesTableBody');
             tbody.innerHTML = db.employees.map(emp => {
-                const assignedDepts = getAssignedDeptsArray(emp).join(', ');
+                const mgrObj = db.employees.find(m => m.code === emp.directManagerCode);
+                const mgrNameText = mgrObj ? `${mgrObj.name} (${mgrObj.code})` : (emp.directManagerCode || '-');
+
                 return `
                     <tr class="hover:bg-slate-50 transition">
                         <td class="p-3 font-mono font-bold text-slate-600">${emp.code}</td>
@@ -655,12 +649,12 @@
                                 ? `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800"><i class="fa-solid fa-user-tie"></i> مدير تقييم</span>` 
                                 : `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">موظف</span>`}
                         </td>
-                        <td class="p-3 font-bold text-purple-800">${emp.isManager ? (assignedDepts || '-') : '-'}</td>
+                        <td class="p-3 text-slate-700 font-semibold">${mgrNameText}</td>
                         <td class="p-3 font-mono text-blue-700 bg-blue-50/50 rounded px-2">${emp.isManager ? (emp.username || '-') : '-'}</td>
                         <td class="p-3 font-mono text-emerald-700 bg-emerald-50/50 font-bold rounded px-2">${emp.isManager ? (emp.password || '-') : '-'}</td>
                         <td class="p-3 text-center">
                             <button onclick="openPromoteModal('${emp.id}')" class="bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold px-3 py-1.5 rounded-lg border border-blue-300 transition text-[11px] flex items-center gap-1 mx-auto">
-                                <i class="fa-solid fa-user-gear"></i> ${emp.isManager ? 'تعديل التكليف/الباسوورد' : 'تحويل لمدير وتكليف إدارات'}
+                                <i class="fa-solid fa-user-gear"></i> تعديل البيانات والمدير
                             </button>
                         </td>
                     </tr>
@@ -685,11 +679,10 @@
             document.getElementById('promoteEmpName').value = emp.name;
             document.getElementById('promoteIsManagerCheckbox').checked = !!emp.isManager;
 
-            const depts = [...new Set(db.employees.map(e => e.department))];
-            const currentAssigned = getAssignedDeptsArray(emp);
-
-            const deptSelect = document.getElementById('promoteAssignedDept');
-            deptSelect.innerHTML = depts.map(d => `<option value="${d}" ${currentAssigned.includes(d) ? 'selected' : ''}>${d}</option>`).join('');
+            const allManagers = db.employees.filter(e => e.isManager && e.id !== emp.id);
+            const selectObj = document.getElementById('promoteDirectManagerSelect');
+            selectObj.innerHTML = `<option value="">-- بدون مدير مباشر --</option>` + 
+                allManagers.map(m => `<option value="${m.code}" ${emp.directManagerCode === m.code ? 'selected' : ''}>${m.name} (${m.code}) - ${m.department}</option>`).join('');
 
             document.getElementById('promoteUsername').value = emp.username || (emp.name.split(' ')[0] + '.' + emp.code).toLowerCase();
             document.getElementById('promotePassword').value = emp.password || '123456';
@@ -708,18 +701,14 @@
 
             if (emp) {
                 emp.isManager = document.getElementById('promoteIsManagerCheckbox').checked;
-                
-                const selectObj = document.getElementById('promoteAssignedDept');
-                const selectedOptions = Array.from(selectObj.selectedOptions).map(opt => opt.value);
-
-                emp.managerDept = selectedOptions;
+                emp.directManagerCode = document.getElementById('promoteDirectManagerSelect').value;
                 emp.username = document.getElementById('promoteUsername').value.trim();
                 emp.password = document.getElementById('promotePassword').value.trim();
 
                 saveDB();
                 closePromoteModal();
                 renderAdminEmployeesTable();
-                alert(`تم تحديث بيانات الحساب والتكليفات لـ (${emp.name}) بنجاح.`);
+                alert(`تم تحديث بيانات (${emp.name}) بنجاح.`);
             }
         }
 
@@ -783,19 +772,19 @@
 
         function renderManagerDashboard() {
             const mgr = currentUser.empData;
-            const assignedDepts = getAssignedDeptsArray(mgr);
             
-            document.getElementById('mgrAssignedDeptBadge').innerText = `الإدارات المكلفة بالتقييم: ${assignedDepts.join(' - ')}`;
+            document.getElementById('mgrAssignedDeptBadge').innerText = `المرؤوسين المباشرين للمدير: ${mgr.name} (الكود: ${mgr.code})`;
 
-            const deptEmps = db.employees.filter(e => assignedDepts.includes(e.department));
-            const evalCount = deptEmps.filter(e => db.evaluations[e.id]).length;
-            const pendingCount = deptEmps.length - evalCount;
+            // التصفية الدقيقة بناءً على كود المدير المباشر
+            const mySubordinates = db.employees.filter(e => e.directManagerCode === mgr.code);
+            const evalCount = mySubordinates.filter(e => db.evaluations[e.id]).length;
+            const pendingCount = mySubordinates.length - evalCount;
 
             document.getElementById('mgrCompletedCount').innerText = evalCount;
             document.getElementById('mgrPendingCount').innerText = pendingCount;
 
             const tbody = document.getElementById('mgrEmpTableBody');
-            tbody.innerHTML = deptEmps.map(emp => {
+            tbody.innerHTML = mySubordinates.map(emp => {
                 const isEvaluated = !!db.evaluations[emp.id];
                 return `
                     <tr class="hover:bg-slate-50 transition">
@@ -922,12 +911,15 @@
         function exportEvaluationsToExcel() {
             const exportRows = db.employees.map(emp => {
                 const evalData = db.evaluations[emp.id];
+                const mgrObj = db.employees.find(m => m.code === emp.directManagerCode);
+
                 const row = {
                     "كود الموظف": emp.code,
                     "اسم الموظف": emp.name,
                     "الوظيفة": emp.title,
                     "الإدارة": emp.department,
                     "القسم": emp.section,
+                    "المدير المباشر": mgrObj ? mgrObj.name : emp.directManagerCode,
                     "حالة التقييم": evalData ? "تم التقييم" : "قيد الانتظار",
                     "تاريخ التقييم": evalData ? evalData.evaluatedAt : "-",
                     "المقيم": evalData ? evalData.evaluatedBy : "-"
