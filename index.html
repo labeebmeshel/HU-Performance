@@ -31,7 +31,7 @@
                 </div>
                 <div>
                     <h1 class="font-bold text-lg leading-tight">منظومة إدارة وتقييم الأداء المؤسسي</h1>
-                    <p class="text-xs text-slate-400">إدارة التقييمات بربط كود المدير المباشر</p>
+                    <p class="text-xs text-slate-400">إدارة التقييمات وتحليلات المستويات وتوزيع الأداء</p>
                 </div>
             </div>
             <div id="userInfoHeader" class="hidden flex items-center space-x-4 space-x-reverse">
@@ -89,21 +89,22 @@
             <!-- Tabs Navigation Header -->
             <div class="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-wrap overflow-hidden">
                 <button onclick="switchAdminTab('dashboard')" id="tabBtn-dashboard" class="tab-btn active px-6 py-3.5 text-sm font-semibold text-slate-600 hover:text-blue-600 transition flex items-center gap-2">
-                    <i class="fa-solid fa-chart-line text-blue-600"></i> لوحة التحكم والتحليلات
+                    <i class="fa-solid fa-chart-line text-blue-600"></i> لوحة التحليلات والمستويات
                 </button>
                 <button onclick="switchAdminTab('import')" id="tabBtn-import" class="tab-btn px-6 py-3.5 text-sm font-semibold text-slate-600 hover:text-blue-600 transition flex items-center gap-2">
                     <i class="fa-solid fa-file-excel text-emerald-600"></i> استيراد شيت الموظفين
                 </button>
                 <button onclick="switchAdminTab('employees')" id="tabBtn-employees" class="tab-btn px-6 py-3.5 text-sm font-semibold text-slate-600 hover:text-blue-600 transition flex items-center gap-2">
-                    <i class="fa-solid fa-users-gear text-purple-600"></i> الموظفين والمدراء وكلمات السر
+                    <i class="fa-solid fa-users-gear text-purple-600"></i> إدارة الحسابات والموظفين (تعديل وحذف)
                 </button>
                 <button onclick="switchAdminTab('reports')" id="tabBtn-reports" class="tab-btn px-6 py-3.5 text-sm font-semibold text-slate-600 hover:text-blue-600 transition flex items-center gap-2">
-                    <i class="fa-solid fa-clipboard-check text-amber-600"></i> إدارة وتقييمات الموظفين (تعديل مباشر)
+                    <i class="fa-solid fa-clipboard-check text-amber-600"></i> التقييمات والدرجات الإجمالية (Total)
                 </button>
             </div>
 
-            <!-- ADMIN TAB 1: ANALYTICS DASHBOARD -->
+            <!-- ADMIN TAB 1: ANALYTICS DASHBOARD & LEVEL PERCENTAGES -->
             <div id="adminTab-dashboard" class="space-y-6">
+                <!-- Top Summary Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
                         <div>
@@ -117,11 +118,11 @@
 
                     <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
                         <div>
-                            <p class="text-xs font-bold text-slate-500 mb-1">إجمالي الإدارات</p>
-                            <h3 id="statTotalDepts" class="text-2xl font-black text-slate-800">0</h3>
+                            <p class="text-xs font-bold text-slate-500 mb-1">متوسط الدرجات العام</p>
+                            <h3 id="statAvgScore" class="text-2xl font-black text-blue-600">0%</h3>
                         </div>
                         <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center text-xl">
-                            <i class="fa-solid fa-sitemap"></i>
+                            <i class="fa-solid fa-calculator"></i>
                         </div>
                     </div>
 
@@ -146,19 +147,35 @@
                     </div>
                 </div>
 
+                <!-- Levels Breakdowns (1 to 5) & Percentages -->
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+                    <div class="flex justify-between items-center border-b pb-3">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-base">توزيع نسب ومستويات التقييم (Level Breakdown)</h3>
+                            <p class="text-xs text-slate-500 mt-0.5">نسب الموظفين لكل مستوى تقييمي بناءً على متوسط الدرجة الإجمالية لكل عنصر</p>
+                        </div>
+                        <button onclick="exportLevelPercentagesToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition flex items-center gap-2 shadow-sm">
+                            <i class="fa-solid fa-file-excel"></i> تنزيل نسب المستويات Excel
+                        </button>
+                    </div>
+
+                    <div id="levelsCardsContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3"></div>
+                </div>
+
+                <!-- Charts Section -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
                         <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2 border-b pb-2">
-                            <i class="fa-solid fa-chart-pie text-blue-600"></i> نسبة اكتمال التقييمات المنجزة
+                            <i class="fa-solid fa-chart-pie text-blue-600"></i> توزيع مستويات التقييم الخمسه (Levels 1 - 5)
                         </h4>
                         <div class="relative max-h-64 flex justify-center">
-                            <canvas id="chartCompletion"></canvas>
+                            <canvas id="chartLevels"></canvas>
                         </div>
                     </div>
 
                     <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
                         <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2 border-b pb-2">
-                            <i class="fa-solid fa-chart-column text-purple-600"></i> حالة التقييمات حسب الإدارات
+                            <i class="fa-solid fa-chart-column text-purple-600"></i> متوسط درجات التقييم حسب الإدارات
                         </h4>
                         <div class="relative max-h-64">
                             <canvas id="chartDeptsProgress"></canvas>
@@ -193,13 +210,13 @@
                 </div>
             </div>
 
-            <!-- ADMIN TAB 3: MANAGE EMPLOYEES & MANAGERS PASSWORDS -->
+            <!-- ADMIN TAB 3: MANAGE EMPLOYEES & DELETE -->
             <div id="adminTab-employees" class="hidden space-y-6">
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-4 gap-3">
                         <div>
-                            <h3 class="font-bold text-slate-800 text-base">إدارة حسابات المدراء وتحديد كود المدير المباشر</h3>
-                            <p class="text-xs text-slate-500 mt-1">عرض وتعديل بيانات الموظفين والمدراء وتحديد المدير المباشر لكل موظف.</p>
+                            <h3 class="font-bold text-slate-800 text-base">إدارة حسابات الموظفين والمدراء وحذفهم</h3>
+                            <p class="text-xs text-slate-500 mt-1">عرض البيانات، تعديل المدير المباشر، وحذف الموظف أو المدير من النظام نهائياً.</p>
                         </div>
                         <div class="w-full md:w-64">
                             <input type="text" id="empSearchInput" onkeyup="filterEmployeesTable()" placeholder="بحث باسم الموظف أو الكود..." class="w-full p-2 border border-slate-300 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500">
@@ -218,7 +235,7 @@
                                     <th class="p-3">المدير المباشر</th>
                                     <th class="p-3">اسم المستخدم</th>
                                     <th class="p-3">كلمة السر</th>
-                                    <th class="p-3 text-center">الإجراء والتعديل</th>
+                                    <th class="p-3 text-center">الإجراءات</th>
                                 </tr>
                             </thead>
                             <tbody id="adminEmployeesTableBody" class="divide-y"></tbody>
@@ -227,16 +244,16 @@
                 </div>
             </div>
 
-            <!-- ADMIN TAB 4: EVALUATIONS & DIRECT EDITING -->
+            <!-- ADMIN TAB 4: EVALUATIONS, SCORES & TOTAL -->
             <div id="adminTab-reports" class="hidden space-y-6">
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-4 gap-3">
                         <div>
-                            <h3 class="font-bold text-slate-800 text-base">إدارة وتقييمات الموظفين (تعديل وتقييم مباشر للأدمن)</h3>
-                            <p class="text-xs text-slate-500 mt-0.5">يمكن للأدمن رؤية تقييمات كل موظف، وتعديل أي تقييم أو تقييم الموظف بنفسه وحفظ التعديلات فوراً.</p>
+                            <h3 class="font-bold text-slate-800 text-base">سجل التقييمات وحساب المجموع الكلي (Total) والنسبة المئوية</h3>
+                            <p class="text-xs text-slate-500 mt-0.5">يتضمن المجموع الكلي والنسبة المئوية لكل موظف بناءً على أداء كافة العناصر.</p>
                         </div>
                         <button onclick="exportEvaluationsToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition flex items-center gap-2 shadow-lg shadow-emerald-600/20">
-                            <i class="fa-solid fa-file-excel text-base"></i> تنزيل تقرير التقييمات Excel
+                            <i class="fa-solid fa-file-excel text-base"></i> تنزيل تقرير التقييمات بالـ Total Excel
                         </button>
                     </div>
 
@@ -249,8 +266,9 @@
                                     <th class="p-3">الإدارة</th>
                                     <th class="p-3">المدير المقيم</th>
                                     <th class="p-3 text-center">حالة التقييم</th>
-                                    <th class="p-3">تاريخ التقييم</th>
-                                    <th class="p-3">ملاحظات وتطوير</th>
+                                    <th class="p-3 text-center">المجموع (Total)</th>
+                                    <th class="p-3 text-center">النسبة %</th>
+                                    <th class="p-3 text-center">المستوى</th>
                                     <th class="p-3 text-center">الإجراء</th>
                                 </tr>
                             </thead>
@@ -289,6 +307,7 @@
                                     <th class="p-3">الوظيفة</th>
                                     <th class="p-3">الإدارة</th>
                                     <th class="p-3">القسم</th>
+                                    <th class="p-3 text-center">المجموع (Total)</th>
                                     <th class="p-3 text-center">حالة التقييم</th>
                                     <th class="p-3 text-center">الإجراء</th>
                                 </tr>
@@ -463,7 +482,9 @@
             }
         ];
 
-        let db = JSON.parse(localStorage.getItem('hr_system_v5_db')) || {
+        const MAX_POSSIBLE_SCORE = KRAS.length * 5; // 6 * 5 = 30 درجة
+
+        let db = JSON.parse(localStorage.getItem('hr_system_v6_db')) || {
             admin: { username: "admin", password: "123" },
             employees: [
                 { id: "E101", code: "EMP101", name: "أحمد محمود علي", title: "أخصائي موارد بشرية", department: "الموارد البشرية", section: "التدريب", isManager: false, directManagerCode: "EMP102" },
@@ -475,11 +496,33 @@
         };
 
         let currentUser = null;
-        let chartCompletionInstance = null;
+        let chartLevelsInstance = null;
         let chartDeptsInstance = null;
 
         function saveDB() {
-            localStorage.setItem('hr_system_v5_db', JSON.stringify(db));
+            localStorage.setItem('hr_system_v6_db', JSON.stringify(db));
+        }
+
+        function calculateEmpScore(empId) {
+            const evalData = db.evaluations[empId];
+            if (!evalData || !evalData.scores) return null;
+
+            let total = 0;
+            let count = 0;
+            Object.values(evalData.scores).forEach(score => {
+                total += Number(score);
+                count++;
+            });
+
+            const percentage = ((total / MAX_POSSIBLE_SCORE) * 100).toFixed(1);
+            const level = Math.round(total / (count || 1));
+
+            return {
+                totalScore: total,
+                maxScore: MAX_POSSIBLE_SCORE,
+                percentage: Number(percentage),
+                level: level || 1
+            };
         }
 
         function handleLogin(e) {
@@ -548,6 +591,27 @@
             if (tabName === 'dashboard') renderAdminDashboardCharts();
             if (tabName === 'employees') renderAdminEmployeesTable();
             if (tabName === 'reports') renderAdminReportsTable();
+        }
+
+        function deleteEmployee(empId) {
+            const emp = db.employees.find(e => e.id === empId);
+            if (!emp) return;
+
+            if (confirm(`هل أنت تأكد من إرادتك لحذف الموظف/المدير (${emp.name})؟ سيتم مسح بياناته وتقييماته تماماً.`)) {
+                db.employees = db.employees.filter(e => e.id !== empId);
+                delete db.evaluations[empId];
+
+                // تنظيف أي موظفين مرؤوسين لهذا المدير
+                db.employees.forEach(e => {
+                    if (e.directManagerCode === emp.code) {
+                        e.directManagerCode = "";
+                    }
+                });
+
+                saveDB();
+                renderAdminEmployeesTable();
+                alert("تم حذف الموظف بنجاح.");
+            }
         }
 
         function downloadEmployeesTemplate() {
@@ -652,9 +716,12 @@
                         <td class="p-3 text-slate-700 font-semibold">${mgrNameText}</td>
                         <td class="p-3 font-mono text-blue-700 bg-blue-50/50 rounded px-2">${emp.isManager ? (emp.username || '-') : '-'}</td>
                         <td class="p-3 font-mono text-emerald-700 bg-emerald-50/50 font-bold rounded px-2">${emp.isManager ? (emp.password || '-') : '-'}</td>
-                        <td class="p-3 text-center">
-                            <button onclick="openPromoteModal('${emp.id}')" class="bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold px-3 py-1.5 rounded-lg border border-blue-300 transition text-[11px] flex items-center gap-1 mx-auto">
-                                <i class="fa-solid fa-user-gear"></i> تعديل البيانات والمدير
+                        <td class="p-3 text-center flex justify-center gap-1">
+                            <button onclick="openPromoteModal('${emp.id}')" title="تعديل البيانات" class="bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold px-2.5 py-1.5 rounded-lg border border-blue-300 transition text-[11px]">
+                                <i class="fa-solid fa-user-gear"></i> تعديل
+                            </button>
+                            <button onclick="deleteEmployee('${emp.id}')" title="حذف الموظف" class="bg-red-50 hover:bg-red-100 text-red-600 font-bold px-2.5 py-1.5 rounded-lg border border-red-300 transition text-[11px]">
+                                <i class="fa-solid fa-trash-can"></i> حذف
                             </button>
                         </td>
                     </tr>
@@ -719,55 +786,138 @@
             const evaluatedCount = evalKeys.length;
             const pendingCount = totalEmps - evaluatedCount;
 
+            // حساب درجات كل الموظفين
+            let levelCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+            let grandTotalPct = 0;
+
+            db.employees.forEach(emp => {
+                const res = calculateEmpScore(emp.id);
+                if (res) {
+                    levelCounts[res.level] = (levelCounts[res.level] || 0) + 1;
+                    grandTotalPct += res.percentage;
+                }
+            });
+
+            const avgPct = evaluatedCount > 0 ? (grandTotalPct / evaluatedCount).toFixed(1) : 0;
+
             document.getElementById('statTotalEmployees').innerText = totalEmps;
-            document.getElementById('statTotalDepts').innerText = depts.length;
+            document.getElementById('statAvgScore').innerText = `${avgPct}%`;
             document.getElementById('statEvaluatedCount').innerText = evaluatedCount;
             document.getElementById('statPendingCount').innerText = pendingCount > 0 ? pendingCount : 0;
 
-            const ctxCompletion = document.getElementById('chartCompletion').getContext('2d');
-            if (chartCompletionInstance) chartCompletionInstance.destroy();
+            // عرض بطاقات النسب للمستويات (Level Breakdown Cards)
+            const levelTitles = {
+                1: "المستوى 1 (ضعيف)",
+                2: "المستوى 2 (مقبول)",
+                3: "المستوى 3 (جيد جداً)",
+                4: "المستوى 4 (متقدم)",
+                5: "المستوى 5 (متميز/خبير)"
+            };
 
-            chartCompletionInstance = new Chart(ctxCompletion, {
-                type: 'doughnut',
+            const levelColors = {
+                1: "bg-red-50 border-red-200 text-red-800",
+                2: "bg-amber-50 border-amber-200 text-amber-800",
+                3: "bg-blue-50 border-blue-200 text-blue-800",
+                4: "bg-indigo-50 border-indigo-200 text-indigo-800",
+                5: "bg-emerald-50 border-emerald-200 text-emerald-800"
+            };
+
+            const levelsContainer = document.getElementById('levelsCardsContainer');
+            levelsContainer.innerHTML = [1, 2, 3, 4, 5].map(lvl => {
+                const count = levelCounts[lvl] || 0;
+                const pctOfEvaluated = evaluatedCount > 0 ? ((count / evaluatedCount) * 100).toFixed(1) : 0;
+                const pctOfTotal = totalEmps > 0 ? ((count / totalEmps) * 100).toFixed(1) : 0;
+
+                return `
+                    <div class="p-3.5 rounded-xl border ${levelColors[lvl]} space-y-1">
+                        <p class="font-bold text-xs opacity-90">${levelTitles[lvl]}</p>
+                        <h4 class="text-xl font-black">${count} <span class="text-xs font-normal">موظف</span></h4>
+                        <div class="pt-1 border-t border-slate-200/50 text-[11px] font-semibold flex justify-between">
+                            <span>النسبة للمُقيّمين:</span>
+                            <strong>${pctOfEvaluated}%</strong>
+                        </div>
+                        <div class="text-[10px] opacity-80 flex justify-between">
+                            <span>من إجمالي الشركة:</span>
+                            <span>${pctOfTotal}%</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // رسم رسم بياني دائري للمستويات
+            const ctxLevels = document.getElementById('chartLevels').getContext('2d');
+            if (chartLevelsInstance) chartLevelsInstance.destroy();
+
+            chartLevelsInstance = new Chart(ctxLevels, {
+                type: 'pie',
                 data: {
-                    labels: ['تم التقييم', 'في الانتظار'],
+                    labels: ['المستوى 1', 'المستوى 2', 'المستوى 3', 'المستوى 4', 'المستوى 5'],
                     datasets: [{
-                        data: [evaluatedCount, pendingCount > 0 ? pendingCount : 0],
-                        backgroundColor: ['#10b981', '#f59e0b']
+                        data: [levelCounts[1], levelCounts[2], levelCounts[3], levelCounts[4], levelCounts[5]],
+                        backgroundColor: ['#ef4444', '#f59e0b', '#3b82f6', '#6366f1', '#10b981']
                     }]
                 },
                 options: { responsive: true, maintainAspectRatio: false }
             });
 
+            // رسم درجات الإدارات
             const ctxDepts = document.getElementById('chartDeptsProgress').getContext('2d');
             if (chartDeptsInstance) chartDeptsInstance.destroy();
 
-            const deptsEvaluated = depts.map(d => {
+            const deptsAvgScores = depts.map(d => {
                 const empsInDept = db.employees.filter(e => e.department === d);
-                return empsInDept.filter(e => db.evaluations[e.id]).length;
-            });
-
-            const deptsPending = depts.map(d => {
-                const empsInDept = db.employees.filter(e => e.department === d);
-                const evalInDept = empsInDept.filter(e => db.evaluations[e.id]).length;
-                return empsInDept.length - evalInDept;
+                let deptTotal = 0;
+                let deptCount = 0;
+                empsInDept.forEach(e => {
+                    const res = calculateEmpScore(e.id);
+                    if (res) { deptTotal += res.percentage; deptCount++; }
+                });
+                return deptCount > 0 ? (deptTotal / deptCount).toFixed(1) : 0;
             });
 
             chartDeptsInstance = new Chart(ctxDepts, {
                 type: 'bar',
                 data: {
                     labels: depts,
-                    datasets: [
-                        { label: 'مكتمل', data: deptsEvaluated, backgroundColor: '#10b981' },
-                        { label: 'متبقي', data: deptsPending, backgroundColor: '#f59e0b' }
-                    ]
+                    datasets: [{
+                        label: 'متوسط الأداء %',
+                        data: deptsAvgScores,
+                        backgroundColor: '#8b5cf6'
+                    }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } }
+                    scales: { y: { beginAtZero: true, max: 100 } }
                 }
             });
+        }
+
+        function exportLevelPercentagesToExcel() {
+            const totalEmps = db.employees.length;
+            const evalKeys = Object.keys(db.evaluations);
+            const evaluatedCount = evalKeys.length;
+
+            let levelCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+            db.employees.forEach(emp => {
+                const res = calculateEmpScore(emp.id);
+                if (res) levelCounts[res.level] = (levelCounts[res.level] || 0) + 1;
+            });
+
+            const rows = [1, 2, 3, 4, 5].map(lvl => {
+                const count = levelCounts[lvl] || 0;
+                return {
+                    "المستوى": `مستوى ${lvl}`,
+                    "عدد الموظفين": count,
+                    "النسبة من المقيّمين %": evaluatedCount > 0 ? `${((count / evaluatedCount) * 100).toFixed(1)}%` : "0%",
+                    "النسبة من إجمالي الموظفين %": totalEmps > 0 ? `${((count / totalEmps) * 100).toFixed(1)}%` : "0%"
+                };
+            });
+
+            const ws = XLSX.utils.json_to_sheet(rows);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "نسب المستويات");
+            XLSX.writeFile(wb, `نسب_مستويات_التقييم_${new Date().toISOString().slice(0,10)}.xlsx`);
         }
 
         function renderManagerDashboard() {
@@ -775,7 +925,6 @@
             
             document.getElementById('mgrAssignedDeptBadge').innerText = `المرؤوسين المباشرين للمدير: ${mgr.name} (الكود: ${mgr.code})`;
 
-            // التصفية الدقيقة بناءً على كود المدير المباشر
             const mySubordinates = db.employees.filter(e => e.directManagerCode === mgr.code);
             const evalCount = mySubordinates.filter(e => db.evaluations[e.id]).length;
             const pendingCount = mySubordinates.length - evalCount;
@@ -786,6 +935,8 @@
             const tbody = document.getElementById('mgrEmpTableBody');
             tbody.innerHTML = mySubordinates.map(emp => {
                 const isEvaluated = !!db.evaluations[emp.id];
+                const res = calculateEmpScore(emp.id);
+
                 return `
                     <tr class="hover:bg-slate-50 transition">
                         <td class="p-3 font-mono font-bold text-slate-600">${emp.code}</td>
@@ -793,6 +944,9 @@
                         <td class="p-3 text-slate-600">${emp.title}</td>
                         <td class="p-3 font-semibold text-blue-900">${emp.department}</td>
                         <td class="p-3 text-slate-600">${emp.section}</td>
+                        <td class="p-3 text-center font-bold text-blue-700">
+                            ${res ? `${res.totalScore} / ${res.maxScore} (${res.percentage}%)` : '-'}
+                        </td>
                         <td class="p-3 text-center">
                             ${isEvaluated 
                                 ? `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800"><i class="fa-solid fa-check"></i> تم التقييم</span>` 
@@ -884,6 +1038,7 @@
             tbody.innerHTML = db.employees.map(emp => {
                 const evalData = db.evaluations[emp.id];
                 const isEval = !!evalData;
+                const res = calculateEmpScore(emp.id);
 
                 return `
                     <tr class="hover:bg-slate-50 transition">
@@ -896,8 +1051,9 @@
                                 ? `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800"><i class="fa-solid fa-check"></i> تم التقييم</span>` 
                                 : `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">قيد الانتظار</span>`}
                         </td>
-                        <td class="p-3 font-mono text-slate-500">${isEval ? evalData.evaluatedAt : '-'}</td>
-                        <td class="p-3 text-slate-600 max-w-xs truncate">${isEval ? (evalData.notes || 'لا يوجد') : '-'}</td>
+                        <td class="p-3 text-center font-bold text-blue-900">${res ? `${res.totalScore} / ${res.maxScore}` : '-'}</td>
+                        <td class="p-3 text-center font-bold text-purple-700">${res ? `${res.percentage}%` : '-'}</td>
+                        <td class="p-3 text-center font-bold text-emerald-700">${res ? `مستوى ${res.level}` : '-'}</td>
                         <td class="p-3 text-center">
                             <button onclick="openEvalModal('${emp.id}')" class="px-3 py-1 rounded font-bold text-[11px] transition flex items-center gap-1 mx-auto ${isEval ? 'bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-300' : 'bg-blue-600 text-white hover:bg-blue-700'}">
                                 <i class="fa-solid ${isEval ? 'fa-pen-to-square' : 'fa-clipboard-check'}"></i> ${isEval ? 'تعديل التقييم' : 'تقييم الآن'}
@@ -912,6 +1068,7 @@
             const exportRows = db.employees.map(emp => {
                 const evalData = db.evaluations[emp.id];
                 const mgrObj = db.employees.find(m => m.code === emp.directManagerCode);
+                const res = calculateEmpScore(emp.id);
 
                 const row = {
                     "كود الموظف": emp.code,
@@ -921,6 +1078,10 @@
                     "القسم": emp.section,
                     "المدير المباشر": mgrObj ? mgrObj.name : emp.directManagerCode,
                     "حالة التقييم": evalData ? "تم التقييم" : "قيد الانتظار",
+                    "المجموع الإجمالي (Total Score)": res ? res.totalScore : "-",
+                    "الحد الأقصى للمجموع": res ? res.maxScore : "-",
+                    "النسبة المئوية %": res ? `${res.percentage}%` : "-",
+                    "المستوى النهائى": res ? `مستوى ${res.level}` : "-",
                     "تاريخ التقييم": evalData ? evalData.evaluatedAt : "-",
                     "المقيم": evalData ? evalData.evaluatedBy : "-"
                 };
@@ -928,7 +1089,7 @@
                 KRAS.forEach(kra => {
                     if (evalData && evalData.scores[kra.id]) {
                         const lvl = evalData.scores[kra.id];
-                        row[kra.title] = kra.levels[lvl];
+                        row[kra.title] = `${lvl} - ${kra.levels[lvl]}`;
                     } else {
                         row[kra.title] = "غير مقيم";
                     }
@@ -940,8 +1101,8 @@
 
             const ws = XLSX.utils.json_to_sheet(exportRows);
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "تقرير التقييمات");
-            XLSX.writeFile(wb, `تقرير_تقييمات_الأداء_${new Date().toISOString().slice(0,10)}.xlsx`);
+            XLSX.utils.book_append_sheet(wb, ws, "تقرير التقييمات بالـ Total");
+            XLSX.writeFile(wb, `تقرير_تقييمات_الأداء_الشامل_${new Date().toISOString().slice(0,10)}.xlsx`);
         }
     </script>
 </body>
