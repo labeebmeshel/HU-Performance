@@ -1,5 +1,4 @@
-# Creating an updated single-file index.html script that directly syncs local state with Firebase Realtime Database
-full_firebase_sync_code = """<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -107,75 +106,51 @@ full_firebase_sync_code = """<!DOCTYPE html>
                     <i class="fa-solid fa-clipboard-check text-amber-600"></i> التقييمات السحابية والـ Total
                 </button>
                 <button onclick="switchAdminTab('firebase')" id="tabBtn-firebase" class="tab-btn px-6 py-3.5 text-sm font-semibold text-slate-600 hover:text-blue-600 transition flex items-center gap-2">
-                    <i class="fa-solid fa-fire text-orange-600"></i> إعدادات Firebase
+                    <i class="fa-solid fa-fire text-orange-600"></i> إعدادات Firebase والتحكم
                 </button>
             </div>
 
             <!-- ADMIN TAB 1: ANALYTICS DASHBOARD -->
             <div id="adminTab-dashboard" class="space-y-6">
-                <!-- Dashboard Filters Bar -->
                 <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap gap-3 items-center text-xs">
                     <span class="font-bold text-slate-700 flex items-center gap-1"><i class="fa-solid fa-filter text-blue-600"></i> تصفية التحليلات:</span>
-                    
-                    <select id="dashFilterDept" onchange="renderAdminDashboardCharts()" class="p-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">جميع الإدارات</option>
-                    </select>
-
-                    <select id="dashFilterSection" onchange="renderAdminDashboardCharts()" class="p-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">جميع الأقسام</option>
-                    </select>
-
-                    <select id="dashFilterManager" onchange="renderAdminDashboardCharts()" class="p-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">جميع المدراء المقيمين</option>
-                    </select>
-
+                    <select id="dashFilterDept" onchange="renderAdminDashboardCharts()" class="p-2 border border-slate-300 rounded-lg outline-none"><option value="">جميع الإدارات</option></select>
+                    <select id="dashFilterSection" onchange="renderAdminDashboardCharts()" class="p-2 border border-slate-300 rounded-lg outline-none"><option value="">جميع الأقسام</option></select>
+                    <select id="dashFilterManager" onchange="renderAdminDashboardCharts()" class="p-2 border border-slate-300 rounded-lg outline-none"><option value="">جميع المدراء المقيمين</option></select>
                     <button onclick="resetDashFilters()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-2 rounded-lg font-bold">إعادة ضبط</button>
                 </div>
 
-                <!-- Top Summary Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
                         <div>
                             <p class="text-xs font-bold text-slate-500 mb-1">إجمالي الموظفين</p>
                             <h3 id="statTotalEmployees" class="text-2xl font-black text-slate-800">0</h3>
                         </div>
-                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl">
-                            <i class="fa-solid fa-users"></i>
-                        </div>
+                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl"><i class="fa-solid fa-users"></i></div>
                     </div>
-
                     <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
                         <div>
                             <p class="text-xs font-bold text-slate-500 mb-1">متوسط الدرجات العام</p>
                             <h3 id="statAvgScore" class="text-2xl font-black text-blue-600">0%</h3>
                         </div>
-                        <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center text-xl">
-                            <i class="fa-solid fa-calculator"></i>
-                        </div>
+                        <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center text-xl"><i class="fa-solid fa-calculator"></i></div>
                     </div>
-
                     <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
                         <div>
                             <p class="text-xs font-bold text-slate-500 mb-1">تم تقييمهم</p>
                             <h3 id="statEvaluatedCount" class="text-2xl font-black text-emerald-600">0</h3>
                         </div>
-                        <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl">
-                            <i class="fa-solid fa-circle-check"></i>
-                        </div>
+                        <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl"><i class="fa-solid fa-circle-check"></i></div>
                     </div>
-
                     <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
                         <div>
                             <p class="text-xs font-bold text-slate-500 mb-1">في انتظار التقييم</p>
                             <h3 id="statPendingCount" class="text-2xl font-black text-amber-600">0</h3>
                         </div>
-                        <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl">
-                            <i class="fa-solid fa-clock"></i>
-                        </div>
+                        <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl"><i class="fa-solid fa-clock"></i></div>
                     </div>
                 </div>
 
-                <!-- Levels Breakdowns -->
                 <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
                     <div class="flex justify-between items-center border-b pb-3">
                         <div>
@@ -186,28 +161,17 @@ full_firebase_sync_code = """<!DOCTYPE html>
                             <i class="fa-solid fa-file-excel"></i> تنزيل نسب المستويات Excel
                         </button>
                     </div>
-
                     <div id="levelsCardsContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3"></div>
                 </div>
 
-                <!-- Charts Section -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
-                        <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2 border-b pb-2">
-                            <i class="fa-solid fa-chart-pie text-blue-600"></i> توزيع مستويات التقييم (Levels 1 - 5)
-                        </h4>
-                        <div class="relative max-h-64 flex justify-center">
-                            <canvas id="chartLevels"></canvas>
-                        </div>
+                        <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2 border-b pb-2"><i class="fa-solid fa-chart-pie text-blue-600"></i> توزيع مستويات التقييم (Levels 1 - 5)</h4>
+                        <div class="relative max-h-64 flex justify-center"><canvas id="chartLevels"></canvas></div>
                     </div>
-
                     <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
-                        <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2 border-b pb-2">
-                            <i class="fa-solid fa-chart-column text-purple-600"></i> متوسط درجات التقييم حسب الإدارات
-                        </h4>
-                        <div class="relative max-h-64">
-                            <canvas id="chartDeptsProgress"></canvas>
-                        </div>
+                        <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2 border-b pb-2"><i class="fa-solid fa-chart-column text-purple-600"></i> متوسط درجات التقييم حسب الإدارات</h4>
+                        <div class="relative max-h-64"><canvas id="chartDeptsProgress"></canvas></div>
                     </div>
                 </div>
             </div>
@@ -250,20 +214,10 @@ full_firebase_sync_code = """<!DOCTYPE html>
 
                     <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 grid grid-cols-1 md:grid-cols-5 gap-2 text-xs">
                         <input type="text" id="empFilterSearch" onkeyup="filterEmployeesTable()" placeholder="بحث بالاسم أو الكود..." class="p-2 border border-slate-300 rounded-lg outline-none">
-                        <select id="empFilterDept" onchange="filterEmployeesTable()" class="p-2 border border-slate-300 rounded-lg outline-none">
-                            <option value="">كل الإدارات</option>
-                        </select>
-                        <select id="empFilterSection" onchange="filterEmployeesTable()" class="p-2 border border-slate-300 rounded-lg outline-none">
-                            <option value="">كل الأقسام</option>
-                        </select>
-                        <select id="empFilterRole" onchange="filterEmployeesTable()" class="p-2 border border-slate-300 rounded-lg outline-none">
-                            <option value="">كل الصفات (مدير / موظف)</option>
-                            <option value="mgr">مدير تقييم فقط</option>
-                            <option value="emp">موظف فقط</option>
-                        </select>
-                        <select id="empFilterDirectMgr" onchange="filterEmployeesTable()" class="p-2 border border-slate-300 rounded-lg outline-none">
-                            <option value="">كل المدراء المباشرين</option>
-                        </select>
+                        <select id="empFilterDept" onchange="filterEmployeesTable()" class="p-2 border border-slate-300 rounded-lg outline-none"><option value="">كل الإدارات</option></select>
+                        <select id="empFilterSection" onchange="filterEmployeesTable()" class="p-2 border border-slate-300 rounded-lg outline-none"><option value="">كل الأقسام</option></select>
+                        <select id="empFilterRole" onchange="filterEmployeesTable()" class="p-2 border border-slate-300 rounded-lg outline-none"><option value="">كل الصفات (مدير / موظف)</option><option value="mgr">مدير تقييم فقط</option><option value="emp">موظف فقط</option></select>
+                        <select id="empFilterDirectMgr" onchange="filterEmployeesTable()" class="p-2 border border-slate-300 rounded-lg outline-none"><option value="">كل المدراء المباشرين</option></select>
                     </div>
 
                     <div class="overflow-x-auto">
@@ -303,25 +257,10 @@ full_firebase_sync_code = """<!DOCTYPE html>
 
                     <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 grid grid-cols-1 md:grid-cols-5 gap-2 text-xs">
                         <input type="text" id="rptFilterSearch" onkeyup="filterReportsTable()" placeholder="بحث باسم الموظف أو الكود..." class="p-2 border border-slate-300 rounded-lg outline-none">
-                        <select id="rptFilterDept" onchange="filterReportsTable()" class="p-2 border border-slate-300 rounded-lg outline-none">
-                            <option value="">كل الإدارات</option>
-                        </select>
-                        <select id="rptFilterStatus" onchange="filterReportsTable()" class="p-2 border border-slate-300 rounded-lg outline-none">
-                            <option value="">كل حالات التقييم</option>
-                            <option value="done">تم التقييم</option>
-                            <option value="pending">قيد الانتظار</option>
-                        </select>
-                        <select id="rptFilterLevel" onchange="filterReportsTable()" class="p-2 border border-slate-300 rounded-lg outline-none">
-                            <option value="">كل المستويات (1-5)</option>
-                            <option value="1">مستوى 1</option>
-                            <option value="2">مستوى 2</option>
-                            <option value="3">مستوى 3</option>
-                            <option value="4">مستوى 4</option>
-                            <option value="5">مستوى 5</option>
-                        </select>
-                        <select id="rptFilterEvaluator" onchange="filterReportsTable()" class="p-2 border border-slate-300 rounded-lg outline-none">
-                            <option value="">كل المدراء المقيمين</option>
-                        </select>
+                        <select id="rptFilterDept" onchange="filterReportsTable()" class="p-2 border border-slate-300 rounded-lg outline-none"><option value="">كل الإدارات</option></select>
+                        <select id="rptFilterStatus" onchange="filterReportsTable()" class="p-2 border border-slate-300 rounded-lg outline-none"><option value="">كل حالات التقييم</option><option value="done">تم التقييم</option><option value="pending">قيد الانتظار</option></select>
+                        <select id="rptFilterLevel" onchange="filterReportsTable()" class="p-2 border border-slate-300 rounded-lg outline-none"><option value="">كل المستويات (1-5)</option><option value="1">مستوى 1</option><option value="2">مستوى 2</option><option value="3">مستوى 3</option><option value="4">مستوى 4</option><option value="5">مستوى 5</option></select>
+                        <select id="rptFilterEvaluator" onchange="filterReportsTable()" class="p-2 border border-slate-300 rounded-lg outline-none"><option value="">كل المدراء المقيمين</option></select>
                     </div>
 
                     <div class="overflow-x-auto">
@@ -345,9 +284,9 @@ full_firebase_sync_code = """<!DOCTYPE html>
                 </div>
             </div>
 
-            <!-- ADMIN TAB 5: FIREBASE CONFIGURATION -->
+            <!-- ADMIN TAB 5: FIREBASE CONFIG & DATA CLEARING -->
             <div id="adminTab-firebase" class="hidden space-y-6">
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 max-w-2xl mx-auto space-y-4">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 max-w-2xl mx-auto space-y-6">
                     <div class="border-b pb-3">
                         <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
                             <i class="fa-solid fa-fire text-orange-500"></i> إعدادات الربط المباشر بـ Firebase
@@ -380,6 +319,31 @@ full_firebase_sync_code = """<!DOCTYPE html>
                             </button>
                         </div>
                     </form>
+
+                    <!-- Advanced Data Control & Purge Buttons -->
+                    <div class="border-t pt-6 space-y-4">
+                        <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-triangle-exclamation text-amber-500"></i> خيارات إدارة وتطهير البيانات
+                        </h4>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div class="p-4 bg-amber-50 rounded-xl border border-amber-200 space-y-2">
+                                <h5 class="font-bold text-amber-900 text-xs"><i class="fa-solid fa-broom"></i> مسح البيانات من الأداة فقط</h5>
+                                <p class="text-[11px] text-amber-700 leading-relaxed">يمسح الكاش المحلي من متصفحك فقط، **مع الحفاظ التام على كامل البيانات** سحابياً على Firebase.</p>
+                                <button onclick="clearLocalOnlyData()" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 rounded-lg text-xs transition">
+                                    مسح الأداة فقط (Local Clear)
+                                </button>
+                            </div>
+
+                            <div class="p-4 bg-red-50 rounded-xl border border-red-200 space-y-2">
+                                <h5 class="font-bold text-red-900 text-xs"><i class="fa-solid fa-trash-can"></i> مسح قاعدة البيانات السحابية بالكامل</h5>
+                                <p class="text-[11px] text-red-700 leading-relaxed">يمسح جميع بيانات الموظفين والتقييمات من قاعدة Firebase نهائياً (يتطلب كلمة سر الأدمن).</p>
+                                <button onclick="purgeCloudDatabase()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded-lg text-xs transition shadow-sm">
+                                    حذف قاعدة البيانات سحابياً (Cloud Purge)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -404,14 +368,8 @@ full_firebase_sync_code = """<!DOCTYPE html>
 
                 <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 grid grid-cols-1 md:grid-cols-4 gap-2 text-xs mb-4">
                     <input type="text" id="mgrFilterSearch" onkeyup="filterManagerEmpTable()" placeholder="بحث باسم الموظف أو الكود..." class="p-2 border border-slate-300 rounded-lg outline-none">
-                    <select id="mgrFilterSection" onchange="filterManagerEmpTable()" class="p-2 border border-slate-300 rounded-lg outline-none">
-                        <option value="">كل الأقسام</option>
-                    </select>
-                    <select id="mgrFilterStatus" onchange="filterManagerEmpTable()" class="p-2 border border-slate-300 rounded-lg outline-none">
-                        <option value="">كل حالات التقييم</option>
-                        <option value="done">تم التقييم</option>
-                        <option value="pending">لم يكتمل</option>
-                    </select>
+                    <select id="mgrFilterSection" onchange="filterManagerEmpTable()" class="p-2 border border-slate-300 rounded-lg outline-none"><option value="">كل الأقسام</option></select>
+                    <select id="mgrFilterStatus" onchange="filterManagerEmpTable()" class="p-2 border border-slate-300 rounded-lg outline-none"><option value="">كل حالات التقييم</option><option value="done">تم التقييم</option><option value="pending">لم يكتمل</option></select>
                 </div>
 
                 <div class="space-y-4">
@@ -642,7 +600,7 @@ full_firebase_sync_code = """<!DOCTYPE html>
                             if (!db.employees) db.employees = [];
                             refreshActiveViews();
                         } else {
-                            // If cloud is empty, seed it with current default DB
+                            // Seed cloud if empty
                             saveDB();
                         }
                     });
@@ -683,6 +641,27 @@ full_firebase_sync_code = """<!DOCTYPE html>
             localStorage.setItem('hr_firebase_config', JSON.stringify(cfg));
             alert("تم حفظ إعدادات Firebase! سيتم تطبيق الربط فوراً.");
             location.reload();
+        }
+
+        function clearLocalOnlyData() {
+            if (confirm("هل أنت متأكد من مسح كاش الأداة محلياً؟ لن تؤثر هذه العملية على البيانات السحابية المسجلة على Firebase.")) {
+                localStorage.removeItem('hr_system_v7_db');
+                alert("تم مسح كاش الأداة بنجاح مع الاحتفاظ بنسختك السحابية.");
+                location.reload();
+            }
+        }
+
+        function purgeCloudDatabase() {
+            const pass = prompt("تنبيه أمني هام: أنت على وشك حذف كامل قاعدة البيانات السحابية من Firebase! يرجى إدخال كلمة سر الأدمن للتأكيد:");
+            if (pass === db.admin.password) {
+                db.employees = [];
+                db.evaluations = {};
+                saveDB();
+                alert("تم مسح قاعدة البيانات السحابية بنجاح.");
+                refreshActiveViews();
+            } else if (pass !== null) {
+                alert("كلمة السر غير صحيحة! تم إلغاء العملية.");
+            }
         }
 
         function calculateEmpScore(empId) {
@@ -1404,9 +1383,3 @@ full_firebase_sync_code = """<!DOCTYPE html>
     </script>
 </body>
 </html>
-"""
-
-with open("index.html", "w", encoding="utf-8") as f:
-    f.write(full_firebase_sync_code)
-
-print("Updated index.html with automatic cloud seeding and complete Firebase syncing across devices.")
