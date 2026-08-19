@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منظومة إدارة وتقييم الأداء المؤسسي - التنسيق السحابي الشامل</title>
+    <title>منظومة إدارة وتقييم الأداء المؤسسي</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- SheetJS (xlsx) -->
@@ -35,8 +35,8 @@
                     <i class="fa-solid fa-fire text-xl"></i>
                 </div>
                 <div>
-                    <h1 class="font-bold text-lg leading-tight">منظومة إدارة وتقييم الأداء (مربوطة بـ Firebase)</h1>
-                    <p class="text-xs text-slate-400">تحديث لحظي ومزامنة مباشرة بين الأدمن والمدراء</p>
+                    <h1 class="font-bold text-lg leading-tight">منظومة إدارة وتقييم الأداء المؤسسي</h1>
+                    <p class="text-xs text-slate-400">تحديث لحظي ومزامنة مباشرة سحابية</p>
                 </div>
             </div>
             <div id="userInfoHeader" class="hidden flex items-center space-x-4 space-x-reverse">
@@ -91,6 +91,22 @@
 
         <!-- ADMIN PANEL VIEW -->
         <div id="adminPanel" class="hidden space-y-6">
+            <!-- Connection Status Banner -->
+            <div class="bg-emerald-50 border border-emerald-300 rounded-xl p-3 flex justify-between items-center text-emerald-800 text-xs font-bold shadow-sm">
+                <div class="flex items-center gap-2">
+                    <span class="relative flex h-3 w-3">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                    </span>
+                    <span id="firebaseStatusBanner">السيستم متصل مباشرة بقاعدة البيانات السحابية (Firebase Realtime) ✓</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="downloadJSONBackup()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg transition flex items-center gap-1">
+                        <i class="fa-solid fa-download"></i> تنزيل نسخة احتياطية (Backup)
+                    </button>
+                </div>
+            </div>
+
             <!-- Navigation Header -->
             <div class="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-wrap overflow-hidden">
                 <button onclick="switchAdminTab('dashboard')" id="tabBtn-dashboard" class="tab-btn active px-6 py-3.5 text-sm font-semibold text-slate-600 hover:text-blue-600 transition flex items-center gap-2">
@@ -105,8 +121,8 @@
                 <button onclick="switchAdminTab('reports')" id="tabBtn-reports" class="tab-btn px-6 py-3.5 text-sm font-semibold text-slate-600 hover:text-blue-600 transition flex items-center gap-2">
                     <i class="fa-solid fa-clipboard-check text-amber-600"></i> التقييمات السحابية والـ Total
                 </button>
-                <button onclick="switchAdminTab('firebase')" id="tabBtn-firebase" class="tab-btn px-6 py-3.5 text-sm font-semibold text-slate-600 hover:text-blue-600 transition flex items-center gap-2">
-                    <i class="fa-solid fa-fire text-orange-600"></i> إعدادات Firebase والتحكم
+                <button onclick="switchAdminTab('management')" id="tabBtn-management" class="tab-btn px-6 py-3.5 text-sm font-semibold text-slate-600 hover:text-blue-600 transition flex items-center gap-2">
+                    <i class="fa-solid fa-gears text-slate-600"></i> النسخ الاحتياطي وإدارة البيانات
                 </button>
             </div>
 
@@ -284,64 +300,42 @@
                 </div>
             </div>
 
-            <!-- ADMIN TAB 5: FIREBASE CONFIG & DATA CLEARING -->
-            <div id="adminTab-firebase" class="hidden space-y-6">
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 max-w-2xl mx-auto space-y-6">
+            <!-- ADMIN TAB 5: BACKUP & DATA MANAGEMENT -->
+            <div id="adminTab-management" class="hidden space-y-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 max-w-3xl mx-auto space-y-6">
                     <div class="border-b pb-3">
                         <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
-                            <i class="fa-solid fa-fire text-orange-500"></i> إعدادات الربط المباشر بـ Firebase
+                            <i class="fa-solid fa-database text-blue-600"></i> إدارة النسخ الاحتياطي وتطهير البيانات
                         </h3>
-                        <p class="text-xs text-slate-500 mt-1">تُحفظ هذه الإعدادات محلياً وفي كود المشروع لربط أي متصفح تلقائياً.</p>
+                        <p class="text-xs text-slate-500 mt-1">تنزيل نسختك الاحتياطية من السحابة أو تحكيم وإدارة البيانات المخزنة.</p>
                     </div>
 
-                    <form onsubmit="saveFirebaseSettings(event)" class="space-y-4 text-xs">
-                        <div>
-                            <label class="block font-bold text-slate-700 mb-1">API Key:</label>
-                            <input type="text" id="fbApiKey" required class="w-full p-2.5 border border-slate-300 rounded-lg outline-none font-mono">
-                        </div>
-                        <div>
-                            <label class="block font-bold text-slate-700 mb-1">Auth Domain:</label>
-                            <input type="text" id="fbAuthDomain" required class="w-full p-2.5 border border-slate-300 rounded-lg outline-none font-mono">
-                        </div>
-                        <div>
-                            <label class="block font-bold text-slate-700 mb-1">Database URL:</label>
-                            <input type="text" id="fbDatabaseURL" required class="w-full p-2.5 border border-slate-300 rounded-lg outline-none font-mono">
-                        </div>
-                        <div>
-                            <label class="block font-bold text-slate-700 mb-1">Project ID:</label>
-                            <input type="text" id="fbProjectId" required class="w-full p-2.5 border border-slate-300 rounded-lg outline-none font-mono">
-                        </div>
-
-                        <div class="pt-2 flex justify-between items-center border-t">
-                            <span id="firebaseConnStatus" class="font-bold text-amber-600 text-xs">جاري الاتصال بالسحابة...</span>
-                            <button type="submit" class="bg-orange-600 hover:bg-orange-700 text-white font-bold px-6 py-2.5 rounded-lg transition shadow-md">
-                                حفظ واتصال بـ Firebase
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- Backup Card -->
+                        <div class="p-4 bg-blue-50 rounded-xl border border-blue-200 space-y-3">
+                            <h5 class="font-bold text-blue-900 text-xs flex items-center gap-1.5"><i class="fa-solid fa-file-export"></i> نسخة احتياطية سحابية</h5>
+                            <p class="text-[11px] text-blue-700 leading-relaxed">تنزيل نسخة كاملة بحجم خفيف جداً (JSON) لكل بيانات الموظفين والتقييمات للتحفظ بها.</p>
+                            <button onclick="downloadJSONBackup()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg text-xs transition flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-download"></i> تنزيل Backup الآن
                             </button>
                         </div>
-                    </form>
 
-                    <!-- Advanced Data Control & Purge Buttons -->
-                    <div class="border-t pt-6 space-y-4">
-                        <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2">
-                            <i class="fa-solid fa-triangle-exclamation text-amber-500"></i> خيارات إدارة وتطهير البيانات
-                        </h4>
+                        <!-- Local Clear Card -->
+                        <div class="p-4 bg-amber-50 rounded-xl border border-amber-200 space-y-3">
+                            <h5 class="font-bold text-amber-900 text-xs flex items-center gap-1.5"><i class="fa-solid fa-broom"></i> مسح المتصفح فقط</h5>
+                            <p class="text-[11px] text-amber-700 leading-relaxed">يمسح الكاش المحلي من متصفحك الحالي مع **الحفاظ التام على البيانات على Firebase**.</p>
+                            <button onclick="clearLocalOnlyData()" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 rounded-lg text-xs transition">
+                                مسح كاش المتصفح
+                            </button>
+                        </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div class="p-4 bg-amber-50 rounded-xl border border-amber-200 space-y-2">
-                                <h5 class="font-bold text-amber-900 text-xs"><i class="fa-solid fa-broom"></i> مسح البيانات من الأداة فقط</h5>
-                                <p class="text-[11px] text-amber-700 leading-relaxed">يمسح الكاش المحلي من متصفحك فقط، **مع الحفاظ التام على كامل البيانات** سحابياً على Firebase.</p>
-                                <button onclick="clearLocalOnlyData()" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 rounded-lg text-xs transition">
-                                    مسح الأداة فقط (Local Clear)
-                                </button>
-                            </div>
-
-                            <div class="p-4 bg-red-50 rounded-xl border border-red-200 space-y-2">
-                                <h5 class="font-bold text-red-900 text-xs"><i class="fa-solid fa-trash-can"></i> مسح قاعدة البيانات السحابية بالكامل</h5>
-                                <p class="text-[11px] text-red-700 leading-relaxed">يمسح جميع بيانات الموظفين والتقييمات من قاعدة Firebase نهائياً (يتطلب كلمة سر الأدمن).</p>
-                                <button onclick="purgeCloudDatabase()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded-lg text-xs transition shadow-sm">
-                                    حذف قاعدة البيانات سحابياً (Cloud Purge)
-                                </button>
-                            </div>
+                        <!-- Cloud Purge Card -->
+                        <div class="p-4 bg-red-50 rounded-xl border border-red-200 space-y-3">
+                            <h5 class="font-bold text-red-900 text-xs flex items-center gap-1.5"><i class="fa-solid fa-trash-can"></i> حذف السحابة بالكامل</h5>
+                            <p class="text-[11px] text-red-700 leading-relaxed">يمسح كافة الموظفين والتقييمات سحابياً (يتطلب كلمة سر الأدمن).</p>
+                            <button onclick="purgeCloudDatabase()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded-lg text-xs transition shadow-sm">
+                                حذف السحابة (Cloud Purge)
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -488,8 +482,8 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        // DEFAULT FIREBASE CONFIGURATION INJECTED DIRECTLY IN CODE
-        const DEFAULT_FIREBASE_CONFIG = {
+        // FIREBASE CREDENTIALS HARDCODED IN SYSTEM
+        const FIREBASE_CONFIG = {
             apiKey: "AIzaSyArNWcgj0L3YaMC_mwbqk6s5fIYJLq1_wQ",
             authDomain: "hr-performance-system-f388a.firebaseapp.com",
             databaseURL: "https://hr-performance-system-f388a-default-rtdb.firebaseio.com",
@@ -581,17 +575,23 @@
         let chartDeptsInstance = null;
 
         function initFirebase() {
-            const savedCfg = JSON.parse(localStorage.getItem('hr_firebase_config')) || DEFAULT_FIREBASE_CONFIG;
             try {
                 if (!firebase.apps.length) {
-                    firebaseApp = firebase.initializeApp(savedCfg);
+                    firebaseApp = firebase.initializeApp(FIREBASE_CONFIG);
                 } else {
                     firebaseApp = firebase.app();
                 }
                 firebaseDB = firebase.database();
 
-                document.getElementById('firebaseConnStatus').innerText = "متصل مباشرة بسحابة Firebase ✓";
-                document.getElementById('firebaseConnStatus').className = "font-bold text-emerald-600 text-xs";
+                // Monitor Connection
+                firebaseDB.ref('.info/connected').on('value', (snap) => {
+                    const banner = document.getElementById('firebaseStatusBanner');
+                    if (snap.val() === true) {
+                        banner.innerText = "السيستم متصل مباشرة بقاعدة البيانات السحابية (Firebase Realtime) ✓";
+                    } else {
+                        banner.innerText = "جاري الاتصال بالسحابة...";
+                    }
+                });
 
                 // Realtime Sync Listener
                 firebaseDB.ref('hr_system').on('value', (snapshot) => {
@@ -606,15 +606,8 @@
                     }
                 });
 
-                document.getElementById('fbApiKey').value = savedCfg.apiKey || '';
-                document.getElementById('fbAuthDomain').value = savedCfg.authDomain || '';
-                document.getElementById('fbDatabaseURL').value = savedCfg.databaseURL || '';
-                document.getElementById('fbProjectId').value = savedCfg.projectId || '';
-
             } catch (err) {
                 console.error("Firebase init error:", err);
-                document.getElementById('firebaseConnStatus').innerText = "خطأ في الاتصال بـ Firebase!";
-                document.getElementById('firebaseConnStatus').className = "font-bold text-red-600 text-xs";
             }
         }
 
@@ -626,18 +619,14 @@
             }
         }
 
-        function saveFirebaseSettings(e) {
-            e.preventDefault();
-            const cfg = {
-                apiKey: document.getElementById('fbApiKey').value.trim(),
-                authDomain: document.getElementById('fbAuthDomain').value.trim(),
-                databaseURL: document.getElementById('fbDatabaseURL').value.trim(),
-                projectId: document.getElementById('fbProjectId').value.trim()
-            };
-
-            localStorage.setItem('hr_firebase_config', JSON.stringify(cfg));
-            alert("تم حفظ إعدادات Firebase! سيتم تطبيق الربط فوراً.");
-            location.reload();
+        function downloadJSONBackup() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db, null, 2));
+            const dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", `نسخة_احتياطية_المنظومة_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(dlAnchorElem);
+            dlAnchorElem.click();
+            dlAnchorElem.remove();
         }
 
         function clearLocalOnlyData() {
@@ -785,7 +774,7 @@
         }
 
         function switchAdminTab(tabName) {
-            ['dashboard', 'import', 'employees', 'reports', 'firebase'].forEach(t => {
+            ['dashboard', 'import', 'employees', 'reports', 'management'].forEach(t => {
                 document.getElementById('adminTab-' + t).classList.add('hidden');
                 document.getElementById('tabBtn-' + t).classList.remove('active');
             });
