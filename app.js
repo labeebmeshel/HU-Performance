@@ -1,4 +1,4 @@
-// FIREBASE CREDENTIALS HARDCODED IN SYSTEM
+// FIREBASE CONFIGURATION
 const FIREBASE_CONFIG = {
     apiKey: "AIzaSyArNWcgj0L3YaMC_mwbqk6s5fIYJLq1_wQ",
     authDomain: "hr-performance-system-f388a.firebaseapp.com",
@@ -6,6 +6,7 @@ const FIREBASE_CONFIG = {
     projectId: "hr-performance-system-f388a"
 };
 
+// عناصر التقييم (يمكنك تعديل القائمة أو زيادة أي عنصر جديد هنا بسهولة)
 const KRAS = [
     {
         id: "k1",
@@ -75,8 +76,6 @@ const KRAS = [
     }
 ];
 
-const MAX_POSSIBLE_SCORE = KRAS.length * 5; // 30
-
 let firebaseApp = null;
 let firebaseDB = null;
 
@@ -100,17 +99,15 @@ function initFirebase() {
         }
         firebaseDB = firebase.database();
 
-        // Monitor Connection
         firebaseDB.ref('.info/connected').on('value', (snap) => {
             const banner = document.getElementById('firebaseStatusBanner');
             if (snap.val() === true) {
-                banner.innerText = "السيستم متصل مباشرة بقاعدة البيانات السحابية (Firebase Realtime) ✓";
+                banner.innerText = "متصل بالسحابة (Firebase Realtime) ✓";
             } else {
                 banner.innerText = "جاري الاتصال بالسحابة...";
             }
         });
 
-        // Realtime Sync Listener
         firebaseDB.ref('hr_system').on('value', (snapshot) => {
             const cloudData = snapshot.val();
             if (cloudData) {
@@ -140,30 +137,30 @@ function downloadJSONBackup() {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db, null, 2));
     const dlAnchorElem = document.createElement('a');
     dlAnchorElem.setAttribute("href", dataStr);
-    dlAnchorElem.setAttribute("download", `نسخة_احتياطية_المنظومة_${new Date().toISOString().slice(0,10)}.json`);
+    dlAnchorElem.setAttribute("download", `نسخة_احتياطية_${new Date().toISOString().slice(0,10)}.json`);
     document.body.appendChild(dlAnchorElem);
     dlAnchorElem.click();
     dlAnchorElem.remove();
 }
 
 function clearLocalOnlyData() {
-    if (confirm("هل أنت متأكد من مسح كاش الأداة محلياً؟ لن تؤثر هذه العملية على البيانات السحابية المسجلة على Firebase.")) {
+    if (confirm("هل أنت متأكد من مسح كاش المتصفح محلياً؟ لن تتأثر البيانات السحابية على Firebase.")) {
         localStorage.removeItem('hr_system_v7_db');
-        alert("تم مسح كاش الأداة بنجاح مع الاحتفاظ بنسختك السحابية.");
+        alert("تم مسح المؤقت بنجاح.");
         location.reload();
     }
 }
 
 function purgeCloudDatabase() {
-    const pass = prompt("تنبيه أمني هام: أنت على وشك حذف كامل قاعدة البيانات السحابية من Firebase! يرجى إدخال كلمة سر الأدمن للتأكيد:");
+    const pass = prompt("تنبيه: سيتم مسح قاعدة البيانات السحابية بالكامل! أدخل كلمة سر الأدمن للتأكيد:");
     if (pass === db.admin.password) {
         db.employees = [];
         db.evaluations = {};
         saveDB();
-        alert("تم مسح قاعدة البيانات السحابية بنجاح.");
+        alert("تم مسح السحابة بنجاح.");
         refreshActiveViews();
     } else if (pass !== null) {
-        alert("كلمة السر غير صحيحة! تم إلغاء العملية.");
+        alert("كلمة السر غير صحيحة!");
     }
 }
 
@@ -178,32 +175,61 @@ function calculateEmpScore(empId) {
         count++;
     });
 
-    const percentage = ((total / MAX_POSSIBLE_SCORE) * 100).toFixed(1);
+    const maxScore = KRAS.length * 5;
+    const percentage = ((total / maxScore) * 100).toFixed(1);
     const level = Math.round(total / (count || 1));
 
     return {
         totalScore: total,
-        maxScore: MAX_POSSIBLE_SCORE,
+        maxScore: maxScore,
         percentage: Number(percentage),
         level: level || 1
     };
 }
 
+// =================== التحكم في الفلترة الديناميكية للإدارات والأقسام ===================
+
+function updateSectionDropdown(deptSelectId, secSelectId) {
+    const deptVal = document.getElementById(deptSelectId).value;
+    const secSelect = document.getElementById(secSelectId);
+    
+    let empsToFilter = db.employees;
+    if (deptVal) {
+        empsToFilter = db.employees.filter(e => e.department === deptVal);
+    }
+
+    const availableSections = [...new Set(empsToFilter.map(e => e.section).filter(Boolean))];
+    fillSelect(secSelectId, availableSections, 'جميع الأقسام');
+}
+
+function onAdminDeptChange() {
+    updateSectionDropdown('dashFilterDept', 'dashFilterSection');
+    renderAdminDashboardCharts();
+}
+
+function onAdminEmpTabDeptChange() {
+    updateSectionDropdown('empFilterDept', 'empFilterSection');
+    filterEmployeesTable();
+}
+
+function onAdminRptTabDeptChange() {
+    filterReportsTable();
+}
+
 function populateFilterDropdowns() {
     const depts = [...new Set(db.employees.map(e => e.department).filter(Boolean))];
-    const secs = [...new Set(db.employees.map(e => e.section).filter(Boolean))];
     const mgrs = db.employees.filter(e => e.isManager);
 
     fillSelect('dashFilterDept', depts, 'جميع الإدارات');
-    fillSelect('dashFilterSection', secs, 'جميع الأقسام');
-    fillSelect('dashFilterManager', mgrs.map(m => m.name), 'جميع المدراء المقيمين');
-
     fillSelect('empFilterDept', depts, 'كل الإدارات');
-    fillSelect('empFilterSection', secs, 'كل الأقسام');
-    fillSelect('empFilterDirectMgr', mgrs.map(m => `${m.name} (${m.code})`), 'كل المدراء المباشرين');
-
     fillSelect('rptFilterDept', depts, 'كل الإدارات');
-    fillSelect('rptFilterEvaluator', mgrs.map(m => m.name), 'كل المدراء المقيمين');
+
+    updateSectionDropdown('dashFilterDept', 'dashFilterSection');
+    updateSectionDropdown('empFilterDept', 'empFilterSection');
+
+    fillSelect('dashFilterManager', mgrs.map(m => m.name), 'جميع المدراء');
+    fillSelect('empFilterDirectMgr', mgrs.map(m => `${m.name} (${m.code})`), 'كل المدراء المباشرين');
+    fillSelect('rptFilterEvaluator', mgrs.map(m => m.name), 'المدير المقيم');
 
     if (currentUser && currentUser.empData) {
         const myEmps = db.employees.filter(e => e.directManagerCode === currentUser.empData.code);
@@ -220,6 +246,8 @@ function fillSelect(elemId, items, defaultText) {
         items.map(i => `<option value="${i}">${i}</option>`).join('');
     el.value = currentVal;
 }
+
+// =================== تسجيل الدخول والعرض ===================
 
 function handleLogin(e) {
     e.preventDefault();
@@ -242,7 +270,7 @@ function handleLogin(e) {
         return;
     }
 
-    errDiv.innerText = "اسم المستخدم أو كلمة السر غير صحيحة. يرجى التأكد من المزامنة من حساب الأدمن أولاً.";
+    errDiv.innerText = "اسم المستخدم أو كلمة السر غير صحيحة.";
     errDiv.classList.remove('hidden');
 }
 
@@ -261,8 +289,8 @@ function showView() {
     document.getElementById('userNameBadge').innerText = currentUser.name;
     
     document.getElementById('userRoleBadge').innerText = currentUser.role === 'admin' 
-        ? 'صلاحية مسؤول النظام' 
-        : `مدير تقييم (الكود: ${currentUser.empData.code})`;
+        ? 'مسؤول النظام' 
+        : `مدير تقييم (${currentUser.empData.code})`;
 
     populateFilterDropdowns();
 
@@ -304,14 +332,13 @@ function switchAdminTab(tabName) {
     if (tabName === 'reports') renderAdminReportsTable();
 }
 
+// =================== إدارة الموظفين الحسابات ===================
+
 function deleteEmployee(empId) {
     const emp = db.employees.find(e => e.id === empId || e.id === String(empId) || e.code === String(empId));
-    if (!emp) {
-        alert("لم يتم العثور على الموظف!");
-        return;
-    }
+    if (!emp) { alert("لم يتم العثور على الموظف!"); return; }
 
-    if (confirm(`هل أنت متأكد من حذف (${emp.name})؟ سيتم الحذف من Firebase تماماً.`)) {
+    if (confirm(`هل أنت متأكد من حذف (${emp.name}) نهائياً؟`)) {
         db.employees = db.employees.filter(e => e.id !== emp.id);
         delete db.evaluations[emp.id];
 
@@ -327,14 +354,14 @@ function deleteEmployee(empId) {
 
 function downloadEmployeesTemplate() {
     const templateData = [
-        { "كود الموظف": "EMP101", "اسم الموظف": "د. أحمد سلامة", "الوظيفة": "مدير عام", "الإدارة": "المشتريات", "القسم": "العقود", "مدير": "نعم", "كود المدير المباشر": "", "اسم المستخدم": "a.salama", "كلمة السر": "pass2026" },
-        { "كود الموظف": "EMP102", "اسم الموظف": "علي حسن عبد الله", "الوظيفة": "محاسب أول", "الإدارة": "الشؤون المالية", "القسم": "الخزينة", "مدير": "لا", "كود المدير المباشر": "EMP101", "اسم المستخدم": "", "كلمة السر": "" }
+        { "كود الموظف": "EMP101", "اسم الموظف": "أحمد سلامة", "الوظيفة": "مدير عام", "الإدارة": "المشتريات", "القسم": "العقود", "مدير": "نعم", "كود المدير المباشر": "", "اسم المستخدم": "a.salama", "كلمة السر": "pass2026" },
+        { "كود الموظف": "EMP102", "اسم الموظف": "علي حسن", "الوظيفة": "محاسب أول", "الإدارة": "الشؤون المالية", "القسم": "الخزينة", "مدير": "لا", "كود المدير المباشر": "EMP101", "اسم المستخدم": "", "كلمة السر": "" }
     ];
 
     const ws = XLSX.utils.json_to_sheet(templateData);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "قائمة الموظفين والمدراء");
-    XLSX.writeFile(wb, "نموذج_ربط_المدير_المباشر.xlsx");
+    XLSX.utils.book_append_sheet(wb, ws, "الموظفين");
+    XLSX.writeFile(wb, "نموذج_الموظفين.xlsx");
 }
 
 function handleEmployeesUpload(e) {
@@ -398,11 +425,11 @@ function handleEmployeesUpload(e) {
             refreshActiveViews();
 
             const msg = document.getElementById('importSuccessMsg');
-            msg.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i> تم التحديث والمزامنة مع السحابة! تم استيراد وتحديث <strong>${addedCount}</strong> موظف ومدير.`;
+            msg.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i> تم استيراد وتحديث <strong>${addedCount}</strong> موظف ومدير بنجاح.`;
             msg.classList.remove('hidden');
 
         } catch (err) {
-            alert("حدث خطأ أثناء قراءة ملف الإكسيل: " + err.message);
+            alert("حدث خطأ في قراءة ملف الإكسيل: " + err.message);
         }
     };
     reader.readAsArrayBuffer(file);
@@ -468,10 +495,7 @@ function filterEmployeesTable() {
 
 function openPromoteModal(empId) {
     const emp = db.employees.find(e => e.id === empId || e.id === String(empId) || e.code === String(empId));
-    if (!emp) {
-        alert("لم يتم العثور على الموظف!");
-        return;
-    }
+    if (!emp) { alert("لم يتم العثور على الموظف!"); return; }
 
     document.getElementById('promoteEmpId').value = emp.id;
     document.getElementById('promoteEmpName').value = emp.name;
@@ -512,10 +536,12 @@ function saveManagerRole(e) {
 
 function resetDashFilters() {
     document.getElementById('dashFilterDept').value = "";
-    document.getElementById('dashFilterSection').value = "";
+    updateSectionDropdown('dashFilterDept', 'dashFilterSection');
     document.getElementById('dashFilterManager').value = "";
     renderAdminDashboardCharts();
 }
+
+// =================== رسم ولوحات التحليلات ===================
 
 function renderAdminDashboardCharts() {
     const selDept = document.getElementById('dashFilterDept').value;
@@ -539,7 +565,9 @@ function renderAdminDashboardCharts() {
     let levelCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
     let grandTotalPct = 0;
 
-    let kraTotals = { k1: 0, k2: 0, k3: 0, k4: 0, k5: 0, k6: 0 };
+    // تهيئة إحصائيات العناصر ديناميكياً بحسب KRAS
+    let kraTotals = {};
+    KRAS.forEach(k => kraTotals[k.id] = 0);
 
     filteredEmps.forEach(emp => {
         const res = calculateEmpScore(emp.id);
@@ -550,8 +578,8 @@ function renderAdminDashboardCharts() {
 
             const evalData = db.evaluations[emp.id];
             if (evalData && evalData.scores) {
-                Object.keys(kraTotals).forEach(k => {
-                    kraTotals[k] += Number(evalData.scores[k] || 0);
+                KRAS.forEach(k => {
+                    kraTotals[k.id] += Number(evalData.scores[k.id] || 0);
                 });
             }
         }
@@ -570,11 +598,11 @@ function renderAdminDashboardCharts() {
     document.getElementById('completionProgressBar').style.width = `${completionPct}%`;
 
     const levelTitles = {
-        1: "المستوى 1 (ضعيف)",
-        2: "المستوى 2 (مقبول)",
-        3: "المستوى 3 (جيد جداً)",
-        4: "المستوى 4 (متقدم)",
-        5: "المستوى 5 (متميز/خبير)"
+        1: "مستوى 1 (ضعيف)",
+        2: "مستوى 2 (مقبول)",
+        3: "مستوى 3 (جيد جداً)",
+        4: "مستوى 4 (متقدم)",
+        5: "مستوى 5 (متميز)"
     };
 
     const levelColors = {
@@ -596,11 +624,11 @@ function renderAdminDashboardCharts() {
                 <p class="font-bold text-xs opacity-90">${levelTitles[lvl]}</p>
                 <h4 class="text-xl font-black">${count} <span class="text-xs font-normal">موظف</span></h4>
                 <div class="pt-1 border-t border-slate-200/50 text-[11px] font-semibold flex justify-between">
-                    <span>النسبة للمُقيّمين:</span>
+                    <span>نسبة المقيّمين:</span>
                     <strong>${pctOfEvaluated}%</strong>
                 </div>
                 <div class="text-[10px] opacity-80 flex justify-between">
-                    <span>من المجموع المفلتر:</span>
+                    <span>من المجموع:</span>
                     <span>${pctOfTotal}%</span>
                 </div>
             </div>
@@ -621,7 +649,7 @@ function renderAdminDashboardCharts() {
 
     const topBottomContainer = document.getElementById('topBottomDeptsContainer');
     if (deptStats.length === 0) {
-        topBottomContainer.innerHTML = `<p class="text-slate-400 text-center py-4">لا توجد بيانات إدارات متوفرة</p>`;
+        topBottomContainer.innerHTML = `<p class="text-slate-400 text-center py-4">لا توجد بيانات متاحة</p>`;
     } else {
         topBottomContainer.innerHTML = deptStats.map((d, i) => `
             <div class="flex items-center justify-between p-2 rounded-lg ${i === 0 ? 'bg-amber-50 border border-amber-200 font-bold' : 'bg-slate-50 border border-slate-100'}">
@@ -631,14 +659,15 @@ function renderAdminDashboardCharts() {
                 </div>
                 <div class="text-right">
                     <span class="text-blue-700 font-bold">${d.avg.toFixed(1)}%</span>
-                    <span class="block text-[9px] text-slate-400">${d.count}/${d.totalEmps} تم تقييمهم</span>
+                    <span class="block text-[9px] text-slate-400">${d.count}/${d.totalEmps} مكتمل</span>
                 </div>
             </div>
         `).join('');
     }
 
-    const kraAverages = Object.keys(kraTotals).map(k => 
-        evaluatedCount > 0 ? (kraTotals[k] / evaluatedCount).toFixed(2) : 0
+    // رسم متوسط المحاور العناصر
+    const kraAverages = KRAS.map(k => 
+        evaluatedCount > 0 ? (kraTotals[k.id] / evaluatedCount).toFixed(2) : 0
     );
 
     const ctxKras = document.getElementById('chartKrasBreakdown').getContext('2d');
@@ -662,13 +691,14 @@ function renderAdminDashboardCharts() {
         }
     });
 
+    // رسم توزيع المستويات
     const ctxLevels = document.getElementById('chartLevels').getContext('2d');
     if (chartLevelsInstance) chartLevelsInstance.destroy();
 
     chartLevelsInstance = new Chart(ctxLevels, {
         type: 'pie',
         data: {
-            labels: ['المستوى 1', 'المستوى 2', 'المستوى 3', 'المستوى 4', 'المستوى 5'],
+            labels: ['مستوى 1', 'مستوى 2', 'مستوى 3', 'مستوى 4', 'مستوى 5'],
             datasets: [{
                 data: [levelCounts[1], levelCounts[2], levelCounts[3], levelCounts[4], levelCounts[5]],
                 backgroundColor: ['#ef4444', '#f59e0b', '#3b82f6', '#6366f1', '#10b981']
@@ -677,6 +707,7 @@ function renderAdminDashboardCharts() {
         options: { responsive: true, maintainAspectRatio: false }
     });
 
+    // رسم متوسط الإدارات
     const ctxDepts = document.getElementById('chartDeptsProgress').getContext('2d');
     if (chartDeptsInstance) chartDeptsInstance.destroy();
 
@@ -723,8 +754,10 @@ function exportLevelPercentagesToExcel() {
     const ws = XLSX.utils.json_to_sheet(rows);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "نسب المستويات");
-    XLSX.writeFile(wb, `نسب_مستويات_التقييم_${new Date().toISOString().slice(0,10)}.xlsx`);
+    XLSX.writeFile(wb, `نسب_المستويات_${new Date().toISOString().slice(0,10)}.xlsx`);
 }
+
+// =================== لوحة تقييم المدير ===================
 
 function renderManagerDashboard() {
     filterManagerEmpTable();
@@ -732,7 +765,7 @@ function renderManagerDashboard() {
 
 function filterManagerEmpTable() {
     const mgr = currentUser.empData;
-    document.getElementById('mgrAssignedDeptBadge').innerText = `المرؤوسين المباشرين للمدير: ${mgr.name} (الكود: ${mgr.code})`;
+    document.getElementById('mgrAssignedDeptBadge').innerText = `المرؤوسين المباشرين للمدير: ${mgr.name} (${mgr.code})`;
 
     const mySubordinates = db.employees.filter(e => e.directManagerCode === mgr.code);
     const evalCount = mySubordinates.filter(e => db.evaluations[e.id]).length;
@@ -772,12 +805,12 @@ function filterManagerEmpTable() {
                 </td>
                 <td class="p-3 text-center">
                     ${isEvaluated 
-                        ? `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800"><i class="fa-solid fa-check"></i> تم التقييم</span>` 
-                        : `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800"><i class="fa-solid fa-clock"></i> لم يكتمل</span>`}
+                        ? `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800"><i class="fa-solid fa-check"></i> مكتمل</span>` 
+                        : `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800"><i class="fa-solid fa-clock"></i> غير مكتمل</span>`}
                 </td>
                 <td class="p-3 text-center">
                     <button onclick="openEvalModal('${safeId}')" class="px-3 py-1.5 rounded-lg font-bold text-xs transition flex items-center gap-1 mx-auto ${isEvaluated ? 'bg-slate-100 text-slate-700 hover:bg-slate-200' : 'bg-blue-600 text-white hover:bg-blue-700 shadow-md'}">
-                        <i class="fa-solid ${isEvaluated ? 'fa-pen-to-square' : 'fa-clipboard-check'}"></i> ${isEvaluated ? 'تعديل التقييم' : 'بدء التقييم'}
+                        <i class="fa-solid ${isEvaluated ? 'fa-pen-to-square' : 'fa-clipboard-check'}"></i> ${isEvaluated ? 'تعديل' : 'تقييم'}
                     </button>
                 </td>
             </tr>
@@ -787,10 +820,7 @@ function filterManagerEmpTable() {
 
 function openEvalModal(empId) {
     const emp = db.employees.find(e => e.id === empId || e.id === String(empId) || e.code === String(empId));
-    if (!emp) {
-        alert("لم يتم العثور على الموظف!");
-        return;
-    }
+    if (!emp) { alert("لم يتم العثور على الموظف!"); return; }
 
     document.getElementById('evalTargetEmpId').value = emp.id;
     document.getElementById('evalModalEmpName').innerText = `تقييم الموظف: ${emp.name}`;
@@ -850,8 +880,10 @@ function submitEmployeeEval(e) {
     closeEvalModal();
     refreshActiveViews();
 
-    alert("تم حفظ ونشر التقييم للسحابة بنجاح!");
+    alert("تم حفظ التقييم بنجاح!");
 }
+
+// =================== تقارير التقييمات ===================
 
 function renderAdminReportsTable() {
     filterReportsTable();
@@ -901,7 +933,7 @@ function filterReportsTable() {
                 <td class="p-3 text-center font-bold text-emerald-700">${res ? `مستوى ${res.level}` : '-'}</td>
                 <td class="p-3 text-center">
                     <button onclick="openEvalModal('${safeId}')" class="px-3 py-1 rounded font-bold text-[11px] transition flex items-center gap-1 mx-auto ${isEval ? 'bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-300' : 'bg-blue-600 text-white hover:bg-blue-700'}">
-                        <i class="fa-solid ${isEval ? 'fa-pen-to-square' : 'fa-clipboard-check'}"></i> ${isEval ? 'تعديل التقييم' : 'تقييم الآن'}
+                        <i class="fa-solid ${isEval ? 'fa-pen-to-square' : 'fa-clipboard-check'}"></i> ${isEval ? 'تعديل' : 'تقييم'}
                     </button>
                 </td>
             </tr>
@@ -923,10 +955,10 @@ function exportEvaluationsToExcel() {
             "القسم": emp.section,
             "المدير المباشر": mgrObj ? mgrObj.name : emp.directManagerCode,
             "حالة التقييم": evalData ? "تم التقييم" : "قيد الانتظار",
-            "المجموع الإجمالي (Total Score)": res ? res.totalScore : "-",
-            "الحد الأقصى للمجموع": res ? res.maxScore : "-",
+            "المجموع الإجمالي": res ? res.totalScore : "-",
+            "الحد الأقصى": res ? res.maxScore : "-",
             "النسبة المئوية %": res ? `${res.percentage}%` : "-",
-            "المستوى النهائى": res ? `مستوى ${res.level}` : "-",
+            "المستوى النهائي": res ? `مستوى ${res.level}` : "-",
             "تاريخ التقييم": evalData ? evalData.evaluatedAt : "-",
             "المقيم": evalData ? evalData.evaluatedBy : "-"
         };
@@ -940,14 +972,14 @@ function exportEvaluationsToExcel() {
             }
         });
 
-        row["ملاحظات وتوصيات المدير"] = evalData ? (evalData.notes || "") : "";
+        row["الملاحظات والتوصيات"] = evalData ? (evalData.notes || "") : "";
         return row;
     });
 
     const ws = XLSX.utils.json_to_sheet(exportRows);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "تقرير التقييمات السحابي");
-    XLSX.writeFile(wb, `تقرير_تقييمات_الأداء_Firebase_${new Date().toISOString().slice(0,10)}.xlsx`);
+    XLSX.utils.book_append_sheet(wb, ws, "تقرير التقييمات");
+    XLSX.writeFile(wb, `تقرير_التقييمات_${new Date().toISOString().slice(0,10)}.xlsx`);
 }
 
 window.onload = function() {
