@@ -89,6 +89,7 @@ let db = {
 let currentUser = null;
 let chartLevelsInstance = null;
 let chartDeptsInstance = null;
+let chartKrasInstance = null;
 
 function initFirebase() {
     try {
@@ -525,11 +526,14 @@ function renderAdminDashboardCharts() {
     });
 
     const totalEmps = filteredEmps.length;
-    const depts = [...new Set(filteredEmps.map(e => e.department))];
+    const depts = [...new Set(filteredEmps.map(e => e.department).filter(Boolean))];
     
     let evaluatedCount = 0;
     let levelCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
     let grandTotalPct = 0;
+
+    // KRA Calculations
+    let kraTotals = { k1: 0, k2: 0, k3: 0, k4: 0, k5: 0, k6: 0 };
 
     filteredEmps.forEach(emp => {
         const res = calculateEmpScore(emp.id);
@@ -537,17 +541,31 @@ function renderAdminDashboardCharts() {
             evaluatedCount++;
             levelCounts[res.level] = (levelCounts[res.level] || 0) + 1;
             grandTotalPct += res.percentage;
+
+            const evalData = db.evaluations[emp.id];
+            if (evalData && evalData.scores) {
+                Object.keys(kraTotals).forEach(k => {
+                    kraTotals[k] += Number(evalData.scores[k] || 0);
+                });
+            }
         }
     });
 
     const pendingCount = totalEmps - evaluatedCount;
     const avgPct = evaluatedCount > 0 ? (grandTotalPct / evaluatedCount).toFixed(1) : 0;
+    const completionPct = totalEmps > 0 ? ((evaluatedCount / totalEmps) * 100).toFixed(1) : 0;
 
+    // Stats Updates
     document.getElementById('statTotalEmployees').innerText = totalEmps;
     document.getElementById('statAvgScore').innerText = `${avgPct}%`;
     document.getElementById('statEvaluatedCount').innerText = evaluatedCount;
     document.getElementById('statPendingCount').innerText = pendingCount > 0 ? pendingCount : 0;
 
+    // Completion Rate Progress Bar
+    document.getElementById('completionRateBadge').innerText = `${completionPct}%`;
+    document.getElementById('completionProgressBar').style.width = `${completionPct}%`;
+
+    // Level Breakdown Cards
     const levelTitles = {
         1: "المستوى 1 (ضعيف)",
         2: "المستوى 2 (مقبول)",
@@ -586,6 +604,64 @@ function renderAdminDashboardCharts() {
         `;
     }).join('');
 
+    // Top & Bottom Depts Calculation
+    const deptStats = depts.map(d => {
+        const empsInDept = filteredEmps.filter(e => e.department === d);
+        let total = 0;
+        let count = 0;
+        empsInDept.forEach(e => {
+            const res = calculateEmpScore(e.id);
+            if (res) { total += res.percentage; count++; }
+        });
+        const deptAvg = count > 0 ? (total / count) : 0;
+        return { name: d, avg: deptAvg, count: count, totalEmps: empsInDept.length };
+    }).sort((a, b) => b.avg - a.avg);
+
+    const topBottomContainer = document.getElementById('topBottomDeptsContainer');
+    if (deptStats.length === 0) {
+        topBottomContainer.innerHTML = `<p class="text-slate-400 text-center py-4">لا توجد بيانات إدارات متوفرة</p>`;
+    } else {
+        topBottomContainer.innerHTML = deptStats.map((d, i) => `
+            <div class="flex items-center justify-between p-2 rounded-lg ${i === 0 ? 'bg-amber-50 border border-amber-200 font-bold' : 'bg-slate-50 border border-slate-100'}">
+                <div class="flex items-center gap-2">
+                    <span class="w-5 h-5 rounded-full ${i === 0 ? 'bg-amber-500 text-white' : 'bg-slate-200 text-slate-700'} flex items-center justify-center text-[10px] font-black">${i + 1}</span>
+                    <span class="text-slate-800">${d.name}</span>
+                </div>
+                <div class="text-right">
+                    <span class="text-blue-700 font-bold">${d.avg.toFixed(1)}%</span>
+                    <span class="block text-[9px] text-slate-400">${d.count}/${d.totalEmps} تم تقييمهم</span>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Chart 1: KRA Breakdown Radar / Bar
+    const kraAverages = Object.keys(kraTotals).map(k => 
+        evaluatedCount > 0 ? (kraTotals[k] / evaluatedCount).toFixed(2) : 0
+    );
+
+    const ctxKras = document.getElementById('chartKrasBreakdown').getContext('2d');
+    if (chartKrasInstance) chartKrasInstance.destroy();
+
+    chartKrasInstance = new Chart(ctxKras, {
+        type: 'bar',
+        data: {
+            labels: KRAS.map(k => k.title),
+            datasets: [{
+                label: 'متوسط الدرجة (من 5)',
+                data: kraAverages,
+                backgroundColor: '#3b82f6',
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: { y: { beginAtZero: true, max: 5 } }
+        }
+    });
+
+    // Chart 2: Levels Distribution
     const ctxLevels = document.getElementById('chartLevels').getContext('2d');
     if (chartLevelsInstance) chartLevelsInstance.destroy();
 
@@ -601,28 +677,19 @@ function renderAdminDashboardCharts() {
         options: { responsive: true, maintainAspectRatio: false }
     });
 
+    // Chart 3: Depts Progression
     const ctxDepts = document.getElementById('chartDeptsProgress').getContext('2d');
     if (chartDeptsInstance) chartDeptsInstance.destroy();
-
-    const deptsAvgScores = depts.map(d => {
-        const empsInDept = filteredEmps.filter(e => e.department === d);
-        let deptTotal = 0;
-        let deptCount = 0;
-        empsInDept.forEach(e => {
-            const res = calculateEmpScore(e.id);
-            if (res) { deptTotal += res.percentage; deptCount++; }
-        });
-        return deptCount > 0 ? (deptTotal / deptCount).toFixed(1) : 0;
-    });
 
     chartDeptsInstance = new Chart(ctxDepts, {
         type: 'bar',
         data: {
-            labels: depts,
+            labels: deptStats.map(d => d.name),
             datasets: [{
                 label: 'متوسط الأداء %',
-                data: deptsAvgScores,
-                backgroundColor: '#8b5cf6'
+                data: deptStats.map(d => d.avg.toFixed(1)),
+                backgroundColor: '#8b5cf6',
+                borderRadius: 6
             }]
         },
         options: {
