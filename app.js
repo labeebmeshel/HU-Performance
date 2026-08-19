@@ -305,12 +305,15 @@ function switchAdminTab(tabName) {
 }
 
 function deleteEmployee(empId) {
-    const emp = db.employees.find(e => e.id === empId);
-    if (!emp) return;
+    const emp = db.employees.find(e => e.id === empId || e.id === String(empId) || e.code === String(empId));
+    if (!emp) {
+        alert("لم يتم العثور على الموظف!");
+        return;
+    }
 
     if (confirm(`هل أنت متأكد من حذف (${emp.name})؟ سيتم الحذف من Firebase تماماً.`)) {
-        db.employees = db.employees.filter(e => e.id !== empId);
-        delete db.evaluations[empId];
+        db.employees = db.employees.filter(e => e.id !== emp.id);
+        delete db.evaluations[emp.id];
 
         db.employees.forEach(e => {
             if (e.directManagerCode === emp.code) e.directManagerCode = "";
@@ -365,7 +368,7 @@ function handleEmployeesUpload(e) {
                     let existing = db.employees.find(emp => emp.code === code || emp.name === name);
                     if (!existing) {
                         db.employees.push({
-                            id: 'E_' + Date.now() + '_' + Math.floor(Math.random()*1000),
+                            id: 'E_' + Date.now() + '_' + Math.floor(Math.random()*10000),
                             code: code,
                             name: name,
                             title: title,
@@ -433,6 +436,7 @@ function filterEmployeesTable() {
     tbody.innerHTML = filtered.map(emp => {
         const mgrObj = db.employees.find(m => m.code === emp.directManagerCode);
         const mgrNameText = mgrObj ? `${mgrObj.name} (${mgrObj.code})` : (emp.directManagerCode || '-');
+        const safeId = String(emp.id).replace(/'/g, "\\'");
 
         return `
             <tr class="hover:bg-slate-50 transition">
@@ -450,10 +454,10 @@ function filterEmployeesTable() {
                 <td class="p-3 font-mono text-blue-700 bg-blue-50/50 rounded px-2">${emp.isManager ? (emp.username || '-') : '-'}</td>
                 <td class="p-3 font-mono text-emerald-700 bg-emerald-50/50 font-bold rounded px-2">${emp.isManager ? (emp.password || '-') : '-'}</td>
                 <td class="p-3 text-center flex justify-center gap-1">
-                    <button onclick="openPromoteModal('${emp.id}')" title="تعديل البيانات" class="bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold px-2.5 py-1.5 rounded-lg border border-blue-300 transition text-[11px]">
+                    <button onclick="openPromoteModal('${safeId}')" title="تعديل البيانات" class="bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold px-2.5 py-1.5 rounded-lg border border-blue-300 transition text-[11px]">
                         <i class="fa-solid fa-user-gear"></i> تعديل
                     </button>
-                    <button onclick="deleteEmployee('${emp.id}')" title="حذف الموظف" class="bg-red-50 hover:bg-red-100 text-red-600 font-bold px-2.5 py-1.5 rounded-lg border border-red-300 transition text-[11px]">
+                    <button onclick="deleteEmployee('${safeId}')" title="حذف الموظف" class="bg-red-50 hover:bg-red-100 text-red-600 font-bold px-2.5 py-1.5 rounded-lg border border-red-300 transition text-[11px]">
                         <i class="fa-solid fa-trash-can"></i> حذف
                     </button>
                 </td>
@@ -463,8 +467,11 @@ function filterEmployeesTable() {
 }
 
 function openPromoteModal(empId) {
-    const emp = db.employees.find(e => e.id === empId);
-    if (!emp) return;
+    const emp = db.employees.find(e => e.id === empId || e.id === String(empId) || e.code === String(empId));
+    if (!emp) {
+        alert("لم يتم العثور على الموظف!");
+        return;
+    }
 
     document.getElementById('promoteEmpId').value = emp.id;
     document.getElementById('promoteEmpName').value = emp.name;
@@ -532,7 +539,6 @@ function renderAdminDashboardCharts() {
     let levelCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
     let grandTotalPct = 0;
 
-    // KRA Calculations
     let kraTotals = { k1: 0, k2: 0, k3: 0, k4: 0, k5: 0, k6: 0 };
 
     filteredEmps.forEach(emp => {
@@ -555,17 +561,14 @@ function renderAdminDashboardCharts() {
     const avgPct = evaluatedCount > 0 ? (grandTotalPct / evaluatedCount).toFixed(1) : 0;
     const completionPct = totalEmps > 0 ? ((evaluatedCount / totalEmps) * 100).toFixed(1) : 0;
 
-    // Stats Updates
     document.getElementById('statTotalEmployees').innerText = totalEmps;
     document.getElementById('statAvgScore').innerText = `${avgPct}%`;
     document.getElementById('statEvaluatedCount').innerText = evaluatedCount;
     document.getElementById('statPendingCount').innerText = pendingCount > 0 ? pendingCount : 0;
 
-    // Completion Rate Progress Bar
     document.getElementById('completionRateBadge').innerText = `${completionPct}%`;
     document.getElementById('completionProgressBar').style.width = `${completionPct}%`;
 
-    // Level Breakdown Cards
     const levelTitles = {
         1: "المستوى 1 (ضعيف)",
         2: "المستوى 2 (مقبول)",
@@ -604,7 +607,6 @@ function renderAdminDashboardCharts() {
         `;
     }).join('');
 
-    // Top & Bottom Depts Calculation
     const deptStats = depts.map(d => {
         const empsInDept = filteredEmps.filter(e => e.department === d);
         let total = 0;
@@ -635,7 +637,6 @@ function renderAdminDashboardCharts() {
         `).join('');
     }
 
-    // Chart 1: KRA Breakdown Radar / Bar
     const kraAverages = Object.keys(kraTotals).map(k => 
         evaluatedCount > 0 ? (kraTotals[k] / evaluatedCount).toFixed(2) : 0
     );
@@ -661,7 +662,6 @@ function renderAdminDashboardCharts() {
         }
     });
 
-    // Chart 2: Levels Distribution
     const ctxLevels = document.getElementById('chartLevels').getContext('2d');
     if (chartLevelsInstance) chartLevelsInstance.destroy();
 
@@ -677,7 +677,6 @@ function renderAdminDashboardCharts() {
         options: { responsive: true, maintainAspectRatio: false }
     });
 
-    // Chart 3: Depts Progression
     const ctxDepts = document.getElementById('chartDeptsProgress').getContext('2d');
     if (chartDeptsInstance) chartDeptsInstance.destroy();
 
@@ -759,6 +758,7 @@ function filterManagerEmpTable() {
     tbody.innerHTML = filtered.map(emp => {
         const isEvaluated = !!db.evaluations[emp.id];
         const res = calculateEmpScore(emp.id);
+        const safeId = String(emp.id).replace(/'/g, "\\'");
 
         return `
             <tr class="hover:bg-slate-50 transition">
@@ -776,7 +776,7 @@ function filterManagerEmpTable() {
                         : `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800"><i class="fa-solid fa-clock"></i> لم يكتمل</span>`}
                 </td>
                 <td class="p-3 text-center">
-                    <button onclick="openEvalModal('${emp.id}')" class="px-3 py-1.5 rounded-lg font-bold text-xs transition flex items-center gap-1 mx-auto ${isEvaluated ? 'bg-slate-100 text-slate-700 hover:bg-slate-200' : 'bg-blue-600 text-white hover:bg-blue-700 shadow-md'}">
+                    <button onclick="openEvalModal('${safeId}')" class="px-3 py-1.5 rounded-lg font-bold text-xs transition flex items-center gap-1 mx-auto ${isEvaluated ? 'bg-slate-100 text-slate-700 hover:bg-slate-200' : 'bg-blue-600 text-white hover:bg-blue-700 shadow-md'}">
                         <i class="fa-solid ${isEvaluated ? 'fa-pen-to-square' : 'fa-clipboard-check'}"></i> ${isEvaluated ? 'تعديل التقييم' : 'بدء التقييم'}
                     </button>
                 </td>
@@ -786,8 +786,11 @@ function filterManagerEmpTable() {
 }
 
 function openEvalModal(empId) {
-    const emp = db.employees.find(e => e.id === empId);
-    if (!emp) return;
+    const emp = db.employees.find(e => e.id === empId || e.id === String(empId) || e.code === String(empId));
+    if (!emp) {
+        alert("لم يتم العثور على الموظف!");
+        return;
+    }
 
     document.getElementById('evalTargetEmpId').value = emp.id;
     document.getElementById('evalModalEmpName').innerText = `تقييم الموظف: ${emp.name}`;
@@ -880,6 +883,7 @@ function filterReportsTable() {
         const evalData = db.evaluations[emp.id];
         const isEval = !!evalData;
         const res = calculateEmpScore(emp.id);
+        const safeId = String(emp.id).replace(/'/g, "\\'");
 
         return `
             <tr class="hover:bg-slate-50 transition">
@@ -896,7 +900,7 @@ function filterReportsTable() {
                 <td class="p-3 text-center font-bold text-purple-700">${res ? `${res.percentage}%` : '-'}</td>
                 <td class="p-3 text-center font-bold text-emerald-700">${res ? `مستوى ${res.level}` : '-'}</td>
                 <td class="p-3 text-center">
-                    <button onclick="openEvalModal('${emp.id}')" class="px-3 py-1 rounded font-bold text-[11px] transition flex items-center gap-1 mx-auto ${isEval ? 'bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-300' : 'bg-blue-600 text-white hover:bg-blue-700'}">
+                    <button onclick="openEvalModal('${safeId}')" class="px-3 py-1 rounded font-bold text-[11px] transition flex items-center gap-1 mx-auto ${isEval ? 'bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-300' : 'bg-blue-600 text-white hover:bg-blue-700'}">
                         <i class="fa-solid ${isEval ? 'fa-pen-to-square' : 'fa-clipboard-check'}"></i> ${isEval ? 'تعديل التقييم' : 'تقييم الآن'}
                     </button>
                 </td>
