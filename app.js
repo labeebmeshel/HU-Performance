@@ -6,8 +6,8 @@ const FIREBASE_CONFIG = {
     projectId: "hr-performance-system-f388a"
 };
 
-// عناصر التقييم (يمكنك تعديل القائمة أو زيادة أي عنصر جديد هنا بسهولة)
-const KRAS = [
+// عناصر التقييم الديناميكية (يمكن إدارتها بالكامل من الواجهة)
+let KRAS = [
     {
         id: "k1",
         title: "المهارات الفنية والقدرات الوظيفية",
@@ -82,7 +82,8 @@ let firebaseDB = null;
 let db = {
     admin: { username: "admin", password: "123" },
     employees: [],
-    evaluations: {}
+    evaluations: {},
+    kras: []
 };
 
 let currentUser = null;
@@ -114,8 +115,10 @@ function initFirebase() {
                 db = cloudData;
                 if (!db.evaluations) db.evaluations = {};
                 if (!db.employees) db.employees = [];
+                syncKrasFromDb();
                 refreshActiveViews();
             } else {
+                db.kras = KRAS;
                 saveDB();
             }
         });
@@ -125,7 +128,16 @@ function initFirebase() {
     }
 }
 
+function syncKrasFromDb() {
+    if (db.kras && Array.isArray(db.kras) && db.kras.length > 0) {
+        KRAS = db.kras;
+    } else {
+        db.kras = KRAS;
+    }
+}
+
 function saveDB() {
+    db.kras = KRAS;
     if (firebaseDB) {
         firebaseDB.ref('hr_system').set(db);
     } else {
@@ -187,11 +199,10 @@ function calculateEmpScore(empId) {
     };
 }
 
-// =================== التحكم في الفلترة الديناميكية للإدارات والأقسام ===================
+// =================== التحكم في الفلترة الديناميكية للأقسام ===================
 
 function updateSectionDropdown(deptSelectId, secSelectId) {
     const deptVal = document.getElementById(deptSelectId).value;
-    const secSelect = document.getElementById(secSelectId);
     
     let empsToFilter = db.employees;
     if (deptVal) {
@@ -312,6 +323,7 @@ function refreshActiveViews() {
             renderAdminDashboardCharts();
             renderAdminEmployeesTable();
             renderAdminReportsTable();
+            renderManageKrasList();
         } else {
             renderManagerDashboard();
         }
@@ -330,27 +342,10 @@ function switchAdminTab(tabName) {
     if (tabName === 'dashboard') renderAdminDashboardCharts();
     if (tabName === 'employees') renderAdminEmployeesTable();
     if (tabName === 'reports') renderAdminReportsTable();
+    if (tabName === 'management') renderManageKrasList();
 }
 
-// =================== إدارة الموظفين الحسابات ===================
-
-function deleteEmployee(empId) {
-    const emp = db.employees.find(e => e.id === empId || e.id === String(empId) || e.code === String(empId));
-    if (!emp) { alert("لم يتم العثور على الموظف!"); return; }
-
-    if (confirm(`هل أنت متأكد من حذف (${emp.name}) نهائياً؟`)) {
-        db.employees = db.employees.filter(e => e.id !== emp.id);
-        delete db.evaluations[emp.id];
-
-        db.employees.forEach(e => {
-            if (e.directManagerCode === emp.code) e.directManagerCode = "";
-        });
-
-        saveDB();
-        refreshActiveViews();
-        alert("تم الحذف بنجاح!");
-    }
-}
+// =================== استيراد الشيتات (موظفين وتقييمات) ===================
 
 function downloadEmployeesTemplate() {
     const templateData = [
@@ -433,6 +428,98 @@ function handleEmployeesUpload(e) {
         }
     };
     reader.readAsArrayBuffer(file);
+}
+
+function downloadEvaluationsTemplate() {
+    const templateData = [{
+        "كود الموظف": "EMP102",
+        "اسم الموظف": "علي حسن",
+        "k1": 4,
+        "k2": 5,
+        "k3": 3,
+        "k4": 4,
+        "k5": 5,
+        "k6": 4,
+        "اسم المقيم": "أحمد سلامة",
+        "ملاحظات التقييم": "أداء ممتاز ومبادر"
+    }];
+
+    const ws = XLSX.utils.json_to_sheet(templateData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "التقييمات");
+    XLSX.writeFile(wb, "نموذج_رفع_التقييمات.xlsx");
+}
+
+function handleEvaluationsUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+        try {
+            const data = new Uint8Array(evt.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheet = workbook.SheetNames[0];
+            const rows = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
+
+            if (rows.length === 0) { alert("الشيت فارغ!"); return; }
+
+            let importedCount = 0;
+            rows.forEach(row => {
+                const code = (row["كود الموظف"] || row["Code"] || "").toString().trim();
+                const emp = db.employees.find(e => e.code === code || e.name === row["اسم الموظف"]);
+
+                if (emp) {
+                    const scores = {};
+                    KRAS.forEach(kra => {
+                        const val = row[kra.id] || row[kra.title];
+                        if (val !== undefined) {
+                            scores[kra.id] = parseInt(val) || 1;
+                        }
+                    });
+
+                    db.evaluations[emp.id] = {
+                        scores: scores,
+                        notes: row["ملاحظات التقييم"] || row["Notes"] || "",
+                        evaluatedBy: row["اسم المقيم"] || row["Evaluator"] || "مستورد من Excel",
+                        evaluatedAt: new Date().toLocaleDateString('ar-EG')
+                    };
+                    importedCount++;
+                }
+            });
+
+            saveDB();
+            refreshActiveViews();
+
+            const msg = document.getElementById('importEvalSuccessMsg');
+            msg.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i> تم رفع وتمكين <strong>${importedCount}</strong> تقييم مباشر بنجاح.`;
+            msg.classList.remove('hidden');
+
+        } catch (err) {
+            alert("حدث خطأ أثناء رفع شيت التقييمات: " + err.message);
+        }
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+// =================== إدارة الموظفين الحسابات ===================
+
+function deleteEmployee(empId) {
+    const emp = db.employees.find(e => e.id === empId || e.id === String(empId) || e.code === String(empId));
+    if (!emp) { alert("لم يتم العثور على الموظف!"); return; }
+
+    if (confirm(`هل أنت متأكد من حذف (${emp.name}) نهائياً؟`)) {
+        db.employees = db.employees.filter(e => e.id !== emp.id);
+        delete db.evaluations[emp.id];
+
+        db.employees.forEach(e => {
+            if (e.directManagerCode === emp.code) e.directManagerCode = "";
+        });
+
+        saveDB();
+        refreshActiveViews();
+        alert("تم الحذف بنجاح!");
+    }
 }
 
 function renderAdminEmployeesTable() {
@@ -534,6 +621,102 @@ function saveManagerRole(e) {
     }
 }
 
+// =================== إدارة عناصر التقييم (KRAs) ديناميكياً ===================
+
+function renderManageKrasList() {
+    const container = document.getElementById('dynamicKrasContainer');
+    if (!container) return;
+
+    container.innerHTML = KRAS.map((kra, idx) => `
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between">
+            <div>
+                <span class="font-bold text-slate-800">${idx + 1}. ${kra.title}</span>
+                <span class="block text-[10px] text-slate-400">معرّف العنصر: ${kra.id}</span>
+            </div>
+            <div class="flex gap-1.5">
+                <button onclick="editKraElement('${kra.id}')" class="px-2.5 py-1 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg border border-blue-200 font-bold text-[11px]">
+                    <i class="fa-solid fa-pen"></i> تعديل
+                </button>
+                <button onclick="deleteKraElement('${kra.id}')" class="px-2.5 py-1 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg border border-red-200 font-bold text-[11px]">
+                    <i class="fa-solid fa-trash"></i> حذف
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function openKraModal() {
+    document.getElementById('kraFormEditId').value = "";
+    document.getElementById('kraModalTitle').innerText = "إضافة عنصر تقييم جديد";
+    document.getElementById('kraForm').reset();
+    document.getElementById('kraModal').classList.remove('hidden');
+}
+
+function closeKraModal() {
+    document.getElementById('kraModal').classList.add('hidden');
+}
+
+function editKraElement(kraId) {
+    const kra = KRAS.find(k => k.id === kraId);
+    if (!kra) return;
+
+    document.getElementById('kraFormEditId').value = kra.id;
+    document.getElementById('kraModalTitle').innerText = `تعديل عنصر: ${kra.title}`;
+    document.getElementById('kraFormTitle').value = kra.title;
+
+    document.getElementById('kraFormLvl1').value = kra.levels[1] || "";
+    document.getElementById('kraFormLvl2').value = kra.levels[2] || "";
+    document.getElementById('kraFormLvl3').value = kra.levels[3] || "";
+    document.getElementById('kraFormLvl4').value = kra.levels[4] || "";
+    document.getElementById('kraFormLvl5').value = kra.levels[5] || "";
+
+    document.getElementById('kraModal').classList.remove('hidden');
+}
+
+function saveKraElement(e) {
+    e.preventDefault();
+    const editId = document.getElementById('kraFormEditId').value;
+    const title = document.getElementById('kraFormTitle').value.trim();
+
+    const levels = {
+        1: document.getElementById('kraFormLvl1').value.trim(),
+        2: document.getElementById('kraFormLvl2').value.trim(),
+        3: document.getElementById('kraFormLvl3').value.trim(),
+        4: document.getElementById('kraFormLvl4').value.trim(),
+        5: document.getElementById('kraFormLvl5').value.trim()
+    };
+
+    if (editId) {
+        const kra = KRAS.find(k => k.id === editId);
+        if (kra) {
+            kra.title = title;
+            kra.levels = levels;
+        }
+    } else {
+        const newId = 'k' + (Date.now() % 100000);
+        KRAS.push({ id: newId, title: title, levels: levels });
+    }
+
+    saveDB();
+    closeKraModal();
+    refreshActiveViews();
+    alert("تم حفظ عنصر التقييم والمزامنة سحابياً بنجاح!");
+}
+
+function deleteKraElement(kraId) {
+    if (KRAS.length <= 1) {
+        alert("لا يمكن حذف كل العناصر! يجب أن يحتفظ النظام بعنصر واحد على الأقل.");
+        return;
+    }
+
+    if (confirm("هل أنت متأكد من حذف هذا العنصر؟ سيتعدل إجمالي مجموع التقييمات بناءً عليه.")) {
+        KRAS = KRAS.filter(k => k.id !== kraId);
+        saveDB();
+        refreshActiveViews();
+        alert("تم حذف العنصر بنجاح.");
+    }
+}
+
 function resetDashFilters() {
     document.getElementById('dashFilterDept').value = "";
     updateSectionDropdown('dashFilterDept', 'dashFilterSection');
@@ -565,7 +748,6 @@ function renderAdminDashboardCharts() {
     let levelCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
     let grandTotalPct = 0;
 
-    // تهيئة إحصائيات العناصر ديناميكياً بحسب KRAS
     let kraTotals = {};
     KRAS.forEach(k => kraTotals[k.id] = 0);
 
@@ -665,7 +847,6 @@ function renderAdminDashboardCharts() {
         `).join('');
     }
 
-    // رسم متوسط المحاور العناصر
     const kraAverages = KRAS.map(k => 
         evaluatedCount > 0 ? (kraTotals[k.id] / evaluatedCount).toFixed(2) : 0
     );
@@ -691,7 +872,6 @@ function renderAdminDashboardCharts() {
         }
     });
 
-    // رسم توزيع المستويات
     const ctxLevels = document.getElementById('chartLevels').getContext('2d');
     if (chartLevelsInstance) chartLevelsInstance.destroy();
 
@@ -707,7 +887,6 @@ function renderAdminDashboardCharts() {
         options: { responsive: true, maintainAspectRatio: false }
     });
 
-    // رسم متوسط الإدارات
     const ctxDepts = document.getElementById('chartDeptsProgress').getContext('2d');
     if (chartDeptsInstance) chartDeptsInstance.destroy();
 
