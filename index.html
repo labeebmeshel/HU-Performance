@@ -113,7 +113,7 @@
                     <i class="fa-solid fa-chart-line text-blue-600"></i> التحليلات الإحصائية
                 </button>
                 <button onclick="switchAdminTab('import')" id="tabBtn-import" class="tab-btn px-6 py-3.5 text-sm font-semibold text-slate-600 hover:text-blue-600 transition flex items-center gap-2">
-                    <i class="fa-solid fa-file-excel text-emerald-600"></i> استيراد الموظفين
+                    <i class="fa-solid fa-file-excel text-emerald-600"></i> استيراد الموظفين والتقييمات
                 </button>
                 <button onclick="switchAdminTab('employees')" id="tabBtn-employees" class="tab-btn px-6 py-3.5 text-sm font-semibold text-slate-600 hover:text-blue-600 transition flex items-center gap-2">
                     <i class="fa-solid fa-users-gear text-purple-600"></i> إدارة الحسابات
@@ -122,7 +122,7 @@
                     <i class="fa-solid fa-clipboard-check text-amber-600"></i> سجل التقييمات
                 </button>
                 <button onclick="switchAdminTab('management')" id="tabBtn-management" class="tab-btn px-6 py-3.5 text-sm font-semibold text-slate-600 hover:text-blue-600 transition flex items-center gap-2">
-                    <i class="fa-solid fa-gears text-slate-600"></i> صيانة البيانات
+                    <i class="fa-solid fa-gears text-slate-600"></i> صيانة البيانات والـ KRAs
                 </button>
             </div>
 
@@ -224,29 +224,52 @@
                 </div>
             </div>
 
-            <!-- 2. استيراد الموظفين -->
+            <!-- 2. استيراد الموظفين والتقييمات -->
             <div id="adminTab-import" class="space-y-6">
+                <!-- رفع شيت الموظفين -->
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-3">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3 border-b pb-3">
                         <div>
-                            <h3 class="font-bold text-slate-800 text-base">استيراد بيانات الموظفين</h3>
-                            <p class="text-xs text-slate-500 mt-1">رفع شيت Excel لحفظ الموظفين والمدراء مباشرة على السحابة.</p>
+                            <h3 class="font-bold text-slate-800 text-base">1. استيراد شيت الموظفين والمدراء</h3>
+                            <p class="text-xs text-slate-500 mt-1">رفع شيت Excel لتخزين الموظفين وحساباتهم سحابياً.</p>
                         </div>
-                        <button onclick="downloadEmployeesTemplate()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 text-xs font-bold px-4 py-2.5 rounded-xl transition flex items-center gap-2">
-                            <i class="fa-solid fa-file-excel text-emerald-600"></i> نموذج Excel الاسترشادي
+                        <button onclick="downloadEmployeesTemplate()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 text-xs font-bold px-4 py-2 rounded-xl transition flex items-center gap-2">
+                            <i class="fa-solid fa-file-excel text-emerald-600"></i> نموذج الموظفين Excel
                         </button>
                     </div>
 
-                    <div class="border-2 border-dashed border-slate-300 hover:border-blue-500 rounded-2xl p-8 text-center bg-slate-50 transition cursor-pointer relative" onclick="document.getElementById('excelEmployeesInput').click()">
+                    <div class="border-2 border-dashed border-slate-300 hover:border-blue-500 rounded-2xl p-6 text-center bg-slate-50 transition cursor-pointer relative" onclick="document.getElementById('excelEmployeesInput').click()">
                         <input type="file" id="excelEmployeesInput" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleEmployeesUpload(event)">
-                        <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-3">
-                            <i class="fa-solid fa-cloud-arrow-up text-2xl"></i>
+                        <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-2">
+                            <i class="fa-solid fa-users text-xl"></i>
                         </div>
-                        <h4 class="font-bold text-slate-700 text-sm">اضغط هنا لرفع الملف أو اسحبه إلى هنا</h4>
-                        <p class="text-xs text-slate-400 mt-1">الأعمدة المطلوب توفرها: كود الموظف، اسم الموظف، الوظيفة، الإدارة، القسم، مدير، كود المدير المباشر، اسم المستخدم، كلمة السر</p>
+                        <h4 class="font-bold text-slate-700 text-xs">اضغط لرفع شيت الموظفين</h4>
+                        <p class="text-[10px] text-slate-400 mt-1">الأعمدة: كود الموظف، اسم الموظف، الوظيفة، الإدارة، القسم، مدير، كود المدير المباشر، اسم المستخدم، كلمة السر</p>
+                    </div>
+                    <div id="importSuccessMsg" class="hidden mt-3 p-3 rounded-xl border bg-emerald-50 border-emerald-300 text-emerald-800 text-xs"></div>
+                </div>
+
+                <!-- رفع شيت التقييمات الجاهزة -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3 border-b pb-3">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-base">2. استيراد شيت التقييمات المباشرة</h3>
+                            <p class="text-xs text-slate-500 mt-1">رفع شيت يحتوي على تقييمات الموظفين بالدرجات لحفظها دفعة واحدة سحابياً.</p>
+                        </div>
+                        <button onclick="downloadEvaluationsTemplate()" class="bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-300 text-xs font-bold px-4 py-2 rounded-xl transition flex items-center gap-2">
+                            <i class="fa-solid fa-file-excel text-purple-600"></i> نموذج التقييمات Excel
+                        </button>
                     </div>
 
-                    <div id="importSuccessMsg" class="hidden mt-4 p-4 rounded-xl border bg-emerald-50 border-emerald-300 text-emerald-800 text-xs"></div>
+                    <div class="border-2 border-dashed border-slate-300 hover:border-purple-500 rounded-2xl p-6 text-center bg-slate-50 transition cursor-pointer relative" onclick="document.getElementById('excelEvaluationsInput').click()">
+                        <input type="file" id="excelEvaluationsInput" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleEvaluationsUpload(event)">
+                        <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-2">
+                            <i class="fa-solid fa-clipboard-check text-xl"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-700 text-xs">اضغط لرفع شيت التقييمات الجاهزة</h4>
+                        <p class="text-[10px] text-slate-400 mt-1">الأعمدة: كود الموظف، درجات المحاور (k1, k2, ...)، اسم المقيم، والملاحظات</p>
+                    </div>
+                    <div id="importEvalSuccessMsg" class="hidden mt-3 p-3 rounded-xl border bg-emerald-50 border-emerald-300 text-emerald-800 text-xs"></div>
                 </div>
             </div>
 
@@ -332,12 +355,30 @@
                 </div>
             </div>
 
-            <!-- 5. صيانة البيانات -->
+            <!-- 5. صيانة البيانات وإدارة الـ KRAs -->
             <div id="adminTab-management" class="hidden space-y-6">
+                <!-- إدارة عناصر التقييم (KRAs) ديناميكياً -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 max-w-3xl mx-auto space-y-4">
+                    <div class="flex justify-between items-center border-b pb-3">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                                <i class="fa-solid fa-list-check text-blue-600"></i> إدارة عناصر ومحاور التقييم (KRAs)
+                            </h3>
+                            <p class="text-xs text-slate-500 mt-0.5">إضافة أو تعديل أو حذف عناصر التقييم ووصف مستوياتها ديناميكياً من الواجهة.</p>
+                        </div>
+                        <button onclick="openKraModal()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 shadow-sm">
+                            <i class="fa-solid fa-plus"></i> إضافة عنصر جديد
+                        </button>
+                    </div>
+
+                    <div id="dynamicKrasContainer" class="space-y-3 text-xs"></div>
+                </div>
+
+                <!-- النسخ الاحتياطي ومسح البيانات -->
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 max-w-3xl mx-auto space-y-6">
                     <div class="border-b pb-3">
                         <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
-                            <i class="fa-solid fa-database text-blue-600"></i> إدارة البيانات والنسخ الاحتياطي
+                            <i class="fa-solid fa-database text-blue-600"></i> النسخ الاحتياطي وصيانة القاعدة
                         </h3>
                         <p class="text-xs text-slate-500 mt-1">التحكم في حفظ وتنظيف قاعدة البيانات السحابية والمحلية.</p>
                     </div>
@@ -495,6 +536,55 @@
                     <div class="flex justify-end gap-2 pt-2 border-t">
                         <button type="button" onclick="closePromoteModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg font-bold">إلغاء</button>
                         <button type="submit" class="px-5 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700">حفظ</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- نافذة إضافة/تعديل عنصر التقييم (KRA Modal) -->
+        <div id="kraModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 border border-slate-200 space-y-4 my-8">
+                <div class="flex justify-between items-center border-b pb-2">
+                    <h3 id="kraModalTitle" class="font-bold text-slate-800 text-sm">إضافة عنصر تقييم جديد</h3>
+                    <button onclick="closeKraModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+
+                <form id="kraForm" onsubmit="saveKraElement(event)" class="space-y-3 text-xs">
+                    <input type="hidden" id="kraFormEditId">
+
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">اسم/عنوان العنصر:</label>
+                        <input type="text" id="kraFormTitle" required placeholder="مثال: الالتزام بالوقت وضوابط العمل" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+
+                    <div class="space-y-2 border-t pt-2">
+                        <label class="block font-bold text-slate-700">وصف المستويات الخمسة (من 1 إلى 5):</label>
+                        
+                        <div>
+                            <span class="font-bold text-red-600">المستوى 1 (ضعيف):</span>
+                            <input type="text" id="kraFormLvl1" required placeholder="وصف الأداء للدرجة 1..." class="w-full p-2 border border-slate-300 rounded-lg outline-none mt-0.5">
+                        </div>
+                        <div>
+                            <span class="font-bold text-amber-600">المستوى 2 (مقبول):</span>
+                            <input type="text" id="kraFormLvl2" required placeholder="وصف الأداء للدرجة 2..." class="w-full p-2 border border-slate-300 rounded-lg outline-none mt-0.5">
+                        </div>
+                        <div>
+                            <span class="font-bold text-blue-600">المستوى 3 (جيد جداً):</span>
+                            <input type="text" id="kraFormLvl3" required placeholder="وصف الأداء للدرجة 3..." class="w-full p-2 border border-slate-300 rounded-lg outline-none mt-0.5">
+                        </div>
+                        <div>
+                            <span class="font-bold text-indigo-600">المستوى 4 (متقدم):</span>
+                            <input type="text" id="kraFormLvl4" required placeholder="وصف الأداء للدرجة 4..." class="w-full p-2 border border-slate-300 rounded-lg outline-none mt-0.5">
+                        </div>
+                        <div>
+                            <span class="font-bold text-emerald-600">المستوى 5 (متميز):</span>
+                            <input type="text" id="kraFormLvl5" required placeholder="وصف الأداء للدرجة 5..." class="w-full p-2 border border-slate-300 rounded-lg outline-none mt-0.5">
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end gap-2 pt-3 border-t">
+                        <button type="button" onclick="closeKraModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg font-bold">إلغاء</button>
+                        <button type="submit" class="px-5 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700">حفظ العنصر</button>
                     </div>
                 </form>
             </div>
