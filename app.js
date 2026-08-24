@@ -6,11 +6,12 @@ const FIREBASE_CONFIG = {
     projectId: "hr-performance-system-f388a"
 };
 
-// عناصر التقييم الديناميكية (يمكن إدارتها بالكامل من الواجهة)
+// عناصر التقييم الديناميكية الافتراضية مع الأوزان النسبية (مجموعها 100%)
 let KRAS = [
     {
         id: "k1",
         title: "المهارات الفنية والقدرات الوظيفية",
+        weight: 20,
         levels: {
             1: "مستوى يتطلب توجيه وإشراف مكثف مستمر مع إنجاز محدود للمهام الأساسية.",
             2: "مستوى يلبي الحد الأدنى من متطلبات العمل الروتينية مع الحاجة لمتابعة في المواقف المعتادة.",
@@ -22,6 +23,7 @@ let KRAS = [
     {
         id: "k2",
         title: "مهارات التواصل والتعاون",
+        weight: 15,
         levels: {
             1: "يواجه صعوبة ملحوظة في إيصال المعلومات، ويحتاج توجيه مستمر لأسلوب التواصل.",
             2: "تواصل مقبول في الظروف المعتادة ولكن يحتاج دعم في مواقف التواصل المركبة.",
@@ -33,6 +35,7 @@ let KRAS = [
     {
         id: "k3",
         title: "تحليل المشاكل واتخاذ الحلول",
+        weight: 20,
         levels: {
             1: "يواجه صعوبة في تشخيص المشكلات أو تقديم اقتراحات أولية للحل.",
             2: "يتعامل مع المشكلات البسيطة ويحتاج توجيه مباشر في المواقف غير المألوفة.",
@@ -44,6 +47,7 @@ let KRAS = [
     {
         id: "k4",
         title: "المبادرة والتطوير المستمر",
+        weight: 15,
         levels: {
             1: "يعتمد بالكامل على التعليمات المباشرة دون إبداء أي مبادرة إضافية.",
             2: "يبادر أحياناً عندما يطلب منه ذلك بشكل صريح.",
@@ -55,6 +59,7 @@ let KRAS = [
     {
         id: "k5",
         title: "الاستدامة والمسؤولية المجتمعية والمؤسسية",
+        weight: 15,
         levels: {
             1: "التزام ضعيف بمعايير الممارسات المستدامة ويحتاج تذكير دائم.",
             2: "التزام متوسط وغير منتظم بالسياسات والتوجيهات المؤسسية.",
@@ -66,6 +71,7 @@ let KRAS = [
     {
         id: "k6",
         title: "القيادة وتحمل المسؤولية",
+        weight: 15,
         levels: {
             1: "يتجنب تحمل المسؤولية المباشرة ويحتاج متابعة لتنفيذ الواجبات.",
             2: "يتحمل جزءاً من المسؤولية ويحتاج إلى متابعة دورية.",
@@ -176,26 +182,42 @@ function purgeCloudDatabase() {
     }
 }
 
+// =================== حساب النسبة المئوية الموزونة والمستوى ===================
+
 function calculateEmpScore(empId) {
     const evalData = db.evaluations[empId];
     if (!evalData || !evalData.scores) return null;
 
-    let total = 0;
+    let weightedPercentage = 0;
+    let totalWeight = 0;
+    let unweightedScoreSum = 0;
     let count = 0;
-    Object.values(evalData.scores).forEach(score => {
-        total += Number(score);
-        count++;
+
+    KRAS.forEach(kra => {
+        const score = Number(evalData.scores[kra.id] || 0);
+        if (score > 0) {
+            const w = kra.weight || (100 / KRAS.length);
+            weightedPercentage += (score / 5) * w;
+            totalWeight += w;
+            unweightedScoreSum += score;
+            count++;
+        }
     });
 
-    const maxScore = KRAS.length * 5;
-    const percentage = ((total / maxScore) * 100).toFixed(1);
-    const level = Math.round(total / (count || 1));
+    // تطبيع النسبة في حالة عدم تطابق الأوزان على 100%
+    const finalPercentage = totalWeight > 0 ? (weightedPercentage * (100 / totalWeight)) : 0;
+    
+    // حساب المستوى الإجمالي من 1 إلى 5 بناءً على النسبة الموزونة
+    let level = 1;
+    if (finalPercentage >= 85) level = 5;
+    else if (finalPercentage >= 70) level = 4;
+    else if (finalPercentage >= 55) level = 3;
+    else if (finalPercentage >= 40) level = 2;
 
     return {
-        totalScore: total,
-        maxScore: maxScore,
-        percentage: Number(percentage),
-        level: level || 1
+        totalScore: unweightedScoreSum,
+        percentage: Number(finalPercentage.toFixed(1)),
+        level: level
     };
 }
 
@@ -258,7 +280,7 @@ function fillSelect(elemId, items, defaultText) {
     el.value = currentVal;
 }
 
-// =================== تسجيل الدخول والعرض ===================
+// =================== تسجيل الدخول وتغيير كلمة السر ===================
 
 function handleLogin(e) {
     e.preventDefault();
@@ -283,6 +305,38 @@ function handleLogin(e) {
 
     errDiv.innerText = "اسم المستخدم أو كلمة السر غير صحيحة.";
     errDiv.classList.remove('hidden');
+}
+
+function openChangeMyPasswordModal() {
+    document.getElementById('changeMyPassForm').reset();
+    document.getElementById('changeMyPassModal').classList.remove('hidden');
+}
+
+function closeChangeMyPasswordModal() {
+    document.getElementById('changeMyPassModal').classList.add('hidden');
+}
+
+function submitMyNewPassword(e) {
+    e.preventDefault();
+    const pass1 = document.getElementById('newPassInput').value.trim();
+    const pass2 = document.getElementById('confirmNewPassInput').value.trim();
+
+    if (!pass1) { alert("يرجى إدخال كلمة السر الجديد!"); return; }
+    if (pass1 !== pass2) { alert("كلمتا السر غير متطابقتين!"); return; }
+
+    if (currentUser.role === 'admin') {
+        db.admin.password = pass1;
+    } else if (currentUser.empData) {
+        const emp = db.employees.find(e => e.id === currentUser.empData.id);
+        if (emp) {
+            emp.password = pass1;
+            currentUser.empData.password = pass1;
+        }
+    }
+
+    saveDB();
+    closeChangeMyPasswordModal();
+    alert("تم تغيير كلمة السر بنجاح!");
 }
 
 function logout() {
@@ -345,7 +399,7 @@ function switchAdminTab(tabName) {
     if (tabName === 'management') renderManageKrasList();
 }
 
-// =================== استيراد الشيتات (موظفين وتقييمات) ===================
+// =================== استيراد الشيتات ===================
 
 function downloadEmployeesTemplate() {
     const templateData = [
@@ -502,7 +556,7 @@ function handleEvaluationsUpload(e) {
     reader.readAsArrayBuffer(file);
 }
 
-// =================== إدارة الموظفين الحسابات ===================
+// =================== إدارة الحسابات ===================
 
 function deleteEmployee(empId) {
     const emp = db.employees.find(e => e.id === empId || e.id === String(empId) || e.code === String(empId));
@@ -568,7 +622,7 @@ function filterEmployeesTable() {
                 <td class="p-3 font-mono text-blue-700 bg-blue-50/50 rounded px-2">${emp.isManager ? (emp.username || '-') : '-'}</td>
                 <td class="p-3 font-mono text-emerald-700 bg-emerald-50/50 font-bold rounded px-2">${emp.isManager ? (emp.password || '-') : '-'}</td>
                 <td class="p-3 text-center flex justify-center gap-1">
-                    <button onclick="openPromoteModal('${safeId}')" title="تعديل البيانات" class="bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold px-2.5 py-1.5 rounded-lg border border-blue-300 transition text-[11px]">
+                    <button onclick="openPromoteModal('${safeId}')" title="تعديل الحساب وكلمة السر" class="bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold px-2.5 py-1.5 rounded-lg border border-blue-300 transition text-[11px]">
                         <i class="fa-solid fa-user-gear"></i> تعديل
                     </button>
                     <button onclick="deleteEmployee('${safeId}')" title="حذف الموظف" class="bg-red-50 hover:bg-red-100 text-red-600 font-bold px-2.5 py-1.5 rounded-lg border border-red-300 transition text-[11px]">
@@ -617,32 +671,61 @@ function saveManagerRole(e) {
         saveDB();
         closePromoteModal();
         refreshActiveViews();
-        alert(`تم تحديث بيانات (${emp.name}) بنجاح.`);
+        alert(`تم تحديث بيانات وحساب (${emp.name}) بنجاح.`);
     }
 }
 
-// =================== إدارة عناصر التقييم (KRAs) ديناميكياً ===================
+// =================== إدارة المعايير والأوزان النسبية ===================
 
 function renderManageKrasList() {
     const container = document.getElementById('dynamicKrasContainer');
     if (!container) return;
 
-    container.innerHTML = KRAS.map((kra, idx) => `
-        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between">
-            <div>
-                <span class="font-bold text-slate-800">${idx + 1}. ${kra.title}</span>
-                <span class="block text-[10px] text-slate-400">معرّف العنصر: ${kra.id}</span>
+    let totalWeight = 0;
+    container.innerHTML = KRAS.map((kra, idx) => {
+        const w = kra.weight || 0;
+        totalWeight += w;
+        return `
+            <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between gap-2">
+                <div class="flex-grow">
+                    <span class="font-bold text-slate-800">${idx + 1}. ${kra.title}</span>
+                    <span class="block text-[10px] text-slate-400">معرّف العنصر: ${kra.id}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-1 bg-white border border-slate-300 rounded-lg px-2 py-1">
+                        <span class="text-[11px] text-slate-500 font-bold">الوزن:</span>
+                        <input type="number" value="${w}" min="1" max="100" step="0.5" onchange="updateKraWeight('${kra.id}', this.value)" class="w-14 text-center font-bold text-blue-700 outline-none text-xs">
+                        <span class="text-[11px] font-bold text-slate-500">%</span>
+                    </div>
+                    <button onclick="editKraElement('${kra.id}')" class="px-2.5 py-1 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg border border-blue-200 font-bold text-[11px]">
+                        <i class="fa-solid fa-pen"></i> تعديل
+                    </button>
+                    <button onclick="deleteKraElement('${kra.id}')" class="px-2.5 py-1 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg border border-red-200 font-bold text-[11px]">
+                        <i class="fa-solid fa-trash"></i> حذف
+                    </button>
+                </div>
             </div>
-            <div class="flex gap-1.5">
-                <button onclick="editKraElement('${kra.id}')" class="px-2.5 py-1 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg border border-blue-200 font-bold text-[11px]">
-                    <i class="fa-solid fa-pen"></i> تعديل
-                </button>
-                <button onclick="deleteKraElement('${kra.id}')" class="px-2.5 py-1 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg border border-red-200 font-bold text-[11px]">
-                    <i class="fa-solid fa-trash"></i> حذف
-                </button>
-            </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
+
+    const badge = document.getElementById('totalWeightsBadge');
+    if (badge) {
+        badge.innerText = `إجمالي الأوزان: ${totalWeight}%`;
+        if (Math.abs(totalWeight - 100) < 0.1) {
+            badge.className = "px-3 py-1.5 rounded-lg text-xs font-bold border bg-emerald-50 text-emerald-700 border-emerald-200";
+        } else {
+            badge.className = "px-3 py-1.5 rounded-lg text-xs font-bold border bg-red-50 text-red-700 border-red-200";
+        }
+    }
+}
+
+function updateKraWeight(kraId, newWeight) {
+    const kra = KRAS.find(k => k.id === kraId);
+    if (kra) {
+        kra.weight = parseFloat(newWeight) || 0;
+        saveDB();
+        refreshActiveViews();
+    }
 }
 
 function openKraModal() {
@@ -663,6 +746,7 @@ function editKraElement(kraId) {
     document.getElementById('kraFormEditId').value = kra.id;
     document.getElementById('kraModalTitle').innerText = `تعديل عنصر: ${kra.title}`;
     document.getElementById('kraFormTitle').value = kra.title;
+    document.getElementById('kraFormWeight').value = kra.weight || 15;
 
     document.getElementById('kraFormLvl1').value = kra.levels[1] || "";
     document.getElementById('kraFormLvl2').value = kra.levels[2] || "";
@@ -677,6 +761,7 @@ function saveKraElement(e) {
     e.preventDefault();
     const editId = document.getElementById('kraFormEditId').value;
     const title = document.getElementById('kraFormTitle').value.trim();
+    const weight = parseFloat(document.getElementById('kraFormWeight').value) || 0;
 
     const levels = {
         1: document.getElementById('kraFormLvl1').value.trim(),
@@ -690,17 +775,18 @@ function saveKraElement(e) {
         const kra = KRAS.find(k => k.id === editId);
         if (kra) {
             kra.title = title;
+            kra.weight = weight;
             kra.levels = levels;
         }
     } else {
         const newId = 'k' + (Date.now() % 100000);
-        KRAS.push({ id: newId, title: title, levels: levels });
+        KRAS.push({ id: newId, title: title, weight: weight, levels: levels });
     }
 
     saveDB();
     closeKraModal();
     refreshActiveViews();
-    alert("تم حفظ عنصر التقييم والمزامنة سحابياً بنجاح!");
+    alert("تم حفظ المعيار بوزنه الجديد والمزامنة سحابياً بنجاح!");
 }
 
 function deleteKraElement(kraId) {
@@ -709,7 +795,7 @@ function deleteKraElement(kraId) {
         return;
     }
 
-    if (confirm("هل أنت متأكد من حذف هذا العنصر؟ سيتعدل إجمالي مجموع التقييمات بناءً عليه.")) {
+    if (confirm("هل أنت متأكد من حذف هذا العنصر؟ سيتعدل المجموع الكلي للتقييمات بناءً على أوزان المعايير المتبقية.")) {
         KRAS = KRAS.filter(k => k.id !== kraId);
         saveDB();
         refreshActiveViews();
@@ -857,7 +943,7 @@ function renderAdminDashboardCharts() {
     chartKrasInstance = new Chart(ctxKras, {
         type: 'bar',
         data: {
-            labels: KRAS.map(k => k.title),
+            labels: KRAS.map(k => `${k.title} (${k.weight || 0}%)`),
             datasets: [{
                 label: 'متوسط الدرجة (من 5)',
                 data: kraAverages,
@@ -895,7 +981,7 @@ function renderAdminDashboardCharts() {
         data: {
             labels: deptStats.map(d => d.name),
             datasets: [{
-                label: 'متوسط الأداء %',
+                label: 'متوسط الأداء الموزون %',
                 data: deptStats.map(d => d.avg.toFixed(1)),
                 backgroundColor: '#8b5cf6',
                 borderRadius: 6
@@ -980,7 +1066,7 @@ function filterManagerEmpTable() {
                 <td class="p-3 font-semibold text-blue-900">${emp.department}</td>
                 <td class="p-3 text-slate-600">${emp.section || '-'}</td>
                 <td class="p-3 text-center font-bold text-blue-700">
-                    ${res ? `${res.totalScore} / ${res.maxScore} (${res.percentage}%)` : '-'}
+                    ${res ? `${res.percentage}%` : '-'}
                 </td>
                 <td class="p-3 text-center">
                     ${isEvaluated 
@@ -1013,8 +1099,9 @@ function openEvalModal(empId) {
         const selectedVal = existingEval.scores[kra.id] || 0;
         return `
             <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
-                <div class="font-bold text-slate-800 text-xs border-b pb-1">
-                    ${idx + 1}. ${kra.title}
+                <div class="font-bold text-slate-800 text-xs border-b pb-1 flex justify-between items-center">
+                    <span>${idx + 1}. ${kra.title}</span>
+                    <span class="text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">الوزن النسبي: ${kra.weight || 0}%</span>
                 </div>
                 <div class="space-y-2">
                     ${[1,2,3,4,5].map(lvl => `
@@ -1107,7 +1194,7 @@ function filterReportsTable() {
                         ? `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800"><i class="fa-solid fa-check"></i> تم التقييم</span>` 
                         : `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">قيد الانتظار</span>`}
                 </td>
-                <td class="p-3 text-center font-bold text-blue-900">${res ? `${res.totalScore} / ${res.maxScore}` : '-'}</td>
+                <td class="p-3 text-center font-bold text-blue-900">${res ? `${res.totalScore} درجة` : '-'}</td>
                 <td class="p-3 text-center font-bold text-purple-700">${res ? `${res.percentage}%` : '-'}</td>
                 <td class="p-3 text-center font-bold text-emerald-700">${res ? `مستوى ${res.level}` : '-'}</td>
                 <td class="p-3 text-center">
@@ -1134,9 +1221,8 @@ function exportEvaluationsToExcel() {
             "القسم": emp.section,
             "المدير المباشر": mgrObj ? mgrObj.name : emp.directManagerCode,
             "حالة التقييم": evalData ? "تم التقييم" : "قيد الانتظار",
-            "المجموع الإجمالي": res ? res.totalScore : "-",
-            "الحد الأقصى": res ? res.maxScore : "-",
-            "النسبة المئوية %": res ? `${res.percentage}%` : "-",
+            "مجموع الدرجات خام": res ? res.totalScore : "-",
+            "النسبة المئوية الموزونة %": res ? `${res.percentage}%` : "-",
             "المستوى النهائي": res ? `مستوى ${res.level}` : "-",
             "تاريخ التقييم": evalData ? evalData.evaluatedAt : "-",
             "المقيم": evalData ? evalData.evaluatedBy : "-"
@@ -1145,9 +1231,9 @@ function exportEvaluationsToExcel() {
         KRAS.forEach(kra => {
             if (evalData && evalData.scores[kra.id]) {
                 const lvl = evalData.scores[kra.id];
-                row[kra.title] = `${lvl} - ${kra.levels[lvl]}`;
+                row[`${kra.title} (${kra.weight || 0}%)`] = `${lvl} - ${kra.levels[lvl]}`;
             } else {
-                row[kra.title] = "غير مقيم";
+                row[`${kra.title} (${kra.weight || 0}%)`] = "غير مقيم";
             }
         });
 
