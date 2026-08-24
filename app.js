@@ -191,23 +191,19 @@ function calculateEmpScore(empId) {
     let weightedPercentage = 0;
     let totalWeight = 0;
     let unweightedScoreSum = 0;
-    let count = 0;
 
     KRAS.forEach(kra => {
         const score = Number(evalData.scores[kra.id] || 0);
         if (score > 0) {
-            const w = kra.weight || (100 / KRAS.length);
+            const w = Number(kra.weight) || (100 / KRAS.length);
             weightedPercentage += (score / 5) * w;
             totalWeight += w;
             unweightedScoreSum += score;
-            count++;
         }
     });
 
-    // تطبيع النسبة في حالة عدم تطابق الأوزان على 100%
     const finalPercentage = totalWeight > 0 ? (weightedPercentage * (100 / totalWeight)) : 0;
     
-    // حساب المستوى الإجمالي من 1 إلى 5 بناءً على النسبة الموزونة
     let level = 1;
     if (finalPercentage >= 85) level = 5;
     else if (finalPercentage >= 70) level = 4;
@@ -321,7 +317,7 @@ function submitMyNewPassword(e) {
     const pass1 = document.getElementById('newPassInput').value.trim();
     const pass2 = document.getElementById('confirmNewPassInput').value.trim();
 
-    if (!pass1) { alert("يرجى إدخال كلمة السر الجديد!"); return; }
+    if (!pass1) { alert("يرجى إدخال كلمة السر الجديدة!"); return; }
     if (pass1 !== pass2) { alert("كلمتا السر غير متطابقتين!"); return; }
 
     if (currentUser.role === 'admin') {
@@ -683,7 +679,7 @@ function renderManageKrasList() {
 
     let totalWeight = 0;
     container.innerHTML = KRAS.map((kra, idx) => {
-        const w = kra.weight || 0;
+        const w = Number(kra.weight) || 0;
         totalWeight += w;
         return `
             <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between gap-2">
@@ -710,7 +706,7 @@ function renderManageKrasList() {
 
     const badge = document.getElementById('totalWeightsBadge');
     if (badge) {
-        badge.innerText = `إجمالي الأوزان: ${totalWeight}%`;
+        badge.innerText = `إجمالي الأوزان: ${totalWeight.toFixed(1)}%`;
         if (Math.abs(totalWeight - 100) < 0.1) {
             badge.className = "px-3 py-1.5 rounded-lg text-xs font-bold border bg-emerald-50 text-emerald-700 border-emerald-200";
         } else {
@@ -810,7 +806,7 @@ function resetDashFilters() {
     renderAdminDashboardCharts();
 }
 
-// =================== رسم ولوحات التحليلات ===================
+// =================== رسم ولوحات التحليلات (المحدثة بالأوزان) ===================
 
 function renderAdminDashboardCharts() {
     const selDept = document.getElementById('dashFilterDept').value;
@@ -933,9 +929,13 @@ function renderAdminDashboardCharts() {
         `).join('');
     }
 
-    const kraAverages = KRAS.map(k => 
-        evaluatedCount > 0 ? (kraTotals[k.id] / evaluatedCount).toFixed(2) : 0
-    );
+    // حساب مساهمة المعيار الموزونة المباشرة في النسبة الكلية للداشبورد
+    const kraWeightedAverages = KRAS.map(k => {
+        if (evaluatedCount === 0) return 0;
+        const rawAvg = kraTotals[k.id] / evaluatedCount; // متوسط من 5
+        const w = Number(k.weight) || (100 / KRAS.length);
+        return ((rawAvg / 5) * w).toFixed(2);
+    });
 
     const ctxKras = document.getElementById('chartKrasBreakdown').getContext('2d');
     if (chartKrasInstance) chartKrasInstance.destroy();
@@ -945,8 +945,8 @@ function renderAdminDashboardCharts() {
         data: {
             labels: KRAS.map(k => `${k.title} (${k.weight || 0}%)`),
             datasets: [{
-                label: 'متوسط الدرجة (من 5)',
-                data: kraAverages,
+                label: 'مساهمة المعيار الموزونة (%)',
+                data: kraWeightedAverages,
                 backgroundColor: '#3b82f6',
                 borderRadius: 6
             }]
@@ -954,7 +954,12 @@ function renderAdminDashboardCharts() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            scales: { y: { beginAtZero: true, max: 5 } }
+            scales: { 
+                y: { 
+                    beginAtZero: true,
+                    title: { display: true, text: 'النسبة الموزونة للمعيار (%)' }
+                } 
+            }
         }
     });
 
