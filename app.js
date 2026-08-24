@@ -6,7 +6,7 @@ const FIREBASE_CONFIG = {
     projectId: "hr-performance-system-f388a"
 };
 
-// عناصر التقييم الديناميكية الافتراضية مع الأوزان النسبية (مجموعها 100%)
+// عناصر التقييم الديناميكية الافتراضية مع الأوزان النسبية
 let KRAS = [
     {
         id: "k1",
@@ -188,14 +188,17 @@ function calculateEmpScore(empId) {
     const evalData = db.evaluations[empId];
     if (!evalData || !evalData.scores) return null;
 
+    // اعتماد المعايير المحفوظة فعلياً بدلاً من القيم الثابتة
+    const activeKras = (db.kras && db.kras.length > 0) ? db.kras : KRAS;
+
     let weightedPercentage = 0;
     let totalWeight = 0;
     let unweightedScoreSum = 0;
 
-    KRAS.forEach(kra => {
+    activeKras.forEach(kra => {
         const score = Number(evalData.scores[kra.id] || 0);
         if (score > 0) {
-            const w = Number(kra.weight) || (100 / KRAS.length);
+            const w = Number(kra.weight) || (100 / activeKras.length);
             weightedPercentage += (score / 5) * w;
             totalWeight += w;
             unweightedScoreSum += score;
@@ -504,6 +507,8 @@ function handleEvaluationsUpload(e) {
     const file = e.target.files[0];
     if (!file) return;
 
+    const activeKras = (db.kras && db.kras.length > 0) ? db.kras : KRAS;
+
     const reader = new FileReader();
     reader.onload = function(evt) {
         try {
@@ -521,7 +526,7 @@ function handleEvaluationsUpload(e) {
 
                 if (emp) {
                     const scores = {};
-                    KRAS.forEach(kra => {
+                    activeKras.forEach(kra => {
                         const val = row[kra.id] || row[kra.title];
                         if (val !== undefined) {
                             scores[kra.id] = parseInt(val) || 1;
@@ -677,8 +682,10 @@ function renderManageKrasList() {
     const container = document.getElementById('dynamicKrasContainer');
     if (!container) return;
 
+    const activeKras = (db.kras && db.kras.length > 0) ? db.kras : KRAS;
+
     let totalWeight = 0;
-    container.innerHTML = KRAS.map((kra, idx) => {
+    container.innerHTML = activeKras.map((kra, idx) => {
         const w = Number(kra.weight) || 0;
         totalWeight += w;
         return `
@@ -716,12 +723,18 @@ function renderManageKrasList() {
 }
 
 function updateKraWeight(kraId, newWeight) {
-    const kra = KRAS.find(k => k.id === kraId);
-    if (kra) {
-        kra.weight = parseFloat(newWeight) || 0;
-        saveDB();
-        refreshActiveViews();
-    }
+    const val = parseFloat(newWeight) || 0;
+    
+    // التحديث المباشر للذاكرة والسحابة
+    const kra1 = KRAS.find(k => k.id === kraId);
+    if (kra1) kra1.weight = val;
+
+    if (!db.kras) db.kras = KRAS;
+    const kra2 = db.kras.find(k => k.id === kraId);
+    if (kra2) kra2.weight = val;
+
+    saveDB();
+    refreshActiveViews();
 }
 
 function openKraModal() {
@@ -736,7 +749,8 @@ function closeKraModal() {
 }
 
 function editKraElement(kraId) {
-    const kra = KRAS.find(k => k.id === kraId);
+    const activeKras = (db.kras && db.kras.length > 0) ? db.kras : KRAS;
+    const kra = activeKras.find(k => k.id === kraId);
     if (!kra) return;
 
     document.getElementById('kraFormEditId').value = kra.id;
@@ -767,32 +781,37 @@ function saveKraElement(e) {
         5: document.getElementById('kraFormLvl5').value.trim()
     };
 
+    if (!db.kras) db.kras = KRAS;
+
     if (editId) {
-        const kra = KRAS.find(k => k.id === editId);
-        if (kra) {
-            kra.title = title;
-            kra.weight = weight;
-            kra.levels = levels;
-        }
+        let kra = KRAS.find(k => k.id === editId);
+        if (kra) { kra.title = title; kra.weight = weight; kra.levels = levels; }
+
+        let dbKra = db.kras.find(k => k.id === editId);
+        if (dbKra) { dbKra.title = title; dbKra.weight = weight; dbKra.levels = levels; }
     } else {
         const newId = 'k' + (Date.now() % 100000);
-        KRAS.push({ id: newId, title: title, weight: weight, levels: levels });
+        const newObj = { id: newId, title: title, weight: weight, levels: levels };
+        KRAS.push(newObj);
+        db.kras.push(newObj);
     }
 
     saveDB();
     closeKraModal();
     refreshActiveViews();
-    alert("تم حفظ المعيار بوزنه الجديد والمزامنة سحابياً بنجاح!");
+    alert("تم حفظ المعيار وتحديث كافة النتائج فوراً!");
 }
 
 function deleteKraElement(kraId) {
-    if (KRAS.length <= 1) {
+    const activeKras = (db.kras && db.kras.length > 0) ? db.kras : KRAS;
+    if (activeKras.length <= 1) {
         alert("لا يمكن حذف كل العناصر! يجب أن يحتفظ النظام بعنصر واحد على الأقل.");
         return;
     }
 
     if (confirm("هل أنت متأكد من حذف هذا العنصر؟ سيتعدل المجموع الكلي للتقييمات بناءً على أوزان المعايير المتبقية.")) {
         KRAS = KRAS.filter(k => k.id !== kraId);
+        db.kras = db.kras.filter(k => k.id !== kraId);
         saveDB();
         refreshActiveViews();
         alert("تم حذف العنصر بنجاح.");
@@ -806,12 +825,14 @@ function resetDashFilters() {
     renderAdminDashboardCharts();
 }
 
-// =================== رسم ولوحات التحليلات (المحدثة بالأوزان) ===================
+// =================== رسم ولوحات التحليلات (المحدثة بالكامل) ===================
 
 function renderAdminDashboardCharts() {
     const selDept = document.getElementById('dashFilterDept').value;
     const selSec = document.getElementById('dashFilterSection').value;
     const selMgr = document.getElementById('dashFilterManager').value;
+
+    const activeKras = (db.kras && db.kras.length > 0) ? db.kras : KRAS;
 
     const filteredEmps = db.employees.filter(emp => {
         const matchDept = !selDept || emp.department === selDept;
@@ -831,7 +852,7 @@ function renderAdminDashboardCharts() {
     let grandTotalPct = 0;
 
     let kraTotals = {};
-    KRAS.forEach(k => kraTotals[k.id] = 0);
+    activeKras.forEach(k => kraTotals[k.id] = 0);
 
     filteredEmps.forEach(emp => {
         const res = calculateEmpScore(emp.id);
@@ -842,7 +863,7 @@ function renderAdminDashboardCharts() {
 
             const evalData = db.evaluations[emp.id];
             if (evalData && evalData.scores) {
-                KRAS.forEach(k => {
+                activeKras.forEach(k => {
                     kraTotals[k.id] += Number(evalData.scores[k.id] || 0);
                 });
             }
@@ -929,11 +950,11 @@ function renderAdminDashboardCharts() {
         `).join('');
     }
 
-    // حساب مساهمة المعيار الموزونة المباشرة في النسبة الكلية للداشبورد
-    const kraWeightedAverages = KRAS.map(k => {
+    // حساب متوسط الدرجات الموزونة الحقيقية لكل معيار بناءً على الأوزان النشطة
+    const kraWeightedAverages = activeKras.map(k => {
         if (evaluatedCount === 0) return 0;
-        const rawAvg = kraTotals[k.id] / evaluatedCount; // متوسط من 5
-        const w = Number(k.weight) || (100 / KRAS.length);
+        const rawAvg = kraTotals[k.id] / evaluatedCount;
+        const w = Number(k.weight) || (100 / activeKras.length);
         return ((rawAvg / 5) * w).toFixed(2);
     });
 
@@ -943,7 +964,7 @@ function renderAdminDashboardCharts() {
     chartKrasInstance = new Chart(ctxKras, {
         type: 'bar',
         data: {
-            labels: KRAS.map(k => `${k.title} (${k.weight || 0}%)`),
+            labels: activeKras.map(k => `${k.title} (${k.weight || 0}%)`),
             datasets: [{
                 label: 'مساهمة المعيار الموزونة (%)',
                 data: kraWeightedAverages,
@@ -1092,6 +1113,8 @@ function openEvalModal(empId) {
     const emp = db.employees.find(e => e.id === empId || e.id === String(empId) || e.code === String(empId));
     if (!emp) { alert("لم يتم العثور على الموظف!"); return; }
 
+    const activeKras = (db.kras && db.kras.length > 0) ? db.kras : KRAS;
+
     document.getElementById('evalTargetEmpId').value = emp.id;
     document.getElementById('evalModalEmpName').innerText = `تقييم الموظف: ${emp.name}`;
     document.getElementById('evalModalEmpDetails').innerText = `${emp.title} | الكود: ${emp.code} | الإدارة: ${emp.department}`;
@@ -1100,7 +1123,7 @@ function openEvalModal(empId) {
     document.getElementById('evalNotesInput').value = existingEval.notes || "";
 
     const container = document.getElementById('evalCriteriaList');
-    container.innerHTML = KRAS.map((kra, idx) => {
+    container.innerHTML = activeKras.map((kra, idx) => {
         const selectedVal = existingEval.scores[kra.id] || 0;
         return `
             <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
@@ -1133,7 +1156,9 @@ function submitEmployeeEval(e) {
     const formData = new FormData(e.target);
     const scores = {};
 
-    KRAS.forEach(kra => {
+    const activeKras = (db.kras && db.kras.length > 0) ? db.kras : KRAS;
+
+    activeKras.forEach(kra => {
         const val = formData.get(`kra_${kra.id}`);
         if (val) scores[kra.id] = parseInt(val);
     });
@@ -1213,6 +1238,8 @@ function filterReportsTable() {
 }
 
 function exportEvaluationsToExcel() {
+    const activeKras = (db.kras && db.kras.length > 0) ? db.kras : KRAS;
+
     const exportRows = db.employees.map(emp => {
         const evalData = db.evaluations[emp.id];
         const mgrObj = db.employees.find(m => m.code === emp.directManagerCode);
@@ -1233,7 +1260,7 @@ function exportEvaluationsToExcel() {
             "المقيم": evalData ? evalData.evaluatedBy : "-"
         };
 
-        KRAS.forEach(kra => {
+        activeKras.forEach(kra => {
             if (evalData && evalData.scores[kra.id]) {
                 const lvl = evalData.scores[kra.id];
                 row[`${kra.title} (${kra.weight || 0}%)`] = `${lvl} - ${kra.levels[lvl]}`;
