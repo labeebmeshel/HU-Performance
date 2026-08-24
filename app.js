@@ -188,7 +188,6 @@ function calculateEmpScore(empId) {
     const evalData = db.evaluations[empId];
     if (!evalData || !evalData.scores) return null;
 
-    // اعتماد المعايير المحفوظة فعلياً بدلاً من القيم الثابتة
     const activeKras = (db.kras && db.kras.length > 0) ? db.kras : KRAS;
 
     let weightedPercentage = 0;
@@ -398,7 +397,73 @@ function switchAdminTab(tabName) {
     if (tabName === 'management') renderManageKrasList();
 }
 
-// =================== استيراد الشيتات ===================
+// =================== إضافة الموظفين الجدد (يدوياً وعن طريق شيت إكسيل) ===================
+
+function openAddEmployeeModal() {
+    document.getElementById('addEmployeeForm').reset();
+    document.getElementById('newEmpAccountFields').classList.add('hidden');
+    
+    const mgrs = db.employees.filter(e => e.isManager);
+    const select = document.getElementById('newEmpDirectMgr');
+    select.innerHTML = `<option value="">-- بدون مدير مباشر --</option>` + 
+        mgrs.map(m => `<option value="${m.code}">${m.name} (${m.code}) - ${m.department}</option>`).join('');
+
+    document.getElementById('addEmployeeModal').classList.remove('hidden');
+}
+
+function closeAddEmployeeModal() {
+    document.getElementById('addEmployeeModal').classList.add('hidden');
+}
+
+function toggleNewEmpManagerFields() {
+    const isMgr = document.getElementById('newEmpIsManager').checked;
+    const accountFields = document.getElementById('newEmpAccountFields');
+    if (isMgr) {
+        accountFields.classList.remove('hidden');
+    } else {
+        accountFields.classList.add('hidden');
+    }
+}
+
+function saveNewEmployeeManual(e) {
+    e.preventDefault();
+    
+    const code = document.getElementById('newEmpCode').value.trim();
+    const name = document.getElementById('newEmpName').value.trim();
+    const title = document.getElementById('newEmpTitle').value.trim();
+    const dept = document.getElementById('newEmpDept').value.trim();
+    const sec = document.getElementById('newEmpSection').value.trim();
+    const isMgr = document.getElementById('newEmpIsManager').checked;
+    const directMgr = document.getElementById('newEmpDirectMgr').value;
+    const uName = document.getElementById('newEmpUsername').value.trim();
+    const pWord = document.getElementById('newEmpPassword').value.trim();
+
+    const exists = db.employees.find(emp => emp.code === code);
+    if (exists) {
+        alert("كود الموظف هذا مكرر وموجود بالفعل!");
+        return;
+    }
+
+    const newEmpObj = {
+        id: 'E_' + Date.now() + '_' + Math.floor(Math.random() * 10000),
+        code: code,
+        name: name,
+        title: title,
+        department: dept,
+        section: sec || 'عام',
+        isManager: isMgr,
+        directManagerCode: directMgr || '',
+        username: isMgr ? (uName || (name.split(' ')[0] + '.' + code).toLowerCase()) : '',
+        password: isMgr ? (pWord || '123456') : ''
+    };
+
+    db.employees.push(newEmpObj);
+    saveDB();
+    closeAddEmployeeModal();
+    refreshActiveViews();
+
+    alert(`تمت إضافة الموظف (${name}) بنجاح للمنظومة والسحابة دون مسح البيانات السابقة!`);
+}
 
 function downloadEmployeesTemplate() {
     const templateData = [
@@ -427,6 +492,8 @@ function handleEmployeesUpload(e) {
             if (rows.length === 0) { alert("الشيت فارغ!"); return; }
 
             let addedCount = 0;
+            let updatedCount = 0;
+
             rows.forEach((row, idx) => {
                 const code = (row["كود الموظف"] || row["Code"] || ("EMP-" + (idx + 100))).toString().trim();
                 const name = row["اسم الموظف"] || row["Name"];
@@ -465,6 +532,7 @@ function handleEmployeesUpload(e) {
                             if (uName) existing.username = uName;
                             if (pWord) existing.password = pWord;
                         }
+                        updatedCount++;
                     }
                 }
             });
@@ -473,7 +541,7 @@ function handleEmployeesUpload(e) {
             refreshActiveViews();
 
             const msg = document.getElementById('importSuccessMsg');
-            msg.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i> تم استيراد وتحديث <strong>${addedCount}</strong> موظف ومدير بنجاح.`;
+            msg.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i> تم إضافة <strong>${addedCount}</strong> موظف جديد وتحديث <strong>${updatedCount}</strong> موظف دون مسح البيانات الحالية.`;
             msg.classList.remove('hidden');
 
         } catch (err) {
@@ -725,7 +793,6 @@ function renderManageKrasList() {
 function updateKraWeight(kraId, newWeight) {
     const val = parseFloat(newWeight) || 0;
     
-    // التحديث المباشر للذاكرة والسحابة
     const kra1 = KRAS.find(k => k.id === kraId);
     if (kra1) kra1.weight = val;
 
@@ -825,7 +892,7 @@ function resetDashFilters() {
     renderAdminDashboardCharts();
 }
 
-// =================== رسم ولوحات التحليلات (المحدثة بالكامل) ===================
+// =================== رسم ولوحات التحليلات ===================
 
 function renderAdminDashboardCharts() {
     const selDept = document.getElementById('dashFilterDept').value;
@@ -950,7 +1017,6 @@ function renderAdminDashboardCharts() {
         `).join('');
     }
 
-    // حساب متوسط الدرجات الموزونة الحقيقية لكل معيار بناءً على الأوزان النشطة
     const kraWeightedAverages = activeKras.map(k => {
         if (evaluatedCount === 0) return 0;
         const rawAvg = kraTotals[k.id] / evaluatedCount;
