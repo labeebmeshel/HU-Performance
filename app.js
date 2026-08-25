@@ -397,7 +397,7 @@ function switchAdminTab(tabName) {
     if (tabName === 'management') renderManageKrasList();
 }
 
-// =================== متابعة واستخراج بيانات المدراء المتأخرين ===================
+// =================== متابعة واستخراج بيانات المدراء ===================
 
 function getPendingManagersData() {
     const managers = db.employees.filter(e => e.isManager);
@@ -410,39 +410,41 @@ function getPendingManagersData() {
             const completedCount = subordinates.filter(e => !!db.evaluations[e.id]).length;
             const pendingCount = subordinates.length - completedCount;
 
-            if (pendingCount > 0) {
-                const email = mgr.email || (mgr.username ? `${mgr.username}@heliopolis.edu.eg` : `${mgr.code.toLowerCase()}@heliopolis.edu.eg`);
-                const rate = ((completedCount / subordinates.length) * 100).toFixed(0);
+            const email = mgr.email || (mgr.username ? `${mgr.username}@heliopolis.edu.eg` : `${mgr.code.toLowerCase()}@heliopolis.edu.eg`);
+            const rate = ((completedCount / subordinates.length) * 100).toFixed(0);
 
-                pendingList.push({
-                    code: mgr.code,
-                    name: mgr.name,
-                    department: mgr.department,
-                    email: email,
-                    totalSubordinates: subordinates.length,
-                    completedCount: completedCount,
-                    pendingCount: pendingCount,
-                    completionRate: rate
-                });
-            }
+            pendingList.push({
+                code: mgr.code,
+                name: mgr.name,
+                department: mgr.department,
+                email: email,
+                totalSubordinates: subordinates.length,
+                completedCount: completedCount,
+                pendingCount: pendingCount,
+                completionRate: rate
+            });
         }
     });
 
-    return pendingList;
+    return pendingList.sort((a, b) => b.pendingCount - a.pendingCount);
 }
 
-function renderPendingManagersTable() {
+function renderPendingManagersTable(showOnlyPending = true) {
     const tbody = document.getElementById('pendingManagersTableBody');
     if (!tbody) return;
 
-    const pendingManagers = getPendingManagersData();
+    let managers = getPendingManagersData();
 
-    if (pendingManagers.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-emerald-600 font-bold"><i class="fa-solid fa-circle-check"></i> جميع المدراء أتموا كافة التقييمات بنجاح!</td></tr>`;
+    if (showOnlyPending) {
+        managers = managers.filter(m => m.pendingCount > 0);
+    }
+
+    if (managers.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-emerald-600 font-bold"><i class="fa-solid fa-circle-check"></i> جميع المدراء المعروضين أتموا التقييمات!</td></tr>`;
         return;
     }
 
-    tbody.innerHTML = pendingManagers.map(mgr => `
+    tbody.innerHTML = managers.map(mgr => `
         <tr class="hover:bg-slate-50 transition">
             <td class="p-2.5 font-mono font-bold text-slate-600">${mgr.code}</td>
             <td class="p-2.5 font-bold text-slate-800">${mgr.name}</td>
@@ -450,9 +452,9 @@ function renderPendingManagersTable() {
             <td class="p-2.5 font-mono text-blue-700 bg-blue-50/50 rounded px-2 select-all">${mgr.email}</td>
             <td class="p-2.5 text-center font-bold text-slate-700">${mgr.totalSubordinates}</td>
             <td class="p-2.5 text-center font-bold text-emerald-600">${mgr.completedCount}</td>
-            <td class="p-2.5 text-center font-bold text-red-600 bg-red-50 rounded">${mgr.pendingCount}</td>
+            <td class="p-2.5 text-center font-bold ${mgr.pendingCount > 0 ? 'text-red-600 bg-red-50' : 'text-slate-400'} rounded">${mgr.pendingCount}</td>
             <td class="p-2.5 text-center">
-                <span class="px-2 py-0.5 rounded text-[10px] font-bold ${mgr.completionRate > 0 ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'}">
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold ${mgr.completionRate == 100 ? 'bg-emerald-100 text-emerald-800' : (mgr.completionRate > 0 ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800')}">
                     ${mgr.completionRate}%
                 </span>
             </td>
@@ -461,7 +463,7 @@ function renderPendingManagersTable() {
 }
 
 function copyPendingManagersEmails() {
-    const pending = getPendingManagersData();
+    const pending = getPendingManagersData().filter(m => m.pendingCount > 0);
     if (pending.length === 0) {
         alert("لا يوجد مدراء متأخرين حالياً!");
         return;
@@ -469,20 +471,20 @@ function copyPendingManagersEmails() {
 
     const emailsString = pending.map(m => m.email).join('; ');
     navigator.clipboard.writeText(emailsString).then(() => {
-        alert(`تم نسخ بريد ${pending.length} مدير بنجاح إلى الحافظة!\nيمكنك الآن لصقها في إيميل التنبيه (BCC).`);
+        alert(`تم نسخ بريد ${pending.length} مدير متأخر بنجاح إلى الحافظة!\nيمكنك الآن لصقها في إيميل التنبيه (BCC).`);
     }).catch(err => {
         alert("حدث خطأ أثناء النسخ: " + err);
     });
 }
 
 function exportPendingManagersExcel() {
-    const pending = getPendingManagersData();
-    if (pending.length === 0) {
-        alert("لا يوجد مدراء متأخرين للتصدير!");
+    const managers = getPendingManagersData();
+    if (managers.length === 0) {
+        alert("لا يوجد بيانات للتصدير!");
         return;
     }
 
-    const rows = pending.map(m => ({
+    const rows = managers.map(m => ({
         "كود المدير": m.code,
         "اسم المدير": m.name,
         "الإدارة": m.department,
@@ -495,8 +497,8 @@ function exportPendingManagersExcel() {
 
     const ws = XLSX.utils.json_to_sheet(rows);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "المدراء المتأخرين");
-    XLSX.writeFile(wb, `قائمة_تنبيه_المدراء_${new Date().toISOString().slice(0,10)}.xlsx`);
+    XLSX.utils.book_append_sheet(wb, ws, "تقرير متابعة المدراء");
+    XLSX.writeFile(wb, `تقرير_متابعة_المدراء_${new Date().toISOString().slice(0,10)}.xlsx`);
 }
 
 // =================== إضافة الموظفين الجدد ===================
@@ -1188,8 +1190,9 @@ function renderAdminDashboardCharts() {
         }
     });
 
-    // تحديث جدول المدراء المتأخرين تلقائياً مع الداشبورد
-    renderPendingManagersTable();
+    // تحديث جدول المدراء وفق الفلتر المحدد
+    const showOnlyPending = (document.getElementById('pendingManagerViewFilter')?.value || 'pending') === 'pending';
+    renderPendingManagersTable(showOnlyPending);
 }
 
 function exportLevelPercentagesToExcel() {
