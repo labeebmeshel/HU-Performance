@@ -397,7 +397,109 @@ function switchAdminTab(tabName) {
     if (tabName === 'management') renderManageKrasList();
 }
 
-// =================== إضافة الموظفين الجدد (يدوياً وعن طريق شيت إكسيل) ===================
+// =================== متابعة واستخراج بيانات المدراء المتأخرين ===================
+
+function getPendingManagersData() {
+    const managers = db.employees.filter(e => e.isManager);
+    const pendingList = [];
+
+    managers.forEach(mgr => {
+        const subordinates = db.employees.filter(e => e.directManagerCode === mgr.code);
+        
+        if (subordinates.length > 0) {
+            const completedCount = subordinates.filter(e => !!db.evaluations[e.id]).length;
+            const pendingCount = subordinates.length - completedCount;
+
+            if (pendingCount > 0) {
+                const email = mgr.email || (mgr.username ? `${mgr.username}@heliopolis.edu.eg` : `${mgr.code.toLowerCase()}@heliopolis.edu.eg`);
+                const rate = ((completedCount / subordinates.length) * 100).toFixed(0);
+
+                pendingList.push({
+                    code: mgr.code,
+                    name: mgr.name,
+                    department: mgr.department,
+                    email: email,
+                    totalSubordinates: subordinates.length,
+                    completedCount: completedCount,
+                    pendingCount: pendingCount,
+                    completionRate: rate
+                });
+            }
+        }
+    });
+
+    return pendingList;
+}
+
+function renderPendingManagersTable() {
+    const tbody = document.getElementById('pendingManagersTableBody');
+    if (!tbody) return;
+
+    const pendingManagers = getPendingManagersData();
+
+    if (pendingManagers.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-emerald-600 font-bold"><i class="fa-solid fa-circle-check"></i> جميع المدراء أتموا كافة التقييمات بنجاح!</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = pendingManagers.map(mgr => `
+        <tr class="hover:bg-slate-50 transition">
+            <td class="p-2.5 font-mono font-bold text-slate-600">${mgr.code}</td>
+            <td class="p-2.5 font-bold text-slate-800">${mgr.name}</td>
+            <td class="p-2.5 text-slate-600">${mgr.department}</td>
+            <td class="p-2.5 font-mono text-blue-700 bg-blue-50/50 rounded px-2 select-all">${mgr.email}</td>
+            <td class="p-2.5 text-center font-bold text-slate-700">${mgr.totalSubordinates}</td>
+            <td class="p-2.5 text-center font-bold text-emerald-600">${mgr.completedCount}</td>
+            <td class="p-2.5 text-center font-bold text-red-600 bg-red-50 rounded">${mgr.pendingCount}</td>
+            <td class="p-2.5 text-center">
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold ${mgr.completionRate > 0 ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'}">
+                    ${mgr.completionRate}%
+                </span>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function copyPendingManagersEmails() {
+    const pending = getPendingManagersData();
+    if (pending.length === 0) {
+        alert("لا يوجد مدراء متأخرين حالياً!");
+        return;
+    }
+
+    const emailsString = pending.map(m => m.email).join('; ');
+    navigator.clipboard.writeText(emailsString).then(() => {
+        alert(`تم نسخ بريد ${pending.length} مدير بنجاح إلى الحافظة!\nيمكنك الآن لصقها في إيميل التنبيه (BCC).`);
+    }).catch(err => {
+        alert("حدث خطأ أثناء النسخ: " + err);
+    });
+}
+
+function exportPendingManagersExcel() {
+    const pending = getPendingManagersData();
+    if (pending.length === 0) {
+        alert("لا يوجد مدراء متأخرين للتصدير!");
+        return;
+    }
+
+    const rows = pending.map(m => ({
+        "كود المدير": m.code,
+        "اسم المدير": m.name,
+        "الإدارة": m.department,
+        "البريد الإلكتروني": m.email,
+        "إجمالي عدد الموظفين": m.totalSubordinates,
+        "التقييمات المكتملة": m.completedCount,
+        "التقييمات المتبقية": m.pendingCount,
+        "نسبة الإنجاز %": `${m.completionRate}%`
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "المدراء المتأخرين");
+    XLSX.writeFile(wb, `قائمة_تنبيه_المدراء_${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+
+// =================== إضافة الموظفين الجدد ===================
 
 function openAddEmployeeModal() {
     document.getElementById('addEmployeeForm').reset();
@@ -462,7 +564,7 @@ function saveNewEmployeeManual(e) {
     closeAddEmployeeModal();
     refreshActiveViews();
 
-    alert(`تمت إضافة الموظف (${name}) بنجاح للمنظومة والسحابة دون مسح البيانات السابقة!`);
+    alert(`تمت إضافة الموظف (${name}) بنجاح للمنظومة والسحابة!`);
 }
 
 function downloadEmployeesTemplate() {
@@ -1085,6 +1187,9 @@ function renderAdminDashboardCharts() {
             scales: { y: { beginAtZero: true, max: 100 } }
         }
     });
+
+    // تحديث جدول المدراء المتأخرين تلقائياً مع الداشبورد
+    renderPendingManagersTable();
 }
 
 function exportLevelPercentagesToExcel() {
