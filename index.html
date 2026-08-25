@@ -173,16 +173,20 @@
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-3 gap-3">
                         <div>
                             <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
-                                <i class="fa-solid fa-clock-rotate-left text-amber-600"></i> متابعة المدراء المتأخرين في التقييم
+                                <i class="fa-solid fa-clock-rotate-left text-amber-600"></i> متابعة المدراء والتقييمات المعلقة
                             </h3>
-                            <p class="text-xs text-slate-500 mt-0.5">قائمة بالمدراء الذين لم يكتمل لديهم تقييم المرؤوسين مع إمكانية استخراج إيميلاتهم لإرسال تنبيهات.</p>
+                            <p class="text-xs text-slate-500 mt-0.5">قائمة بالمدراء لإظهار نسب الإنجاز وإمكانية استخراج إيميلات المتأخرين.</p>
                         </div>
                         <div class="flex items-center gap-2">
+                            <select id="pendingManagerViewFilter" onchange="renderPendingManagersTable(this.value === 'pending')" class="text-xs p-2 border border-slate-300 rounded-lg outline-none font-bold text-slate-700 bg-slate-50">
+                                <option value="pending">عرض المتأخرين فقط</option>
+                                <option value="all">عرض جميع المدراء</option>
+                            </select>
                             <button onclick="copyPendingManagersEmails()" class="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-300 text-xs font-bold px-3 py-2 rounded-lg transition flex items-center gap-1.5">
-                                <i class="fa-solid fa-copy"></i> نسخ كل الإيميلات
+                                <i class="fa-solid fa-copy"></i> نسخ إيميلات المتأخرين
                             </button>
                             <button onclick="exportPendingManagersExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-2 rounded-lg transition flex items-center gap-1.5 shadow-sm">
-                                <i class="fa-solid fa-file-excel"></i> تصدير قائمة التنبيه Excel
+                                <i class="fa-solid fa-file-excel"></i> تصدير Excel
                             </button>
                         </div>
                     </div>
