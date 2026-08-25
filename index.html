@@ -168,6 +168,44 @@
                     </div>
                 </div>
 
+                <!-- متابعة المدراء المتأخرين واستخراج الإيميلات -->
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-3 gap-3">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                                <i class="fa-solid fa-clock-rotate-left text-amber-600"></i> متابعة المدراء المتأخرين في التقييم
+                            </h3>
+                            <p class="text-xs text-slate-500 mt-0.5">قائمة بالمدراء الذين لم يكتمل لديهم تقييم المرؤوسين مع إمكانية استخراج إيميلاتهم لإرسال تنبيهات.</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="copyPendingManagersEmails()" class="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-300 text-xs font-bold px-3 py-2 rounded-lg transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-copy"></i> نسخ كل الإيميلات
+                            </button>
+                            <button onclick="exportPendingManagersExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-2 rounded-lg transition flex items-center gap-1.5 shadow-sm">
+                                <i class="fa-solid fa-file-excel"></i> تصدير قائمة التنبيه Excel
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-700 border-b">
+                                    <th class="p-2.5">كود المدير</th>
+                                    <th class="p-2.5">اسم المدير المقيم</th>
+                                    <th class="p-2.5">الإدارة</th>
+                                    <th class="p-2.5">البريد الإلكتروني</th>
+                                    <th class="p-2.5 text-center">إجمالي المرؤوسين</th>
+                                    <th class="p-2.5 text-center">تم تقييمهم</th>
+                                    <th class="p-2.5 text-center">المتبقي</th>
+                                    <th class="p-2.5 text-center">نسبة الإنجاز</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pendingManagersTableBody" class="divide-y"></tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-2">
                     <div class="flex justify-between items-center text-xs font-bold">
                         <span class="text-slate-700"><i class="fa-solid fa-bars-progress text-blue-600"></i> نسبة إنجاز التقييم الإجمالية:</span>
