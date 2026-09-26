@@ -6,7 +6,252 @@ const FIREBASE_CONFIG = {
     projectId: "hr-performance-system-f388a"
 };
 
-// Default English Evaluation Criteria (KRAs)
+// Dictionary for Dynamic UI Translations
+const I18N = {
+    ar: {
+        app_title: "منظومة تقييم الأداء المؤسسي",
+        header_title: "منظومة تقييم الأداء المؤسسي",
+        header_sub: "مزامنة سحابية مباشرة",
+        change_password: "تغيير كلمة السر",
+        logout: "خروج",
+        login_title: "تسجيل الدخول",
+        login_desc: "أدخل بيانات الحساب للوصول للنظام",
+        username: "اسم المستخدم",
+        password: "كلمة السر",
+        login_btn: "دخول",
+        backup_btn: "نسخة احتياطية (Backup)",
+        tab_analytics: "التحليلات الإحصائية",
+        tab_import: "استيراد الموظفين والتقييمات",
+        tab_accounts: "إدارة الحسابات والصلاحيات",
+        tab_reports: "سجل التقييمات",
+        tab_kras: "صيانة البيانات والـ KRAs",
+        filter_label: "تصفية:",
+        reset_btn: "إعادة ضبط",
+        stat_total_emp: "إجمالي الموظفين",
+        stat_avg_score: "المتوسط العام (الموزون)",
+        stat_completed: "المكتملين",
+        stat_pending: "المتبقين",
+        pending_mgr_title: "متابعة المدراء والتقييمات المعلقة",
+        pending_mgr_sub: "قائمة بالمدراء لإظهار نسب الإنجاز واستخراج إيميلات المتأخرين.",
+        show_pending_only: "عرض المتأخرين فقط",
+        show_all_mgrs: "عرض جميع المدراء",
+        copy_emails: "نسخ إيميلات المتأخرين",
+        export_excel: "تصدير Excel",
+        col_mgr_code: "كود المدير",
+        col_mgr_name: "اسم المدير المقيم",
+        col_department: "الإدارة",
+        col_email: "البريد الإلكتروني",
+        col_total_sub: "إجمالي المرؤوسين",
+        col_evaluated: "تم تقييمهم",
+        col_remaining: "المتبقي",
+        col_completion_rate: "نسبة الإنجاز",
+        overall_completion: "نسبة إنجاز التقييم الإجمالية:",
+        level_dist_title: "توزيع مستويات التقييم",
+        level_dist_sub: "تفاصيل نسب الموظفين وفق المستويات من 1 إلى 5",
+        dept_rankings: "ترتيب الإدارات بالأداء",
+        kras_breakdown: "تحليل محاور التقييم (المساهمة الموزونة %)",
+        level_percentages: "النسب المئوية للمستويات",
+        dept_averages: "متوسط درجات الإدارات",
+        import_emp_title: "1. إضافة/استيراد شيت الموظفين والمدراء",
+        import_emp_sub: "رفع شيت Excel لإضافة موظفين جداد للقاعدة أو تحديث البيانات الحالية.",
+        emp_template: "نموذج الموظفين Excel",
+        upload_emp_hint: "اضغط لرفع شيت الموظفين وإضافتهم للموجودين",
+        import_eval_title: "2. استيراد شيت التقييمات المباشرة",
+        import_eval_sub: "رفع شيت يحتوي على تقييمات الموظفين بالدرجات لحفظها دفعة واحدة.",
+        eval_template: "نموذج التقييمات Excel",
+        upload_eval_hint: "اضغط لرفع شيت التقييمات الجاهزة",
+        accounts_title: "إدارة حسابات الموظفين وصلاحيات التعديل للمدراء",
+        accounts_sub: "إضافة موظفين، إدارة صلاحيات الدخول، والتحكم في إغلاق/فتح التعديل لكل مدير.",
+        add_emp_manual: "إضافة موظف جديد يدويًا",
+        col_code: "الكود",
+        col_name: "اسم الموظف",
+        col_title: "الوظيفة",
+        col_section: "القسم",
+        col_role: "الصفة",
+        col_direct_mgr: "المدير المباشر",
+        col_username: "اسم المستخدم",
+        col_password: "كلمة السر",
+        col_edit_status: "حالة التعديل للمدير",
+        col_actions: "الإجراءات",
+        reports_title: "سجل التقييمات النهائي (الموزون)",
+        reports_sub: "عرض النتائج الشاملة المكتملة والمتبقية مباشرة من السحابة بناءً على أوزان المعايير.",
+        export_report: "تصدير التقرير Excel",
+        col_evaluator: "المدير المقيم",
+        col_status: "الحالة",
+        col_total_score: "الدرجة الموزونة",
+        col_percentage: "النسبة المئوية",
+        col_level: "المستوى",
+        kras_manage_title: "إدارة عناصر التقييم والـ KRAs والأوزان النسبية",
+        kras_manage_sub: "إضافة وتعديل عناصر التقييم وتحديد أوزانها النسبية.",
+        add_kra_btn: "إضافة عنصر جديد",
+        db_maintenance_title: "النسخ الاحتياطي وصيانة القاعدة",
+        db_maintenance_sub: "التحكم في حفظ وتنظيف قاعدة البيانات السحابية والمحلية.",
+        backup_card_title: "النسخ الاحتياطي",
+        backup_card_desc: "تنزيل نسخة احتياطية بصيغة (JSON) تحتوي على كل الموظفين والتقييمات.",
+        download_backup: "تنزيل النسخة",
+        clear_cache_title: "تنظيف المتصفح",
+        clear_cache_desc: "يمسح الملفات المؤقتة من الجهاز الحالي دون المساس ببيانات السحابة.",
+        clear_cache_btn: "مسح المؤقت",
+        purge_cloud_title: "مسح السحابة",
+        purge_cloud_desc: "حذف كافة الموظفين والتقييمات سحابياً (يتطلب كلمة سر الأدمن).",
+        purge_cloud_btn: "مسح شامل",
+        mgr_panel_title: "تقييم المرؤوسين المباشرين",
+        set_as_mgr: "تعيين كـ (مدير تقييم)",
+        cancel_btn: "إلغاء",
+        save_emp_btn: "حفظ الموظف",
+        new_password: "كلمة السر الجديدة:",
+        confirm_password: "تأكيد كلمة السر الجديدة:",
+        update_password: "تحديث كلمة السر",
+        eval_modal_hint: "اختر الوصف السلوكي الأنسب لكل عنصر وسيتم النشر سحابياً فوراً.",
+        eval_notes_label: "التوصيات والملاحظات:",
+        save_eval_btn: "حفظ التقييم",
+        account_settings: "إعداد الحساب وصلاحيات التعديل",
+        save_btn: "حفظ التغييرات",
+        save_kra_btn: "حفظ العنصر",
+        footer_text: "منظومة تقييم الأداء المؤسسي © 2026 - Firebase Realtime Database",
+        delete_eval_btn: "حذف التقييم",
+        edit_eval_btn: "تعديل التقييم",
+        eval_locked_msg: "مكتمل (محمي من التعديل)",
+        freeze_edit_btn: "تجميد التعديل",
+        unfreeze_edit_btn: "فتح التعديل",
+        edit_allowed: "مسموح بالتعديل",
+        edit_frozen: "مجمد بواسطة الأدمن"
+    },
+    en: {
+        app_title: "Corporate Performance Appraisal System",
+        header_title: "Performance Appraisal System",
+        header_sub: "Real-time Cloud Sync",
+        change_password: "Change Password",
+        logout: "Logout",
+        login_title: "Account Login",
+        login_desc: "Enter your credentials to access system",
+        username: "Username",
+        password: "Password",
+        login_btn: "Login",
+        backup_btn: "Download Backup",
+        tab_analytics: "Analytics Dashboard",
+        tab_import: "Import Employees & Evals",
+        tab_accounts: "Account & Edit Controls",
+        tab_reports: "Evaluation Reports",
+        tab_kras: "KRAs & Data Maintenance",
+        filter_label: "Filter:",
+        reset_btn: "Reset Filters",
+        stat_total_emp: "Total Employees",
+        stat_avg_score: "Overall Avg (Weighted)",
+        stat_completed: "Completed",
+        stat_pending: "Pending",
+        pending_mgr_title: "Managers & Pending Evals Tracker",
+        pending_mgr_sub: "Track progress rates and export pending managers emails easily.",
+        show_pending_only: "Show Pending Only",
+        show_all_mgrs: "Show All Managers",
+        copy_emails: "Copy Pending Emails",
+        export_excel: "Export Excel",
+        col_mgr_code: "Manager Code",
+        col_mgr_name: "Manager Name",
+        col_department: "Department",
+        col_email: "Email Address",
+        col_total_sub: "Subordinates",
+        col_evaluated: "Evaluated",
+        col_remaining: "Remaining",
+        col_completion_rate: "Progress Rate",
+        overall_completion: "Overall Completion Rate:",
+        level_dist_title: "Rating Levels Distribution",
+        level_dist_sub: "Employee percentages across levels 1 to 5",
+        dept_rankings: "Department Performance Rankings",
+        kras_breakdown: "Criteria Breakdown (Weighted Contribution %)",
+        level_percentages: "Level Distribution %",
+        dept_averages: "Department Averages",
+        import_emp_title: "1. Import Employees & Managers",
+        import_emp_sub: "Upload Excel file to append or update employees without deleting existing data.",
+        emp_template: "Employees Excel Template",
+        upload_emp_hint: "Click to upload employees Excel sheet",
+        import_eval_title: "2. Import Direct Evaluations",
+        import_eval_sub: "Upload Excel sheet containing pre-rated evaluations.",
+        eval_template: "Evaluations Excel Template",
+        upload_eval_hint: "Click to upload evaluations Excel sheet",
+        accounts_title: "Manager Accounts & Edit Control Permissions",
+        accounts_sub: "Add employees, manage credentials, and toggle edit locks for each manager individually.",
+        add_emp_manual: "Add New Employee",
+        col_code: "Code",
+        col_name: "Employee Name",
+        col_title: "Job Title",
+        col_section: "Section",
+        col_role: "Role",
+        col_direct_mgr: "Direct Manager",
+        col_username: "Username",
+        col_password: "Password",
+        col_edit_status: "Manager Edit Permission",
+        col_actions: "Actions",
+        reports_title: "Final Evaluation Log (Weighted)",
+        reports_sub: "View complete and pending results loaded directly from cloud database.",
+        export_report: "Export Full Report",
+        col_evaluator: "Evaluator",
+        col_status: "Status",
+        col_total_score: "Total Score",
+        col_percentage: "Percentage %",
+        col_level: "Level",
+        kras_manage_title: "Manage KRAs & Criteria Weights",
+        kras_manage_sub: "Add elements and set weights (adjustments dynamically recalculate all results).",
+        add_kra_btn: "Add New Criteria",
+        db_maintenance_title: "Database Backup & Maintenance",
+        db_maintenance_sub: "Control cloud database backup and local cache clearing.",
+        backup_card_title: "JSON Backup",
+        backup_card_desc: "Download full JSON backup of employees and evaluation records.",
+        download_backup: "Download Backup",
+        clear_cache_title: "Browser Cache",
+        clear_cache_desc: "Clear local browser cache without affecting cloud data.",
+        clear_cache_btn: "Clear Local Cache",
+        purge_cloud_title: "Purge Cloud DB",
+        purge_cloud_desc: "Permanently delete all cloud data (Admin Password required).",
+        purge_cloud_btn: "Purge Cloud DB",
+        mgr_panel_title: "Direct Subordinates Appraisal",
+        set_as_mgr: "Assign as Manager",
+        cancel_btn: "Cancel",
+        save_emp_btn: "Save Employee",
+        new_password: "New Password:",
+        confirm_password: "Confirm Password:",
+        update_password: "Update Password",
+        eval_modal_hint: "Select appropriate behavioral level for each item.",
+        eval_notes_label: "Notes & Recommendations:",
+        save_eval_btn: "Save Evaluation",
+        account_settings: "Account & Edit Permissions",
+        save_btn: "Save Changes",
+        save_kra_btn: "Save Element",
+        footer_text: "Corporate Performance Appraisal System © 2026 - Firebase Realtime Database",
+        delete_eval_btn: "Delete Eval",
+        edit_eval_btn: "Edit Eval",
+        eval_locked_msg: "Completed (Locked)",
+        freeze_edit_btn: "Lock Edit",
+        unfreeze_edit_btn: "Unlock Edit",
+        edit_allowed: "Editing Allowed",
+        edit_frozen: "Locked by Admin"
+    }
+};
+
+let currentLang = 'ar';
+
+function changeLanguage(lang) {
+    currentLang = lang;
+    const htmlTag = document.getElementById('htmlTag');
+    if (lang === 'en') {
+        htmlTag.setAttribute('dir', 'ltr');
+        htmlTag.setAttribute('lang', 'en');
+    } else {
+        htmlTag.setAttribute('dir', 'rtl');
+        htmlTag.setAttribute('lang', 'ar');
+    }
+
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (I18N[lang] && I18N[lang][key]) {
+            el.innerText = I18N[lang][key];
+        }
+    });
+
+    refreshActiveViews();
+}
+
+// KRAs Data
 let KRAS = [
     {
         id: "k1",
@@ -109,9 +354,9 @@ function initFirebase() {
         firebaseDB.ref('.info/connected').on('value', (snap) => {
             const banner = document.getElementById('firebaseStatusBanner');
             if (snap.val() === true) {
-                banner.innerText = "Connected to Cloud (Firebase Realtime) ✓";
+                banner.innerText = currentLang === 'ar' ? "متصل بالسحابة (Firebase Realtime) ✓" : "Connected to Cloud (Firebase) ✓";
             } else {
-                banner.innerText = "Connecting to Cloud...";
+                banner.innerText = currentLang === 'ar' ? "جاري الاتصال بالسحابة..." : "Connecting to Cloud...";
             }
         });
 
@@ -162,27 +407,27 @@ function downloadJSONBackup() {
 }
 
 function clearLocalOnlyData() {
-    if (confirm("Are you sure you want to clear browser local cache? Cloud data will remain safe.")) {
+    if (confirm(currentLang === 'ar' ? "هل أنت متأكد من مسح كاش المتصفح محلياً؟ لن تتأثر البيانات السحابية." : "Clear browser local cache? Cloud data won't be affected.")) {
         localStorage.removeItem('hr_system_v7_db');
-        alert("Local cache cleared successfully.");
+        alert(currentLang === 'ar' ? "تم مسح المؤقت بنجاح." : "Local cache cleared.");
         location.reload();
     }
 }
 
 function purgeCloudDatabase() {
-    const pass = prompt("WARNING: This will permanently delete ALL cloud data! Enter Admin Password:");
+    const pass = prompt(currentLang === 'ar' ? "تنبيه: سيتم مسح قاعدة البيانات السحابية بالكامل! أدخل كلمة سر الأدمن للتأكيد:" : "Warning: Entire Cloud DB will be purged! Enter Admin Password:");
     if (pass === db.admin.password) {
         db.employees = [];
         db.evaluations = {};
         saveDB();
-        alert("Cloud database purged successfully.");
+        alert(currentLang === 'ar' ? "تم مسح السحابة بنجاح." : "Cloud DB purged successfully.");
         refreshActiveViews();
     } else if (pass !== null) {
-        alert("Incorrect password!");
+        alert(currentLang === 'ar' ? "كلمة السر غير صحيحة!" : "Incorrect password!");
     }
 }
 
-// Weighted Score & Level Calculation
+// Calculate Scores
 function calculateEmpScore(empId) {
     const evalData = db.evaluations[empId];
     if (!evalData || !evalData.scores) return null;
@@ -221,22 +466,41 @@ function calculateEmpScore(empId) {
 // Delete Evaluation (Admin Only)
 function deleteEmployeeEvaluation(empId) {
     if (currentUser.role !== 'admin') {
-        alert("Access denied: Admin only!");
+        alert(currentLang === 'ar' ? "عفواً، هذه الصلاحية للمسؤول (Admin) فقط!" : "Access denied: Admin only!");
         return;
     }
 
     const emp = db.employees.find(e => e.id === empId || e.id === String(empId));
     const empName = emp ? emp.name : empId;
 
-    if (confirm(`Are you sure you want to delete evaluation for (${empName})?\nThe status will immediately revert to Pending for the manager.`)) {
+    if (confirm(currentLang === 'ar' ? `هل أنت متأكد من حذف تقييم الموظف (${empName})؟` : `Are you sure you want to delete evaluation for (${empName})?`)) {
         delete db.evaluations[empId];
         saveDB();
         refreshActiveViews();
-        alert("Evaluation deleted successfully.");
+        alert(currentLang === 'ar' ? "تم حذف التقييم بنجاح." : "Evaluation deleted successfully.");
     }
 }
 
-// Dynamic Filter Controls
+// Manager Freeze Edit Functionality (Admin Control)
+function toggleManagerEditFreeze(mgrEmpId) {
+    if (currentUser.role !== 'admin') {
+        alert(currentLang === 'ar' ? "عفواً، هذه الصلاحية للمسؤول فقط!" : "Admin only!");
+        return;
+    }
+
+    const emp = db.employees.find(e => e.id === mgrEmpId);
+    if (emp) {
+        emp.editFrozen = !emp.editFrozen;
+        saveDB();
+        refreshActiveViews();
+        const statusText = emp.editFrozen 
+            ? (currentLang === 'ar' ? "تم تجميد وإغلاق التعديل والتقييم لـ " : "Locked edits for ")
+            : (currentLang === 'ar' ? "تم فتح وإتاحة التعديل والتقييم لـ " : "Unlocked edits for ");
+        alert(statusText + emp.name);
+    }
+}
+
+// Dynamic Filter Helpers
 function updateSectionDropdown(deptSelectId, secSelectId) {
     const deptVal = document.getElementById(deptSelectId).value;
     
@@ -246,7 +510,7 @@ function updateSectionDropdown(deptSelectId, secSelectId) {
     }
 
     const availableSections = [...new Set(empsToFilter.map(e => e.section).filter(Boolean))];
-    fillSelect(secSelectId, availableSections, 'All Sections');
+    fillSelect(secSelectId, availableSections, currentLang === 'ar' ? 'جميع الأقسام' : 'All Sections');
 }
 
 function onAdminDeptChange() {
@@ -267,21 +531,21 @@ function populateFilterDropdowns() {
     const depts = [...new Set(db.employees.map(e => e.department).filter(Boolean))];
     const mgrs = db.employees.filter(e => e.isManager);
 
-    fillSelect('dashFilterDept', depts, 'All Departments');
-    fillSelect('empFilterDept', depts, 'All Departments');
-    fillSelect('rptFilterDept', depts, 'All Departments');
+    fillSelect('dashFilterDept', depts, currentLang === 'ar' ? 'جميع الإدارات' : 'All Departments');
+    fillSelect('empFilterDept', depts, currentLang === 'ar' ? 'كل الإدارات' : 'All Departments');
+    fillSelect('rptFilterDept', depts, currentLang === 'ar' ? 'كل الإدارات' : 'All Departments');
 
     updateSectionDropdown('dashFilterDept', 'dashFilterSection');
     updateSectionDropdown('empFilterDept', 'empFilterSection');
 
-    fillSelect('dashFilterManager', mgrs.map(m => m.name), 'All Managers');
-    fillSelect('empFilterDirectMgr', mgrs.map(m => `${m.name} (${m.code})`), 'All Direct Managers');
-    fillSelect('rptFilterEvaluator', mgrs.map(m => m.name), 'All Evaluators');
+    fillSelect('dashFilterManager', mgrs.map(m => m.name), currentLang === 'ar' ? 'جميع المدراء' : 'All Managers');
+    fillSelect('empFilterDirectMgr', mgrs.map(m => `${m.name} (${m.code})`), currentLang === 'ar' ? 'كل المدراء المباشرين' : 'All Direct Managers');
+    fillSelect('rptFilterEvaluator', mgrs.map(m => m.name), currentLang === 'ar' ? 'المدير المقيم' : 'Evaluator');
 
     if (currentUser && currentUser.empData) {
         const myEmps = db.employees.filter(e => e.directManagerCode === currentUser.empData.code);
         const mySecs = [...new Set(myEmps.map(e => e.section).filter(Boolean))];
-        fillSelect('mgrFilterSection', mySecs, 'All Sections');
+        fillSelect('mgrFilterSection', mySecs, currentLang === 'ar' ? 'كل الأقسام' : 'All Sections');
     }
 }
 
@@ -294,7 +558,7 @@ function fillSelect(elemId, items, defaultText) {
     el.value = currentVal;
 }
 
-// Authentication & Password Management
+// Authentication
 function handleLogin(e) {
     e.preventDefault();
     const uInput = document.getElementById('usernameInput').value.trim();
@@ -304,7 +568,7 @@ function handleLogin(e) {
     errDiv.classList.add('hidden');
 
     if (uInput === db.admin.username && pInput === db.admin.password) {
-        currentUser = { role: 'admin', name: 'System Administrator', username: 'admin' };
+        currentUser = { role: 'admin', name: currentLang === 'ar' ? 'مسؤول النظام (Admin)' : 'System Admin', username: 'admin' };
         showView();
         return;
     }
@@ -316,7 +580,7 @@ function handleLogin(e) {
         return;
     }
 
-    errDiv.innerText = "Invalid username or password.";
+    errDiv.innerText = currentLang === 'ar' ? "اسم المستخدم أو كلمة السر غير صحيحة." : "Invalid username or password.";
     errDiv.classList.remove('hidden');
 }
 
@@ -334,8 +598,8 @@ function submitMyNewPassword(e) {
     const pass1 = document.getElementById('newPassInput').value.trim();
     const pass2 = document.getElementById('confirmNewPassInput').value.trim();
 
-    if (!pass1) { alert("Please enter a new password!"); return; }
-    if (pass1 !== pass2) { alert("Passwords do not match!"); return; }
+    if (!pass1) { alert(currentLang === 'ar' ? "يرجى إدخال كلمة السر الجديدة!" : "Enter new password!"); return; }
+    if (pass1 !== pass2) { alert(currentLang === 'ar' ? "كلمتا السر غير متطابقتين!" : "Passwords do not match!"); return; }
 
     if (currentUser.role === 'admin') {
         db.admin.password = pass1;
@@ -349,7 +613,7 @@ function submitMyNewPassword(e) {
 
     saveDB();
     closeChangeMyPasswordModal();
-    alert("Password updated successfully!");
+    alert(currentLang === 'ar' ? "تم تغيير كلمة السر بنجاح!" : "Password updated successfully!");
 }
 
 function logout() {
@@ -367,8 +631,8 @@ function showView() {
     document.getElementById('userNameBadge').innerText = currentUser.name;
     
     document.getElementById('userRoleBadge').innerText = currentUser.role === 'admin' 
-        ? 'System Admin'
-        : `Manager (${currentUser.empData.code})`;
+        ? (currentLang === 'ar' ? 'مسؤول النظام' : 'System Admin')
+        : (currentLang === 'ar' ? `مدير تقييم (${currentUser.empData.code})` : `Manager (${currentUser.empData.code})`);
 
     populateFilterDropdowns();
 
@@ -412,7 +676,7 @@ function switchAdminTab(tabName) {
     if (tabName === 'management') renderManageKrasList();
 }
 
-// Manager Progress Tracking & Email Exports
+// Pending Managers Tracking
 function getPendingManagersData() {
     const managers = db.employees.filter(e => e.isManager);
     const pendingList = [];
@@ -454,7 +718,7 @@ function renderPendingManagersTable(showOnlyPending = true) {
     }
 
     if (managers.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-emerald-600 font-bold"><i class="fa-solid fa-circle-check"></i> All displayed managers have completed their evaluations!</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-emerald-600 font-bold"><i class="fa-solid fa-circle-check"></i> ${currentLang === 'ar' ? 'جميع المدراء المعروضين أتموا التقييمات!' : 'All displayed managers completed evaluations!'}</td></tr>`;
         return;
     }
 
@@ -479,13 +743,13 @@ function renderPendingManagersTable(showOnlyPending = true) {
 function copyPendingManagersEmails() {
     const pending = getPendingManagersData().filter(m => m.pendingCount > 0);
     if (pending.length === 0) {
-        alert("No pending managers found!");
+        alert(currentLang === 'ar' ? "لا يوجد مدراء متأخرين حالياً!" : "No pending managers found!");
         return;
     }
 
     const emailsString = pending.map(m => m.email).join('; ');
     navigator.clipboard.writeText(emailsString).then(() => {
-        alert(`Successfully copied emails of ${pending.length} pending manager(s) to clipboard!`);
+        alert(currentLang === 'ar' ? `تم نسخ بريد ${pending.length} مدير بنجاح!` : `Copied emails of ${pending.length} pending managers!`);
     }).catch(err => {
         alert("Copy error: " + err);
     });
@@ -494,7 +758,7 @@ function copyPendingManagersEmails() {
 function exportPendingManagersExcel() {
     const managers = getPendingManagersData();
     if (managers.length === 0) {
-        alert("No data available to export!");
+        alert(currentLang === 'ar' ? "لا يوجد بيانات للتصدير!" : "No data to export!");
         return;
     }
 
@@ -512,17 +776,17 @@ function exportPendingManagersExcel() {
     const ws = XLSX.utils.json_to_sheet(rows);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Pending Managers Track");
-    XLSX.writeFile(wb, `Managers_Progress_Report_${new Date().toISOString().slice(0,10)}.xlsx`);
+    XLSX.writeFile(wb, `Managers_Progress_${new Date().toISOString().slice(0,10)}.xlsx`);
 }
 
-// Add New Employee
+// Employee Accounts & Manual Creation
 function openAddEmployeeModal() {
     document.getElementById('addEmployeeForm').reset();
     document.getElementById('newEmpAccountFields').classList.add('hidden');
     
     const mgrs = db.employees.filter(e => e.isManager);
     const select = document.getElementById('newEmpDirectMgr');
-    select.innerHTML = `<option value="">-- No Direct Manager --</option>` + 
+    select.innerHTML = `<option value="">-- ${currentLang === 'ar' ? 'بدون مدير مباشر' : 'No Direct Manager'} --</option>` + 
         mgrs.map(m => `<option value="${m.code}">${m.name} (${m.code}) - ${m.department}</option>`).join('');
 
     document.getElementById('addEmployeeModal').classList.remove('hidden');
@@ -557,7 +821,7 @@ function saveNewEmployeeManual(e) {
 
     const exists = db.employees.find(emp => emp.code === code);
     if (exists) {
-        alert("Employee code already exists!");
+        alert(currentLang === 'ar' ? "كود الموظف مكرر وموجود بالفعل!" : "Employee code already exists!");
         return;
     }
 
@@ -569,6 +833,7 @@ function saveNewEmployeeManual(e) {
         department: dept,
         section: sec || 'General',
         isManager: isMgr,
+        editFrozen: false,
         directManagerCode: directMgr || '',
         username: isMgr ? (uName || (name.split(' ')[0] + '.' + code).toLowerCase()) : '',
         password: isMgr ? (pWord || '123456') : ''
@@ -579,7 +844,7 @@ function saveNewEmployeeManual(e) {
     closeAddEmployeeModal();
     refreshActiveViews();
 
-    alert(`Employee (${name}) added successfully!`);
+    alert(currentLang === 'ar' ? `تمت إضافة الموظف (${name}) بنجاح!` : `Employee (${name}) added successfully!`);
 }
 
 function downloadEmployeesTemplate() {
@@ -634,6 +899,7 @@ function handleEmployeesUpload(e) {
                             department: dept,
                             section: sec,
                             isManager: isMgr,
+                            editFrozen: false,
                             directManagerCode: mgrCode,
                             username: uName || (isMgr ? (name.split(' ')[0] + '.' + code).toLowerCase() : ""),
                             password: pWord || (isMgr ? "123456" : "")
@@ -721,8 +987,8 @@ function handleEvaluationsUpload(e) {
                     db.evaluations[emp.id] = {
                         scores: scores,
                         notes: row["Notes"] || row["ملاحظات التقييم"] || "",
-                        evaluatedBy: row["Evaluator Name"] || row["Evaluator"] || "Imported from Excel",
-                        evaluatedAt: new Date().toLocaleDateString('en-US')
+                        evaluatedBy: row["Evaluator Name"] || row["Evaluator"] || "Excel Import",
+                        evaluatedAt: new Date().toLocaleDateString(currentLang === 'ar' ? 'ar-EG' : 'en-US')
                     };
                     importedCount++;
                 }
@@ -742,12 +1008,12 @@ function handleEvaluationsUpload(e) {
     reader.readAsArrayBuffer(file);
 }
 
-// Account Management
+// Account Table & Manager Freeze Control Toggle
 function deleteEmployee(empId) {
     const emp = db.employees.find(e => e.id === empId || e.id === String(empId) || e.code === String(empId));
     if (!emp) { alert("Employee not found!"); return; }
 
-    if (confirm(`Are you sure you want to permanently delete (${emp.name})?`)) {
+    if (confirm(currentLang === 'ar' ? `هل أنت متأكد من حذف (${emp.name}) نهائياً؟` : `Permanently delete employee (${emp.name})?`)) {
         db.employees = db.employees.filter(e => e.id !== emp.id);
         delete db.evaluations[emp.id];
 
@@ -757,7 +1023,7 @@ function deleteEmployee(empId) {
 
         saveDB();
         refreshActiveViews();
-        alert("Employee deleted successfully!");
+        alert(currentLang === 'ar' ? "تم الحذف بنجاح!" : "Deleted successfully!");
     }
 }
 
@@ -800,18 +1066,25 @@ function filterEmployeesTable() {
                 <td class="p-3 font-semibold text-slate-600">${emp.section || '-'}</td>
                 <td class="p-3">
                     ${emp.isManager 
-                        ? `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800"><i class="fa-solid fa-user-tie"></i> Manager</span>` 
-                        : `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">Employee</span>`}
+                        ? `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800"><i class="fa-solid fa-user-tie"></i> ${I18N[currentLang].set_as_mgr}</span>` 
+                        : `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">${currentLang === 'ar' ? 'موظف' : 'Employee'}</span>`}
                 </td>
                 <td class="p-3 text-slate-700 font-semibold">${mgrNameText}</td>
                 <td class="p-3 font-mono text-blue-700 bg-blue-50/50 rounded px-2">${emp.isManager ? (emp.username || '-') : '-'}</td>
                 <td class="p-3 font-mono text-emerald-700 bg-emerald-50/50 font-bold rounded px-2">${emp.isManager ? (emp.password || '-') : '-'}</td>
+                <td class="p-3 text-center">
+                    ${emp.isManager ? (
+                        emp.editFrozen 
+                        ? `<button onclick="toggleManagerEditFreeze('${safeId}')" class="px-2 py-1 rounded-lg text-[10px] font-bold bg-red-100 text-red-700 border border-red-300 hover:bg-red-200"><i class="fa-solid fa-lock"></i> ${I18N[currentLang].edit_frozen}</button>`
+                        : `<button onclick="toggleManagerEditFreeze('${safeId}')" class="px-2 py-1 rounded-lg text-[10px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-300 hover:bg-emerald-200"><i class="fa-solid fa-lock-open"></i> ${I18N[currentLang].edit_allowed}</button>`
+                    ) : '-'}
+                </td>
                 <td class="p-3 text-center flex justify-center gap-1">
-                    <button onclick="openPromoteModal('${safeId}')" title="Edit Settings" class="bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold px-2.5 py-1.5 rounded-lg border border-blue-300 transition text-[11px]">
-                        <i class="fa-solid fa-user-gear"></i> Edit
+                    <button onclick="openPromoteModal('${safeId}')" title="تعديل الحساب" class="bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold px-2 py-1 rounded-lg border border-blue-300 transition text-[11px]">
+                        <i class="fa-solid fa-user-gear"></i>
                     </button>
-                    <button onclick="deleteEmployee('${safeId}')" title="Delete" class="bg-red-50 hover:bg-red-100 text-red-600 font-bold px-2.5 py-1.5 rounded-lg border border-red-300 transition text-[11px]">
-                        <i class="fa-solid fa-trash-can"></i> Delete
+                    <button onclick="deleteEmployee('${safeId}')" title="حذف" class="bg-red-50 hover:bg-red-100 text-red-600 font-bold px-2 py-1 rounded-lg border border-red-300 transition text-[11px]">
+                        <i class="fa-solid fa-trash-can"></i>
                     </button>
                 </td>
             </tr>
@@ -826,10 +1099,11 @@ function openPromoteModal(empId) {
     document.getElementById('promoteEmpId').value = emp.id;
     document.getElementById('promoteEmpName').value = emp.name;
     document.getElementById('promoteIsManagerCheckbox').checked = !!emp.isManager;
+    document.getElementById('promoteFreezeEditCheckbox').checked = !!emp.editFrozen;
 
     const allManagers = db.employees.filter(e => e.isManager && e.id !== emp.id);
     const selectObj = document.getElementById('promoteDirectManagerSelect');
-    selectObj.innerHTML = `<option value="">-- No Direct Manager --</option>` + 
+    selectObj.innerHTML = `<option value="">-- ${currentLang === 'ar' ? 'بدون مدير مباشر' : 'No Direct Manager'} --</option>` + 
         allManagers.map(m => `<option value="${m.code}" ${emp.directManagerCode === m.code ? 'selected' : ''}>${m.name} (${m.code}) - ${m.department}</option>`).join('');
 
     document.getElementById('promoteUsername').value = emp.username || (emp.name.split(' ')[0] + '.' + emp.code).toLowerCase();
@@ -849,6 +1123,7 @@ function saveManagerRole(e) {
 
     if (emp) {
         emp.isManager = document.getElementById('promoteIsManagerCheckbox').checked;
+        emp.editFrozen = document.getElementById('promoteFreezeEditCheckbox').checked;
         emp.directManagerCode = document.getElementById('promoteDirectManagerSelect').value;
         emp.username = document.getElementById('promoteUsername').value.trim();
         emp.password = document.getElementById('promotePassword').value.trim();
@@ -856,11 +1131,11 @@ function saveManagerRole(e) {
         saveDB();
         closePromoteModal();
         refreshActiveViews();
-        alert(`Account settings updated for (${emp.name}).`);
+        alert(currentLang === 'ar' ? `تم تحديث بيانات وحساب (${emp.name}) بنجاح.` : `Account updated for (${emp.name}).`);
     }
 }
 
-// Manage KRAs & Weights
+// KRAs Management
 function renderManageKrasList() {
     const container = document.getElementById('dynamicKrasContainer');
     if (!container) return;
@@ -879,15 +1154,15 @@ function renderManageKrasList() {
                 </div>
                 <div class="flex items-center gap-2">
                     <div class="flex items-center gap-1 bg-white border border-slate-300 rounded-lg px-2 py-1">
-                        <span class="text-[11px] text-slate-500 font-bold">Weight:</span>
+                        <span class="text-[11px] text-slate-500 font-bold">${currentLang === 'ar' ? 'الوزن:' : 'Weight:'}</span>
                         <input type="number" value="${w}" min="1" max="100" step="0.5" onchange="updateKraWeight('${kra.id}', this.value)" class="w-14 text-center font-bold text-blue-700 outline-none text-xs">
                         <span class="text-[11px] font-bold text-slate-500">%</span>
                     </div>
                     <button onclick="editKraElement('${kra.id}')" class="px-2.5 py-1 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg border border-blue-200 font-bold text-[11px]">
-                        <i class="fa-solid fa-pen"></i> Edit
+                        <i class="fa-solid fa-pen"></i>
                     </button>
                     <button onclick="deleteKraElement('${kra.id}')" class="px-2.5 py-1 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg border border-red-200 font-bold text-[11px]">
-                        <i class="fa-solid fa-trash"></i> Delete
+                        <i class="fa-solid fa-trash"></i>
                     </button>
                 </div>
             </div>
@@ -896,7 +1171,7 @@ function renderManageKrasList() {
 
     const badge = document.getElementById('totalWeightsBadge');
     if (badge) {
-        badge.innerText = `Total Weight: ${totalWeight.toFixed(1)}%`;
+        badge.innerText = `${currentLang === 'ar' ? 'إجمالي الأوزان:' : 'Total Weight:'} ${totalWeight.toFixed(1)}%`;
         if (Math.abs(totalWeight - 100) < 0.1) {
             badge.className = "px-3 py-1.5 rounded-lg text-xs font-bold border bg-emerald-50 text-emerald-700 border-emerald-200";
         } else {
@@ -921,7 +1196,7 @@ function updateKraWeight(kraId, newWeight) {
 
 function openKraModal() {
     document.getElementById('kraFormEditId').value = "";
-    document.getElementById('kraModalTitle').innerText = "Add New Evaluation Criteria";
+    document.getElementById('kraModalTitle').innerText = currentLang === 'ar' ? "إضافة عنصر تقييم جديد" : "Add New Evaluation Criteria";
     document.getElementById('kraForm').reset();
     document.getElementById('kraModal').classList.remove('hidden');
 }
@@ -936,7 +1211,7 @@ function editKraElement(kraId) {
     if (!kra) return;
 
     document.getElementById('kraFormEditId').value = kra.id;
-    document.getElementById('kraModalTitle').innerText = `Edit Element: ${kra.title}`;
+    document.getElementById('kraModalTitle').innerText = `${currentLang === 'ar' ? 'تعديل عنصر:' : 'Edit Element:'} ${kra.title}`;
     document.getElementById('kraFormTitle').value = kra.title;
     document.getElementById('kraFormWeight').value = kra.weight || 15;
 
@@ -981,22 +1256,22 @@ function saveKraElement(e) {
     saveDB();
     closeKraModal();
     refreshActiveViews();
-    alert("Evaluation criteria saved and all results recalculated!");
+    alert(currentLang === 'ar' ? "تم حفظ المعيار وتحديث كافة النتائج فوراً!" : "Criteria saved!");
 }
 
 function deleteKraElement(kraId) {
     const activeKras = (db.kras && db.kras.length > 0) ? db.kras : KRAS;
     if (activeKras.length <= 1) {
-        alert("Cannot delete all elements! At least one criteria must remain.");
+        alert(currentLang === 'ar' ? "لا يمكن حذف كل العناصر! يجب أن يحتفظ النظام بعنصر واحد على الأقل." : "Cannot delete all criteria!");
         return;
     }
 
-    if (confirm("Are you sure you want to delete this element? Scores will be recalculated based on remaining weights.")) {
+    if (confirm(currentLang === 'ar' ? "هل أنت متأكد من حذف هذا العنصر؟" : "Delete this criteria?")) {
         KRAS = KRAS.filter(k => k.id !== kraId);
         db.kras = db.kras.filter(k => k.id !== kraId);
         saveDB();
         refreshActiveViews();
-        alert("Element deleted successfully.");
+        alert(currentLang === 'ar' ? "تم حذف العنصر بنجاح." : "Criteria deleted.");
     }
 }
 
@@ -1007,7 +1282,7 @@ function resetDashFilters() {
     renderAdminDashboardCharts();
 }
 
-// Analytics Dashboard Rendering
+// Analytics Dashboard
 function renderAdminDashboardCharts() {
     const selDept = document.getElementById('dashFilterDept').value;
     const selSec = document.getElementById('dashFilterSection').value;
@@ -1064,11 +1339,11 @@ function renderAdminDashboardCharts() {
     document.getElementById('completionProgressBar').style.width = `${completionPct}%`;
 
     const levelTitles = {
-        1: "Level 1 (Weak)",
-        2: "Level 2 (Acceptable)",
-        3: "Level 3 (Very Good)",
-        4: "Level 4 (Advanced)",
-        5: "Level 5 (Outstanding)"
+        1: currentLang === 'ar' ? "مستوى 1 (ضعيف)" : "Level 1 (Weak)",
+        2: currentLang === 'ar' ? "مستوى 2 (مقبول)" : "Level 2 (Acceptable)",
+        3: currentLang === 'ar' ? "مستوى 3 (جيد جداً)" : "Level 3 (Very Good)",
+        4: currentLang === 'ar' ? "مستوى 4 (متقدم)" : "Level 4 (Advanced)",
+        5: currentLang === 'ar' ? "مستوى 5 (متميز)" : "Level 5 (Outstanding)"
     };
 
     const levelColors = {
@@ -1088,13 +1363,13 @@ function renderAdminDashboardCharts() {
         return `
             <div class="p-3.5 rounded-xl border ${levelColors[lvl]} space-y-1">
                 <p class="font-bold text-xs opacity-90">${levelTitles[lvl]}</p>
-                <h4 class="text-xl font-black">${count} <span class="text-xs font-normal">Emp</span></h4>
+                <h4 class="text-xl font-black">${count} <span class="text-xs font-normal">${currentLang === 'ar' ? 'موظف' : 'Emp'}</span></h4>
                 <div class="pt-1 border-t border-slate-200/50 text-[11px] font-semibold flex justify-between">
-                    <span>Evaluated %:</span>
+                    <span>${currentLang === 'ar' ? 'نسبة المقيّمين:' : 'Evaluated %:'}</span>
                     <strong>${pctOfEvaluated}%</strong>
                 </div>
                 <div class="text-[10px] opacity-80 flex justify-between">
-                    <span>Of Total:</span>
+                    <span>${currentLang === 'ar' ? 'من المجموع:' : 'Of Total:'}</span>
                     <span>${pctOfTotal}%</span>
                 </div>
             </div>
@@ -1115,7 +1390,7 @@ function renderAdminDashboardCharts() {
 
     const topBottomContainer = document.getElementById('topBottomDeptsContainer');
     if (deptStats.length === 0) {
-        topBottomContainer.innerHTML = `<p class="text-slate-400 text-center py-4">No data available</p>`;
+        topBottomContainer.innerHTML = `<p class="text-slate-400 text-center py-4">${currentLang === 'ar' ? 'لا توجد بيانات متاحة' : 'No data available'}</p>`;
     } else {
         topBottomContainer.innerHTML = deptStats.map((d, i) => `
             <div class="flex items-center justify-between p-2 rounded-lg ${i === 0 ? 'bg-amber-50 border border-amber-200 font-bold' : 'bg-slate-50 border border-slate-100'}">
@@ -1125,7 +1400,7 @@ function renderAdminDashboardCharts() {
                 </div>
                 <div class="text-right">
                     <span class="text-blue-700 font-bold">${d.avg.toFixed(1)}%</span>
-                    <span class="block text-[9px] text-slate-400">${d.count}/${d.totalEmps} completed</span>
+                    <span class="block text-[9px] text-slate-400">${d.count}/${d.totalEmps} ${currentLang === 'ar' ? 'مكتمل' : 'completed'}</span>
                 </div>
             </div>
         `).join('');
@@ -1146,7 +1421,7 @@ function renderAdminDashboardCharts() {
         data: {
             labels: activeKras.map(k => `${k.title} (${k.weight || 0}%)`),
             datasets: [{
-                label: 'Weighted Contribution (%)',
+                label: currentLang === 'ar' ? 'مساهمة المعيار الموزونة (%)' : 'Weighted Contribution (%)',
                 data: kraWeightedAverages,
                 backgroundColor: '#3b82f6',
                 borderRadius: 6
@@ -1158,7 +1433,7 @@ function renderAdminDashboardCharts() {
             scales: { 
                 y: { 
                     beginAtZero: true,
-                    title: { display: true, text: 'Weighted Contribution (%)' }
+                    title: { display: true, text: currentLang === 'ar' ? 'النسبة الموزونة للمعيار (%)' : 'Weighted Contribution (%)' }
                 } 
             }
         }
@@ -1170,7 +1445,7 @@ function renderAdminDashboardCharts() {
     chartLevelsInstance = new Chart(ctxLevels, {
         type: 'pie',
         data: {
-            labels: [1, 2, 3, 4, 5].map(l => `Level ${l}`),
+            labels: [1, 2, 3, 4, 5].map(l => `${currentLang === 'ar' ? 'مستوى' : 'Level'} ${l}`),
             datasets: [{
                 data: [levelCounts[1], levelCounts[2], levelCounts[3], levelCounts[4], levelCounts[5]],
                 backgroundColor: ['#ef4444', '#f59e0b', '#3b82f6', '#6366f1', '#10b981']
@@ -1187,7 +1462,7 @@ function renderAdminDashboardCharts() {
         data: {
             labels: deptStats.map(d => d.name),
             datasets: [{
-                label: 'Weighted Performance Avg %',
+                label: currentLang === 'ar' ? 'متوسط الأداء الموزون %' : 'Weighted Performance Avg %',
                 data: deptStats.map(d => d.avg.toFixed(1)),
                 backgroundColor: '#8b5cf6',
                 borderRadius: 6
@@ -1231,14 +1506,16 @@ function exportLevelPercentagesToExcel() {
     XLSX.writeFile(wb, `Levels_Distribution_${new Date().toISOString().slice(0,10)}.xlsx`);
 }
 
-// Manager Appraisal Dashboard
+// Manager Appraisal Dashboard Logic with Freeze Check
 function renderManagerDashboard() {
     filterManagerEmpTable();
 }
 
 function filterManagerEmpTable() {
     const mgr = currentUser.empData;
-    document.getElementById('mgrAssignedDeptBadge').innerText = `Direct Subordinates for: ${mgr.name} (${mgr.code})`;
+    document.getElementById('mgrAssignedDeptBadge').innerText = `${currentLang === 'ar' ? 'المرؤوسين المباشرين للمدير:' : 'Subordinates for:'} ${mgr.name} (${mgr.code})`;
+
+    const isManagerFrozenByAdmin = !!mgr.editFrozen;
 
     const mySubordinates = db.employees.filter(e => e.directManagerCode === mgr.code);
     const evalCount = mySubordinates.filter(e => db.evaluations[e.id]).length;
@@ -1266,6 +1543,26 @@ function filterManagerEmpTable() {
         const res = calculateEmpScore(emp.id);
         const safeId = String(emp.id).replace(/'/g, "\\'");
 
+        // إذا كان التعديل مجمداً لهذا المدير بواسطة الأدمن
+        if (isManagerFrozenByAdmin) {
+            return `
+                <tr class="hover:bg-slate-50 transition opacity-80">
+                    <td class="p-3 font-mono font-bold text-slate-600">${emp.code}</td>
+                    <td class="p-3 font-bold text-slate-800">${emp.name}</td>
+                    <td class="p-3 text-slate-600">${emp.title}</td>
+                    <td class="p-3 font-semibold text-blue-900">${emp.department}</td>
+                    <td class="p-3 text-slate-600">${emp.section || '-'}</td>
+                    <td class="p-3 text-center font-bold text-blue-700">${res ? `${res.percentage}%` : '-'}</td>
+                    <td class="p-3 text-center">
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-red-100 text-red-800"><i class="fa-solid fa-lock"></i> ${I18N[currentLang].edit_frozen}</span>
+                    </td>
+                    <td class="p-3 text-center">
+                        <span class="text-xs text-red-600 font-bold flex items-center justify-center gap-1"><i class="fa-solid fa-ban"></i> ${currentLang === 'ar' ? 'التعديل مغلق' : 'Edit Locked'}</span>
+                    </td>
+                </tr>
+            `;
+        }
+
         return `
             <tr class="hover:bg-slate-50 transition">
                 <td class="p-3 font-mono font-bold text-slate-600">${emp.code}</td>
@@ -1278,14 +1575,14 @@ function filterManagerEmpTable() {
                 </td>
                 <td class="p-3 text-center">
                     ${isEvaluated 
-                        ? `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800"><i class="fa-solid fa-check"></i> Completed (Locked)</span>` 
-                        : `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800"><i class="fa-solid fa-clock"></i> Pending</span>`}
+                        ? `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800"><i class="fa-solid fa-check"></i> ${I18N[currentLang].eval_locked_msg}</span>` 
+                        : `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800"><i class="fa-solid fa-clock"></i> ${currentLang === 'ar' ? 'غير مكتمل' : 'Pending'}</span>`}
                 </td>
                 <td class="p-3 text-center">
                     ${isEvaluated 
-                        ? `<span class="text-xs text-slate-400 font-bold italic flex items-center justify-center gap-1"><i class="fa-solid fa-lock text-slate-400"></i> Locked</span>`
+                        ? `<span class="text-xs text-slate-400 font-bold italic flex items-center justify-center gap-1"><i class="fa-solid fa-lock text-slate-400"></i> ${currentLang === 'ar' ? 'محمي' : 'Locked'}</span>`
                         : `<button onclick="openEvalModal('${safeId}')" class="px-3 py-1.5 rounded-lg font-bold text-xs transition flex items-center gap-1 mx-auto bg-blue-600 text-white hover:bg-blue-700 shadow-md">
-                            <i class="fa-solid fa-clipboard-check"></i> Evaluate
+                            <i class="fa-solid fa-clipboard-check"></i> ${currentLang === 'ar' ? 'تقييم' : 'Evaluate'}
                            </button>`
                     }
                 </td>
@@ -1298,17 +1595,25 @@ function openEvalModal(empId) {
     const emp = db.employees.find(e => e.id === empId || e.id === String(empId) || e.code === String(empId));
     if (!emp) { alert("Employee not found!"); return; }
 
-    const isAlreadyEvaluated = !!db.evaluations[emp.id];
-    if (currentUser.role !== 'admin' && isAlreadyEvaluated) {
-        alert("Evaluation is locked for direct manager! Please contact System Administrator to make changes.");
-        return;
+    if (currentUser.role !== 'admin') {
+        const mgr = currentUser.empData;
+        if (mgr && mgr.editFrozen) {
+            alert(currentLang === 'ar' ? "عفواً، تم تجميد وإغلاق صلاحية التعديل والتقييم لك بواسطة المسؤول (Admin)!" : "Your edit permissions have been locked by Admin!");
+            return;
+        }
+
+        const isAlreadyEvaluated = !!db.evaluations[emp.id];
+        if (isAlreadyEvaluated) {
+            alert(currentLang === 'ar' ? "عفواً، تم إغلاق التعديل لهذا التقييم لدى المدير المباشر!" : "Evaluation is locked for direct manager!");
+            return;
+        }
     }
 
     const activeKras = (db.kras && db.kras.length > 0) ? db.kras : KRAS;
 
     document.getElementById('evalTargetEmpId').value = emp.id;
-    document.getElementById('evalModalEmpName').innerText = `Evaluating: ${emp.name}`;
-    document.getElementById('evalModalEmpDetails').innerText = `${emp.title} | Code: ${emp.code} | Dept: ${emp.department}`;
+    document.getElementById('evalModalEmpName').innerText = `${currentLang === 'ar' ? 'تقييم الموظف:' : 'Evaluating:'} ${emp.name}`;
+    document.getElementById('evalModalEmpDetails').innerText = `${emp.title} | ${currentLang === 'ar' ? 'الكود:' : 'Code:'} ${emp.code} | ${currentLang === 'ar' ? 'الإدارة:' : 'Dept:'} ${emp.department}`;
 
     const existingEval = db.evaluations[emp.id] || { scores: {}, notes: "" };
     document.getElementById('evalNotesInput').value = existingEval.notes || "";
@@ -1320,7 +1625,7 @@ function openEvalModal(empId) {
             <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
                 <div class="font-bold text-slate-800 text-xs border-b pb-1 flex justify-between items-center">
                     <span>${idx + 1}. ${kra.title}</span>
-                    <span class="text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">Weight: ${kra.weight || 0}%</span>
+                    <span class="text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">${currentLang === 'ar' ? 'الوزن النسبي:' : 'Weight:'} ${kra.weight || 0}%</span>
                 </div>
                 <div class="space-y-2">
                     ${[1,2,3,4,5].map(lvl => `
@@ -1360,17 +1665,17 @@ function submitEmployeeEval(e) {
         scores: scores,
         notes: notes,
         evaluatedBy: currentUser.name,
-        evaluatedAt: new Date().toLocaleDateString('en-US')
+        evaluatedAt: new Date().toLocaleDateString(currentLang === 'ar' ? 'ar-EG' : 'en-US')
     };
 
     saveDB();
     closeEvalModal();
     refreshActiveViews();
 
-    alert("Evaluation saved successfully!");
+    alert(currentLang === 'ar' ? "تم حفظ التقييم بنجاح!" : "Evaluation saved successfully!");
 }
 
-// Evaluation Reports
+// Reports Log
 function renderAdminReportsTable() {
     filterReportsTable();
 }
@@ -1411,23 +1716,23 @@ function filterReportsTable() {
                 <td class="p-3 font-semibold text-blue-800">${isEval ? evalData.evaluatedBy : '-'}</td>
                 <td class="p-3 text-center">
                     ${isEval 
-                        ? `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800"><i class="fa-solid fa-check"></i> Evaluated</span>` 
-                        : `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">Pending</span>`}
+                        ? `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800"><i class="fa-solid fa-check"></i> ${currentLang === 'ar' ? 'تم التقييم' : 'Evaluated'}</span>` 
+                        : `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">${currentLang === 'ar' ? 'قيد الانتظار' : 'Pending'}</span>`}
                 </td>
                 <td class="p-3 text-center font-bold text-blue-900">${res ? `${res.totalScore}` : '-'}</td>
                 <td class="p-3 text-center font-bold text-purple-700">${res ? `${res.percentage}%` : '-'}</td>
-                <td class="p-3 text-center font-bold text-emerald-700">${res ? `Level ${res.level}` : '-'}</td>
+                <td class="p-3 text-center font-bold text-emerald-700">${res ? `${currentLang === 'ar' ? 'مستوى' : 'Level'} ${res.level}` : '-'}</td>
                 <td class="p-3 text-center flex justify-center gap-1">
                     ${isEval ? `
-                        <button onclick="openEvalModal('${safeId}')" title="Admin Edit" class="px-2 py-1 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded border border-amber-300 font-bold text-[11px] flex items-center gap-1">
-                            <i class="fa-solid fa-pen-to-square"></i> Edit
+                        <button onclick="openEvalModal('${safeId}')" title="تعديل الأدمن" class="px-2 py-1 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded border border-amber-300 font-bold text-[11px] flex items-center gap-1">
+                            <i class="fa-solid fa-pen-to-square"></i> ${I18N[currentLang].edit_eval_btn}
                         </button>
-                        <button onclick="deleteEmployeeEvaluation('${safeId}')" title="Delete Evaluation" class="px-2 py-1 bg-red-50 text-red-600 hover:bg-red-100 rounded border border-red-300 font-bold text-[11px] flex items-center gap-1">
-                            <i class="fa-solid fa-trash"></i> Delete
+                        <button onclick="deleteEmployeeEvaluation('${safeId}')" title="حذف التقييم" class="px-2 py-1 bg-red-50 text-red-600 hover:bg-red-100 rounded border border-red-300 font-bold text-[11px] flex items-center gap-1">
+                            <i class="fa-solid fa-trash"></i> ${I18N[currentLang].delete_eval_btn}
                         </button>
                     ` : `
                         <button onclick="openEvalModal('${safeId}')" class="px-2.5 py-1 bg-blue-600 text-white hover:bg-blue-700 rounded font-bold text-[11px] flex items-center gap-1">
-                            <i class="fa-solid fa-clipboard-check"></i> Evaluate
+                            <i class="fa-solid fa-clipboard-check"></i> ${currentLang === 'ar' ? 'تقييم' : 'Evaluate'}
                         </button>
                     `}
                 </td>
