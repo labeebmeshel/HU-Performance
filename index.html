@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" id="htmlTag">
+<html lang="en" dir="ltr" id="htmlTag">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-i18n="app_title">منظومة تقييم الأداء المؤسسي</title>
+    <title>Corporate Performance Appraisal System</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- SheetJS (xlsx) -->
@@ -18,8 +18,8 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&family=Inter:wght@300;400;600;700;800&display=swap');
-        body { font-family: 'Cairo', 'Inter', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
         .tab-btn.active { border-bottom: 3px solid #2563eb; color: #1d4ed8; font-weight: 700; background-color: #eff6ff; }
         ::-webkit-scrollbar { height: 6px; width: 6px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
@@ -27,85 +27,75 @@
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
 
-    <!-- الشريط العلوي -->
+    <!-- Header -->
     <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center space-x-3 space-x-reverse">
+            <div class="flex items-center space-x-3">
                 <div class="bg-blue-600 p-2.5 rounded-xl text-white shadow-lg shadow-blue-500/30">
                     <i class="fa-solid fa-fire text-xl"></i>
                 </div>
                 <div>
-                    <h1 class="font-bold text-lg leading-tight" data-i18n="header_title">منظومة تقييم الأداء المؤسسي</h1>
-                    <p class="text-xs text-slate-400" data-i18n="header_sub">مزامنة سحابية مباشرة</p>
+                    <h1 class="font-bold text-lg leading-tight">Corporate Performance Appraisal System</h1>
+                    <p class="text-xs text-slate-400">Real-time Cloud Sync</p>
                 </div>
             </div>
 
-            <!-- خيار تغيير اللغة وحساب المستخدم -->
-            <div class="flex items-center space-x-3 space-x-reverse">
-                <!-- محول اللغة -->
-                <div class="flex items-center gap-1 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1">
-                    <i class="fa-solid fa-globe text-xs text-blue-400"></i>
-                    <select id="langSelector" onchange="changeLanguage(this.value)" class="bg-transparent text-xs font-bold text-slate-200 outline-none cursor-pointer">
-                        <option value="ar" class="bg-slate-900 text-white">العربية (AR)</option>
-                        <option value="en" class="bg-slate-900 text-white">English (EN)</option>
-                    </select>
-                </div>
-
-                <div id="userInfoHeader" class="hidden flex items-center space-x-3 space-x-reverse">
-                    <div class="text-right">
+            <div class="flex items-center space-x-3">
+                <div id="userInfoHeader" class="hidden flex items-center space-x-3">
+                    <div class="text-left">
                         <span id="userNameBadge" class="block text-sm font-bold text-blue-300"></span>
                         <span id="userRoleBadge" class="block text-xs text-slate-400"></span>
                     </div>
                     <button id="changeMyPassBtn" onclick="openChangeMyPasswordModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1 border border-slate-700">
-                        <i class="fa-solid fa-key text-amber-400"></i> <span data-i18n="change_password">تغيير كلمة السر</span>
+                        <i class="fa-solid fa-key text-amber-400"></i> Change Password
                     </button>
                     <button onclick="logout()" class="bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1 border border-red-500/30">
-                        <i class="fa-solid fa-right-from-bracket"></i> <span data-i18n="logout">خروج</span>
+                        <i class="fa-solid fa-right-from-bracket"></i> Logout
                     </button>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- المحتوى الرئيسي -->
+    <!-- Main Container -->
     <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6">
 
-        <!-- تسجيل الدخول -->
+        <!-- Login Card -->
         <div id="loginSection" class="max-w-md mx-auto my-12 bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
             <div class="bg-gradient-to-r from-slate-900 to-blue-900 p-8 text-white text-center">
                 <div class="w-16 h-16 bg-blue-600/30 backdrop-blur rounded-2xl mx-auto flex items-center justify-center mb-3 border border-blue-400/30 shadow-inner">
                     <i class="fa-solid fa-user-shield text-3xl text-blue-400"></i>
                 </div>
-                <h2 class="text-2xl font-bold" data-i18n="login_title">تسجيل الدخول</h2>
-                <p class="text-xs text-slate-300 mt-1" data-i18n="login_desc">أدخل بيانات الحساب للوصول للنظام</p>
+                <h2 class="text-2xl font-bold">Account Login</h2>
+                <p class="text-xs text-slate-300 mt-1">Enter your credentials to access system</p>
             </div>
             
             <form id="loginForm" onsubmit="handleLogin(event)" class="p-8 space-y-5">
-                <div id="loginError" class="hidden p-3 bg-red-50 border-r-4 border-red-500 text-red-700 text-xs rounded"></div>
+                <div id="loginError" class="hidden p-3 bg-red-50 border-l-4 border-red-500 text-red-700 text-xs rounded"></div>
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1" data-i18n="username">اسم المستخدم</label>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Username</label>
                     <div class="relative">
-                        <i class="fa-solid fa-user absolute right-3 top-3 text-slate-400 text-sm"></i>
-                        <input type="text" id="usernameInput" required placeholder="أدخل اسم المستخدم" class="w-full pr-9 pl-3 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition">
+                        <i class="fa-solid fa-user absolute left-3 top-3 text-slate-400 text-sm"></i>
+                        <input type="text" id="usernameInput" required placeholder="Enter username" class="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition">
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1" data-i18n="password">كلمة السر</label>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Password</label>
                     <div class="relative">
-                        <i class="fa-solid fa-lock absolute right-3 top-3 text-slate-400 text-sm"></i>
-                        <input type="password" id="passwordInput" required placeholder="••••••••" class="w-full pr-9 pl-3 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition">
+                        <i class="fa-solid fa-lock absolute left-3 top-3 text-slate-400 text-sm"></i>
+                        <input type="password" id="passwordInput" required placeholder="••••••••" class="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition">
                     </div>
                 </div>
 
                 <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-lg hover:shadow-blue-500/20 transition duration-200 text-sm">
-                    <span data-i18n="login_btn">دخول</span> <i class="fa-solid fa-arrow-left mr-2"></i>
+                    Login <i class="fa-solid fa-arrow-right ml-2"></i>
                 </button>
             </form>
         </div>
 
-        <!-- لوحة المسؤول (Admin) -->
+        <!-- Admin Panel -->
         <div id="adminPanel" class="hidden space-y-6">
             <div class="bg-emerald-50 border border-emerald-300 rounded-xl p-3 flex justify-between items-center text-emerald-800 text-xs font-bold shadow-sm">
                 <div class="flex items-center gap-2">
@@ -113,109 +103,109 @@
                       <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                       <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
                     </span>
-                    <span id="firebaseStatusBanner">جاري الاتصال بالسحابة...</span>
+                    <span id="firebaseStatusBanner">Connecting to Cloud...</span>
                 </div>
                 <div class="flex items-center gap-2">
                     <button onclick="downloadJSONBackup()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg transition flex items-center gap-1">
-                        <i class="fa-solid fa-download"></i> <span data-i18n="backup_btn">نسخة احتياطية (Backup)</span>
+                        <i class="fa-solid fa-download"></i> Download Backup (JSON)
                     </button>
                 </div>
             </div>
 
             <div class="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-wrap overflow-hidden">
                 <button onclick="switchAdminTab('dashboard')" id="tabBtn-dashboard" class="tab-btn active px-6 py-3.5 text-sm font-semibold text-slate-600 hover:text-blue-600 transition flex items-center gap-2">
-                    <i class="fa-solid fa-chart-line text-blue-600"></i> <span data-i18n="tab_analytics">التحليلات الإحصائية</span>
+                    <i class="fa-solid fa-chart-line text-blue-600"></i> Analytics Dashboard
                 </button>
                 <button onclick="switchAdminTab('import')" id="tabBtn-import" class="tab-btn px-6 py-3.5 text-sm font-semibold text-slate-600 hover:text-blue-600 transition flex items-center gap-2">
-                    <i class="fa-solid fa-file-excel text-emerald-600"></i> <span data-i18n="tab_import">استيراد الموظفين والتقييمات</span>
+                    <i class="fa-solid fa-file-excel text-emerald-600"></i> Import Employees & Evals
                 </button>
                 <button onclick="switchAdminTab('employees')" id="tabBtn-employees" class="tab-btn px-6 py-3.5 text-sm font-semibold text-slate-600 hover:text-blue-600 transition flex items-center gap-2">
-                    <i class="fa-solid fa-users-gear text-purple-600"></i> <span data-i18n="tab_accounts">إدارة الحسابات</span>
+                    <i class="fa-solid fa-users-gear text-purple-600"></i> Account Management
                 </button>
                 <button onclick="switchAdminTab('reports')" id="tabBtn-reports" class="tab-btn px-6 py-3.5 text-sm font-semibold text-slate-600 hover:text-blue-600 transition flex items-center gap-2">
-                    <i class="fa-solid fa-clipboard-check text-amber-600"></i> <span data-i18n="tab_reports">سجل التقييمات</span>
+                    <i class="fa-solid fa-clipboard-check text-amber-600"></i> Evaluation Reports
                 </button>
                 <button onclick="switchAdminTab('management')" id="tabBtn-management" class="tab-btn px-6 py-3.5 text-sm font-semibold text-slate-600 hover:text-blue-600 transition flex items-center gap-2">
-                    <i class="fa-solid fa-gears text-slate-600"></i> <span data-i18n="tab_kras">صيانة البيانات والـ KRAs</span>
+                    <i class="fa-solid fa-gears text-slate-600"></i> KRAs & Maintenance
                 </button>
             </div>
 
-            <!-- 1. لوحة التحليلات -->
+            <!-- Tab 1: Dashboard -->
             <div id="adminTab-dashboard" class="space-y-6">
                 <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap gap-3 items-center text-xs">
-                    <span class="font-bold text-slate-700 flex items-center gap-1"><i class="fa-solid fa-filter text-blue-600"></i> <span data-i18n="filter_label">تصفية:</span></span>
-                    <select id="dashFilterDept" onchange="onAdminDeptChange()" class="p-2 border border-slate-300 rounded-lg outline-none"><option value="">جميع الإدارات</option></select>
-                    <select id="dashFilterSection" onchange="renderAdminDashboardCharts()" class="p-2 border border-slate-300 rounded-lg outline-none"><option value="">جميع الأقسام</option></select>
-                    <select id="dashFilterManager" onchange="renderAdminDashboardCharts()" class="p-2 border border-slate-300 rounded-lg outline-none"><option value="">جميع المدراء</option></select>
-                    <button onclick="resetDashFilters()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-2 rounded-lg font-bold" data-i18n="reset_btn">إعادة ضبط</button>
+                    <span class="font-bold text-slate-700 flex items-center gap-1"><i class="fa-solid fa-filter text-blue-600"></i> Filter:</span>
+                    <select id="dashFilterDept" onchange="onAdminDeptChange()" class="p-2 border border-slate-300 rounded-lg outline-none"><option value="">All Departments</option></select>
+                    <select id="dashFilterSection" onchange="renderAdminDashboardCharts()" class="p-2 border border-slate-300 rounded-lg outline-none"><option value="">All Sections</option></select>
+                    <select id="dashFilterManager" onchange="renderAdminDashboardCharts()" class="p-2 border border-slate-300 rounded-lg outline-none"><option value="">All Managers</option></select>
+                    <button onclick="resetDashFilters()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-2 rounded-lg font-bold">Reset Filters</button>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
                         <div>
-                            <p class="text-xs font-bold text-slate-500 mb-1" data-i18n="stat_total_emp">إجمالي الموظفين</p>
+                            <p class="text-xs font-bold text-slate-500 mb-1">Total Employees</p>
                             <h3 id="statTotalEmployees" class="text-2xl font-black text-slate-800">0</h3>
                         </div>
                         <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl"><i class="fa-solid fa-users"></i></div>
                     </div>
                     <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
                         <div>
-                            <p class="text-xs font-bold text-slate-500 mb-1" data-i18n="stat_avg_score">المتوسط العام (الموزون)</p>
+                            <p class="text-xs font-bold text-slate-500 mb-1">Overall Weighted Avg</p>
                             <h3 id="statAvgScore" class="text-2xl font-black text-blue-600">0%</h3>
                         </div>
                         <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center text-xl"><i class="fa-solid fa-calculator"></i></div>
                     </div>
                     <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
                         <div>
-                            <p class="text-xs font-bold text-slate-500 mb-1" data-i18n="stat_completed">المكتملين</p>
+                            <p class="text-xs font-bold text-slate-500 mb-1">Completed</p>
                             <h3 id="statEvaluatedCount" class="text-2xl font-black text-emerald-600">0</h3>
                         </div>
                         <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl"><i class="fa-solid fa-circle-check"></i></div>
                     </div>
                     <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
                         <div>
-                            <p class="text-xs font-bold text-slate-500 mb-1" data-i18n="stat_pending">المتبقين</p>
+                            <p class="text-xs font-bold text-slate-500 mb-1">Pending</p>
                             <h3 id="statPendingCount" class="text-2xl font-black text-amber-600">0</h3>
                         </div>
                         <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl"><i class="fa-solid fa-clock"></i></div>
                     </div>
                 </div>
 
-                <!-- متابعة المدراء المتأخرين واستخراج الإيميلات -->
+                <!-- Managers Pending Tracker -->
                 <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-3 gap-3">
                         <div>
                             <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
-                                <i class="fa-solid fa-clock-rotate-left text-amber-600"></i> <span data-i18n="pending_mgr_title">متابعة المدراء والتقييمات المعلقة</span>
+                                <i class="fa-solid fa-clock-rotate-left text-amber-600"></i> Managers & Pending Progress Tracker
                             </h3>
-                            <p class="text-xs text-slate-500 mt-0.5" data-i18n="pending_mgr_sub">قائمة بالمدراء لإظهار نسب الإنجاز وإمكانية استخراج إيميلات المتأخرين.</p>
+                            <p class="text-xs text-slate-500 mt-0.5">Track managers completion rates and copy emails of pending evaluators easily.</p>
                         </div>
                         <div class="flex items-center gap-2">
                             <select id="pendingManagerViewFilter" onchange="renderPendingManagersTable(this.value === 'pending')" class="text-xs p-2 border border-slate-300 rounded-lg outline-none font-bold text-slate-700 bg-slate-50">
-                                <option value="pending" data-i18n="show_pending_only">عرض المتأخرين فقط</option>
-                                <option value="all" data-i18n="show_all_mgrs">عرض جميع المدراء</option>
+                                <option value="pending">Show Pending Only</option>
+                                <option value="all">Show All Managers</option>
                             </select>
                             <button onclick="copyPendingManagersEmails()" class="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-300 text-xs font-bold px-3 py-2 rounded-lg transition flex items-center gap-1.5">
-                                <i class="fa-solid fa-copy"></i> <span data-i18n="copy_emails">نسخ إيميلات المتأخرين</span>
+                                <i class="fa-solid fa-copy"></i> Copy Pending Emails
                             </button>
                             <button onclick="exportPendingManagersExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-2 rounded-lg transition flex items-center gap-1.5 shadow-sm">
-                                <i class="fa-solid fa-file-excel"></i> <span data-i18n="export_excel">تصدير Excel</span>
+                                <i class="fa-solid fa-file-excel"></i> Export Excel
                             </button>
                         </div>
                     </div>
 
                     <div class="overflow-x-auto">
-                        <table class="w-full text-right border-collapse text-xs" id="pendingMgrTable">
+                        <table class="w-full text-left border-collapse text-xs" id="pendingMgrTable">
                             <thead>
                                 <tr class="bg-slate-50 text-slate-700 border-b">
-                                    <th class="p-2.5" data-i18n="col_mgr_code">كود المدير</th>
-                                    <th class="p-2.5" data-i18n="col_mgr_name">اسم المدير المقيم</th>
-                                    <th class="p-2.5" data-i18n="col_department">الإدارة</th>
-                                    <th class="p-2.5" data-i18n="col_email">البريد الإلكتروني</th>
-                                    <th class="p-2.5 text-center" data-i18n="col_total_sub">إجمالي المرؤوسين</th>
-                                    <th class="p-2.5 text-center" data-i18n="col_evaluated">تم تقييمهم</th>
-                                    <th class="p-2.5 text-center" data-i18n="col_remaining">المتبقي</th>
-                                    <th class="p-2.5 text-center" data-i18n="col_completion_rate">نسبة الإنجاز</th>
+                                    <th class="p-2.5">Manager Code</th>
+                                    <th class="p-2.5">Manager Name</th>
+                                    <th class="p-2.5">Department</th>
+                                    <th class="p-2.5">Email Address</th>
+                                    <th class="p-2.5 text-center">Subordinates</th>
+                                    <th class="p-2.5 text-center">Evaluated</th>
+                                    <th class="p-2.5 text-center">Remaining</th>
+                                    <th class="p-2.5 text-center">Completion %</th>
                                 </tr>
                             </thead>
                             <tbody id="pendingManagersTableBody" class="divide-y"></tbody>
@@ -225,7 +215,7 @@
 
                 <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-2">
                     <div class="flex justify-between items-center text-xs font-bold">
-                        <span class="text-slate-700"><i class="fa-solid fa-bars-progress text-blue-600"></i> <span data-i18n="overall_completion">نسبة إنجاز التقييم الإجمالية:</span></span>
+                        <span class="text-slate-700"><i class="fa-solid fa-bars-progress text-blue-600"></i> Overall Completion Rate:</span>
                         <span id="completionRateBadge" class="text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md border border-blue-200">0%</span>
                     </div>
                     <div class="w-full bg-slate-100 h-3.5 rounded-full overflow-hidden p-0.5 border border-slate-200">
@@ -236,11 +226,11 @@
                 <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
                     <div class="flex justify-between items-center border-b pb-3">
                         <div>
-                            <h3 class="font-bold text-slate-800 text-base" data-i18n="level_dist_title">توزيع مستويات التقييم</h3>
-                            <p class="text-xs text-slate-500 mt-0.5" data-i18n="level_dist_sub">تفاصيل نسب الموظفين وفق المستويات من 1 إلى 5</p>
+                            <h3 class="font-bold text-slate-800 text-base">Rating Level Distribution</h3>
+                            <p class="text-xs text-slate-500 mt-0.5">Employee breakdown across rating levels 1 to 5</p>
                         </div>
                         <button onclick="exportLevelPercentagesToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition flex items-center gap-2 shadow-sm">
-                            <i class="fa-solid fa-file-excel"></i> <span data-i18n="export_excel">تصدير Excel</span>
+                            <i class="fa-solid fa-file-excel"></i> Export Excel
                         </button>
                     </div>
                     <div id="levelsCardsContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3"></div>
@@ -249,14 +239,14 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3 md:col-span-1">
                         <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2 border-b pb-2">
-                            <i class="fa-solid fa-trophy text-amber-500"></i> <span data-i18n="dept_rankings">ترتيب الإدارات بالأداء</span>
+                            <i class="fa-solid fa-trophy text-amber-500"></i> Department Performance Rankings
                         </h4>
                         <div id="topBottomDeptsContainer" class="space-y-2 text-xs max-h-64 overflow-y-auto"></div>
                     </div>
 
                     <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3 md:col-span-2">
                         <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2 border-b pb-2">
-                            <i class="fa-solid fa-chart-radar text-blue-600"></i> <span data-i18n="kras_breakdown">تحليل محاور التقييم (المساهمة الموزونة %)</span>
+                            <i class="fa-solid fa-chart-radar text-blue-600"></i> Criteria Breakdown (Weighted Contribution %)
                         </h4>
                         <div class="relative max-h-64"><canvas id="chartKrasBreakdown"></canvas></div>
                     </div>
@@ -264,26 +254,26 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
-                        <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2 border-b pb-2"><i class="fa-solid fa-chart-pie text-blue-600"></i> <span data-i18n="level_percentages">النسب المئوية للمستويات</span></h4>
+                        <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2 border-b pb-2"><i class="fa-solid fa-chart-pie text-blue-600"></i> Rating Levels %</h4>
                         <div class="relative max-h-64 flex justify-center"><canvas id="chartLevels"></canvas></div>
                     </div>
                     <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
-                        <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2 border-b pb-2"><i class="fa-solid fa-chart-column text-purple-600"></i> <span data-i18n="dept_averages">متوسط درجات الإدارات</span></h4>
+                        <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2 border-b pb-2"><i class="fa-solid fa-chart-column text-purple-600"></i> Department Averages %</h4>
                         <div class="relative max-h-64"><canvas id="chartDeptsProgress"></canvas></div>
                     </div>
                 </div>
             </div>
 
-            <!-- 2. استيراد الموظفين والتقييمات -->
+            <!-- Tab 2: Import -->
             <div id="adminTab-import" class="space-y-6">
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3 border-b pb-3">
                         <div>
-                            <h3 class="font-bold text-slate-800 text-base" data-i18n="import_emp_title">1. إضافة/استيراد شيت الموظفين والمدراء</h3>
-                            <p class="text-xs text-slate-500 mt-1" data-i18n="import_emp_sub">رفع شيت Excel لإضافة موظفين جداد للقاعدة أو تحديث الموظفين الحالية دون مسح أي بيانات سابقة.</p>
+                            <h3 class="font-bold text-slate-800 text-base">1. Import Employees & Managers Sheet</h3>
+                            <p class="text-xs text-slate-500 mt-1">Upload Excel file to append or update employees safely without deleting existing data.</p>
                         </div>
                         <button onclick="downloadEmployeesTemplate()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 text-xs font-bold px-4 py-2 rounded-xl transition flex items-center gap-2">
-                            <i class="fa-solid fa-file-excel text-emerald-600"></i> <span data-i18n="emp_template">نموذج الموظفين Excel</span>
+                            <i class="fa-solid fa-file-excel text-emerald-600"></i> Employees Template Excel
                         </button>
                     </div>
 
@@ -292,7 +282,7 @@
                         <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-2">
                             <i class="fa-solid fa-users text-xl"></i>
                         </div>
-                        <h4 class="font-bold text-slate-700 text-xs" data-i18n="upload_emp_hint">اضغط لرفع شيت الموظفين وإضافتهم للموجودين</h4>
+                        <h4 class="font-bold text-slate-700 text-xs">Click to upload Employees Excel File</h4>
                     </div>
                     <div id="importSuccessMsg" class="hidden mt-3 p-3 rounded-xl border bg-emerald-50 border-emerald-300 text-emerald-800 text-xs"></div>
                 </div>
@@ -300,11 +290,11 @@
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3 border-b pb-3">
                         <div>
-                            <h3 class="font-bold text-slate-800 text-base" data-i18n="import_eval_title">2. استيراد شيت التقييمات المباشرة</h3>
-                            <p class="text-xs text-slate-500 mt-1" data-i18n="import_eval_sub">رفع شيت يحتوي على تقييمات الموظفين بالدرجات لحفظها دفعة واحدة سحابياً.</p>
+                            <h3 class="font-bold text-slate-800 text-base">2. Import Evaluations Sheet</h3>
+                            <p class="text-xs text-slate-500 mt-1">Upload Excel sheet containing pre-rated employee scores.</p>
                         </div>
                         <button onclick="downloadEvaluationsTemplate()" class="bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-300 text-xs font-bold px-4 py-2 rounded-xl transition flex items-center gap-2">
-                            <i class="fa-solid fa-file-excel text-purple-600"></i> <span data-i18n="eval_template">نموذج التقييمات Excel</span>
+                            <i class="fa-solid fa-file-excel text-purple-600"></i> Evaluations Template Excel
                         </button>
                     </div>
 
@@ -313,47 +303,47 @@
                         <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-2">
                             <i class="fa-solid fa-clipboard-check text-xl"></i>
                         </div>
-                        <h4 class="font-bold text-slate-700 text-xs" data-i18n="upload_eval_hint">اضغط لرفع شيت التقييمات الجاهزة</h4>
+                        <h4 class="font-bold text-slate-700 text-xs">Click to upload Evaluations Excel File</h4>
                     </div>
                     <div id="importEvalSuccessMsg" class="hidden mt-3 p-3 rounded-xl border bg-emerald-50 border-emerald-300 text-emerald-800 text-xs"></div>
                 </div>
             </div>
 
-            <!-- 3. إدارة الحسابات -->
+            <!-- Tab 3: Employees Management -->
             <div id="adminTab-employees" class="hidden space-y-6">
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-4 gap-3">
                         <div>
-                            <h3 class="font-bold text-slate-800 text-base" data-i18n="accounts_title">إدارة حسابات الموظفين والمدراء</h3>
-                            <p class="text-xs text-slate-500 mt-1" data-i18n="accounts_sub">إضافة موظفين جدد يدويًا، تعديل الصلاحيات وبيانات الدخول فوراً.</p>
+                            <h3 class="font-bold text-slate-800 text-base">Employee & Manager Accounts</h3>
+                            <p class="text-xs text-slate-500 mt-1">Add new employees manually, manage permissions and login credentials.</p>
                         </div>
                         <button onclick="openAddEmployeeModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition flex items-center gap-1.5 shadow-sm">
-                            <i class="fa-solid fa-user-plus"></i> <span data-i18n="add_emp_manual">إضافة موظف جديد يدويًا</span>
+                            <i class="fa-solid fa-user-plus"></i> Add New Employee
                         </button>
                     </div>
 
                     <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 grid grid-cols-1 md:grid-cols-5 gap-2 text-xs">
-                        <input type="text" id="empFilterSearch" onkeyup="filterEmployeesTable()" placeholder="بحث بالاسم أو الكود..." class="p-2 border border-slate-300 rounded-lg outline-none">
-                        <select id="empFilterDept" onchange="onAdminEmpTabDeptChange()" class="p-2 border border-slate-300 rounded-lg outline-none"><option value="">كل الإدارات</option></select>
-                        <select id="empFilterSection" onchange="filterEmployeesTable()" class="p-2 border border-slate-300 rounded-lg outline-none"><option value="">كل الأقسام</option></select>
-                        <select id="empFilterRole" onchange="filterEmployeesTable()" class="p-2 border border-slate-300 rounded-lg outline-none"><option value="">كل الصفات</option><option value="mgr">مدير تقييم</option><option value="emp">موظف</option></select>
-                        <select id="empFilterDirectMgr" onchange="filterEmployeesTable()" class="p-2 border border-slate-300 rounded-lg outline-none"><option value="">كل المدراء المباشرين</option></select>
+                        <input type="text" id="empFilterSearch" onkeyup="filterEmployeesTable()" placeholder="Search by name or code..." class="p-2 border border-slate-300 rounded-lg outline-none">
+                        <select id="empFilterDept" onchange="onAdminEmpTabDeptChange()" class="p-2 border border-slate-300 rounded-lg outline-none"><option value="">All Departments</option></select>
+                        <select id="empFilterSection" onchange="filterEmployeesTable()" class="p-2 border border-slate-300 rounded-lg outline-none"><option value="">All Sections</option></select>
+                        <select id="empFilterRole" onchange="filterEmployeesTable()" class="p-2 border border-slate-300 rounded-lg outline-none"><option value="">All Roles</option><option value="mgr">Manager</option><option value="emp">Employee</option></select>
+                        <select id="empFilterDirectMgr" onchange="filterEmployeesTable()" class="p-2 border border-slate-300 rounded-lg outline-none"><option value="">All Direct Managers</option></select>
                     </div>
 
                     <div class="overflow-x-auto">
-                        <table class="w-full text-right border-collapse text-xs">
+                        <table class="w-full text-left border-collapse text-xs">
                             <thead>
                                 <tr class="bg-slate-100 text-slate-700 border-b">
-                                    <th class="p-3" data-i18n="col_code">الكود</th>
-                                    <th class="p-3" data-i18n="col_name">اسم الموظف</th>
-                                    <th class="p-3" data-i18n="col_title">الوظيفة</th>
-                                    <th class="p-3" data-i18n="col_department">الإدارة</th>
-                                    <th class="p-3" data-i18n="col_section">القسم</th>
-                                    <th class="p-3" data-i18n="col_role">الصفة</th>
-                                    <th class="p-3" data-i18n="col_direct_mgr">المدير المباشر</th>
-                                    <th class="p-3" data-i18n="col_username">اسم المستخدم</th>
-                                    <th class="p-3" data-i18n="col_password">كلمة السر</th>
-                                    <th class="p-3 text-center" data-i18n="col_actions">الإجراءات</th>
+                                    <th class="p-3">Code</th>
+                                    <th class="p-3">Employee Name</th>
+                                    <th class="p-3">Job Title</th>
+                                    <th class="p-3">Department</th>
+                                    <th class="p-3">Section</th>
+                                    <th class="p-3">Role</th>
+                                    <th class="p-3">Direct Manager</th>
+                                    <th class="p-3">Username</th>
+                                    <th class="p-3">Password</th>
+                                    <th class="p-3 text-center">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="adminEmployeesTableBody" class="divide-y"></tbody>
@@ -362,40 +352,40 @@
                 </div>
             </div>
 
-            <!-- 4. سجل التقييمات -->
+            <!-- Tab 4: Evaluation Reports -->
             <div id="adminTab-reports" class="hidden space-y-6">
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-4 gap-3">
                         <div>
-                            <h3 class="font-bold text-slate-800 text-base" data-i18n="reports_title">سجل التقييمات النهائي (الموزون)</h3>
-                            <p class="text-xs text-slate-500 mt-0.5" data-i18n="reports_sub">عرض النتائج الشاملة المكتملة والمتبقية مباشرة من السحابة بناءً على أوزان المعايير.</p>
+                            <h3 class="font-bold text-slate-800 text-base">Final Evaluation Log (Weighted)</h3>
+                            <p class="text-xs text-slate-500 mt-0.5">View comprehensive evaluation results synced from cloud database.</p>
                         </div>
                         <button onclick="exportEvaluationsToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition flex items-center gap-2 shadow-lg shadow-emerald-600/20">
-                            <i class="fa-solid fa-file-excel text-base"></i> <span data-i18n="export_report">تصدير التقرير Excel</span>
+                            <i class="fa-solid fa-file-excel text-base"></i> Export Full Report
                         </button>
                     </div>
 
                     <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 grid grid-cols-1 md:grid-cols-5 gap-2 text-xs">
-                        <input type="text" id="rptFilterSearch" onkeyup="filterReportsTable()" placeholder="بحث باسم الموظف أو الكود..." class="p-2 border border-slate-300 rounded-lg outline-none">
-                        <select id="rptFilterDept" onchange="onAdminRptTabDeptChange()" class="p-2 border border-slate-300 rounded-lg outline-none"><option value="">كل الإدارات</option></select>
-                        <select id="rptFilterStatus" onchange="filterReportsTable()" class="p-2 border border-slate-300 rounded-lg outline-none"><option value="">حالة التقييم</option><option value="done">تم التقييم</option><option value="pending">قيد الانتظار</option></select>
-                        <select id="rptFilterLevel" onchange="filterReportsTable()" class="p-2 border border-slate-300 rounded-lg outline-none"><option value="">المستوى (1-5)</option><option value="1">مستوى 1</option><option value="2">مستوى 2</option><option value="3">مستوى 3</option><option value="4">مستوى 4</option><option value="5">مستوى 5</option></select>
-                        <select id="rptFilterEvaluator" onchange="filterReportsTable()" class="p-2 border border-slate-300 rounded-lg outline-none"><option value="">المدير المقيم</option></select>
+                        <input type="text" id="rptFilterSearch" onkeyup="filterReportsTable()" placeholder="Search employee..." class="p-2 border border-slate-300 rounded-lg outline-none">
+                        <select id="rptFilterDept" onchange="onAdminRptTabDeptChange()" class="p-2 border border-slate-300 rounded-lg outline-none"><option value="">All Departments</option></select>
+                        <select id="rptFilterStatus" onchange="filterReportsTable()" class="p-2 border border-slate-300 rounded-lg outline-none"><option value="">Status</option><option value="done">Evaluated</option><option value="pending">Pending</option></select>
+                        <select id="rptFilterLevel" onchange="filterReportsTable()" class="p-2 border border-slate-300 rounded-lg outline-none"><option value="">Level (1-5)</option><option value="1">Level 1</option><option value="2">Level 2</option><option value="3">Level 3</option><option value="4">Level 4</option><option value="5">Level 5</option></select>
+                        <select id="rptFilterEvaluator" onchange="filterReportsTable()" class="p-2 border border-slate-300 rounded-lg outline-none"><option value="">Evaluator</option></select>
                     </div>
 
                     <div class="overflow-x-auto">
-                        <table class="w-full text-right border-collapse text-xs">
+                        <table class="w-full text-left border-collapse text-xs">
                             <thead>
                                 <tr class="bg-slate-100 text-slate-700 border-b">
-                                    <th class="p-3" data-i18n="col_code">الكود</th>
-                                    <th class="p-3" data-i18n="col_name">اسم الموظف</th>
-                                    <th class="p-3" data-i18n="col_department">الإدارة</th>
-                                    <th class="p-3" data-i18n="col_evaluator">المدير المقيم</th>
-                                    <th class="p-3 text-center" data-i18n="col_status">الحالة</th>
-                                    <th class="p-3 text-center" data-i18n="col_total_score">الدرجة الموزونة</th>
-                                    <th class="p-3 text-center" data-i18n="col_percentage">النسبة المئوية</th>
-                                    <th class="p-3 text-center" data-i18n="col_level">المستوى</th>
-                                    <th class="p-3 text-center" data-i18n="col_actions">الإجراءات</th>
+                                    <th class="p-3">Code</th>
+                                    <th class="p-3">Employee Name</th>
+                                    <th class="p-3">Department</th>
+                                    <th class="p-3">Evaluator</th>
+                                    <th class="p-3 text-center">Status</th>
+                                    <th class="p-3 text-center">Weighted Score</th>
+                                    <th class="p-3 text-center">Percentage</th>
+                                    <th class="p-3 text-center">Level</th>
+                                    <th class="p-3 text-center">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="adminReportsTableBody" class="divide-y"></tbody>
@@ -404,20 +394,20 @@
                 </div>
             </div>
 
-            <!-- 5. صيانة البيانات وإدارة الـ KRAs والأوزان -->
+            <!-- Tab 5: KRAs & Database Maintenance -->
             <div id="adminTab-management" class="hidden space-y-6">
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 max-w-4xl mx-auto space-y-4">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-3 gap-2">
                         <div>
                             <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
-                                <i class="fa-solid fa-sliders text-blue-600"></i> <span data-i18n="kras_manage_title">إدارة عناصر التقييم والـ KRAs والأوزان النسبية</span>
+                                <i class="fa-solid fa-sliders text-blue-600"></i> Manage KRAs & Criteria Weights
                             </h3>
-                            <p class="text-xs text-slate-500 mt-0.5" data-i18n="kras_manage_sub">يمكنك إضافة عناصر جديدة وتحديد وزن كل معيار (تعديل أوزان المعايير يؤثر فوراً على النتائج والداشبورد).</p>
+                            <p class="text-xs text-slate-500 mt-0.5">Add elements and adjust weights (changes dynamically recalculate all results).</p>
                         </div>
                         <div class="flex items-center gap-2">
-                            <span id="totalWeightsBadge" class="px-3 py-1.5 rounded-lg text-xs font-bold border bg-blue-50 text-blue-700 border-blue-200">إجمالي الأوزان: 100%</span>
+                            <span id="totalWeightsBadge" class="px-3 py-1.5 rounded-lg text-xs font-bold border bg-blue-50 text-blue-700 border-blue-200">Total Weight: 100%</span>
                             <button onclick="openKraModal()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 shadow-sm">
-                                <i class="fa-solid fa-plus"></i> <span data-i18n="add_kra_btn">إضافة عنصر جديد</span>
+                                <i class="fa-solid fa-plus"></i> Add New Criteria
                             </button>
                         </div>
                     </div>
@@ -428,33 +418,33 @@
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 max-w-4xl mx-auto space-y-6">
                     <div class="border-b pb-3">
                         <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
-                            <i class="fa-solid fa-database text-blue-600"></i> <span data-i18n="db_maintenance_title">النسخ الاحتياطي وصيانة القاعدة</span>
+                            <i class="fa-solid fa-database text-blue-600"></i> Database Backup & Maintenance
                         </h3>
-                        <p class="text-xs text-slate-500 mt-1" data-i18n="db_maintenance_sub">التحكم في حفظ وتنظيف قاعدة البيانات السحابية والمحلية.</p>
+                        <p class="text-xs text-slate-500 mt-1">Control cloud database backups and local browser cache.</p>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="p-4 bg-blue-50 rounded-xl border border-blue-200 space-y-3">
-                            <h5 class="font-bold text-blue-900 text-xs flex items-center gap-1.5"><i class="fa-solid fa-file-export"></i> <span data-i18n="backup_card_title">النسخ الاحتياطي</span></h5>
-                            <p class="text-[11px] text-blue-700 leading-relaxed" data-i18n="backup_card_desc">تنزيل نسخة احتياطية بصيغة (JSON) تحتوي على كل الموظفين والتقييمات.</p>
+                            <h5 class="font-bold text-blue-900 text-xs flex items-center gap-1.5"><i class="fa-solid fa-file-export"></i> JSON Backup</h5>
+                            <p class="text-[11px] text-blue-700 leading-relaxed">Download a full JSON database backup containing all employees and evaluation records.</p>
                             <button onclick="downloadJSONBackup()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg text-xs transition flex items-center justify-center gap-1">
-                                <i class="fa-solid fa-download"></i> <span data-i18n="download_backup">تنزيل النسخة</span>
+                                <i class="fa-solid fa-download"></i> Download Backup
                             </button>
                         </div>
 
                         <div class="p-4 bg-amber-50 rounded-xl border border-amber-200 space-y-3">
-                            <h5 class="font-bold text-amber-900 text-xs flex items-center gap-1.5"><i class="fa-solid fa-broom"></i> <span data-i18n="clear_cache_title">تنظيف المتصفح</span></h5>
-                            <p class="text-[11px] text-amber-700 leading-relaxed" data-i18n="clear_cache_desc">يمسح الملفات المؤقتة من الجهاز الحالي دون المساس ببيانات السحابة.</p>
-                            <button onclick="clearLocalOnlyData()" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 rounded-lg text-xs transition" data-i18n="clear_cache_btn">
-                                مسح المؤقت
+                            <h5 class="font-bold text-amber-900 text-xs flex items-center gap-1.5"><i class="fa-solid fa-broom"></i> Browser Cache</h5>
+                            <p class="text-[11px] text-amber-700 leading-relaxed">Clear local browser cache without affecting cloud data.</p>
+                            <button onclick="clearLocalOnlyData()" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 rounded-lg text-xs transition">
+                                Clear Cache
                             </button>
                         </div>
 
                         <div class="p-4 bg-red-50 rounded-xl border border-red-200 space-y-3">
-                            <h5 class="font-bold text-red-900 text-xs flex items-center gap-1.5"><i class="fa-solid fa-trash-can"></i> <span data-i18n="purge_cloud_title">مسح السحابة</span></h5>
-                            <p class="text-[11px] text-red-700 leading-relaxed" data-i18n="purge_cloud_desc">حذف كافة الموظفين والتقييمات سحابياً (يتطلب كلمة سر الأدمن).</p>
-                            <button onclick="purgeCloudDatabase()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded-lg text-xs transition shadow-sm" data-i18n="purge_cloud_btn">
-                                مسح شامل
+                            <h5 class="font-bold text-red-900 text-xs flex items-center gap-1.5"><i class="fa-solid fa-trash-can"></i> Purge Cloud DB</h5>
+                            <p class="text-[11px] text-red-700 leading-relaxed">Permanently delete all cloud data (Admin Password required).</p>
+                            <button onclick="purgeCloudDatabase()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded-lg text-xs transition shadow-sm">
+                                Purge Database
                             </button>
                         </div>
                     </div>
@@ -462,43 +452,43 @@
             </div>
         </div>
 
-        <!-- لوحة المدير (Manager) -->
+        <!-- Manager Panel -->
         <div id="managerPanel" class="hidden space-y-6">
             <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-4 mb-4 gap-3">
                     <div>
-                        <h2 class="text-xl font-bold text-slate-800" data-i18n="mgr_panel_title">تقييم المرؤوسين المباشرين</h2>
+                        <h2 class="text-xl font-bold text-slate-800">Direct Subordinates Appraisal</h2>
                         <p id="mgrAssignedDeptBadge" class="text-xs text-blue-700 font-bold mt-1 bg-blue-50 px-3 py-1 rounded-full inline-block border border-blue-200"></p>
                     </div>
                     <div class="flex items-center gap-2 text-xs">
                         <span class="bg-emerald-100 text-emerald-800 px-3 py-1.5 rounded-lg font-bold border border-emerald-300">
-                            <span data-i18n="stat_completed">مكتمل</span>: <strong id="mgrCompletedCount">0</strong>
+                            Completed: <strong id="mgrCompletedCount">0</strong>
                         </span>
                         <span class="bg-amber-100 text-amber-800 px-3 py-1.5 rounded-lg font-bold border border-amber-300">
-                            <span data-i18n="stat_pending">متبقي</span>: <strong id="mgrPendingCount">0</strong>
+                            Pending: <strong id="mgrPendingCount">0</strong>
                         </span>
                     </div>
                 </div>
 
                 <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 grid grid-cols-1 md:grid-cols-4 gap-2 text-xs mb-4">
-                    <input type="text" id="mgrFilterSearch" onkeyup="filterManagerEmpTable()" placeholder="بحث بالاسم أو الكود..." class="p-2 border border-slate-300 rounded-lg outline-none">
-                    <select id="mgrFilterSection" onchange="filterManagerEmpTable()" class="p-2 border border-slate-300 rounded-lg outline-none"><option value="">كل الأقسام</option></select>
-                    <select id="mgrFilterStatus" onchange="filterManagerEmpTable()" class="p-2 border border-slate-300 rounded-lg outline-none"><option value="">حالة التقييم</option><option value="done">مكتمل</option><option value="pending">غير مكتمل</option></select>
+                    <input type="text" id="mgrFilterSearch" onkeyup="filterManagerEmpTable()" placeholder="Search by name or code..." class="p-2 border border-slate-300 rounded-lg outline-none">
+                    <select id="mgrFilterSection" onchange="filterManagerEmpTable()" class="p-2 border border-slate-300 rounded-lg outline-none"><option value="">All Sections</option></select>
+                    <select id="mgrFilterStatus" onchange="filterManagerEmpTable()" class="p-2 border border-slate-300 rounded-lg outline-none"><option value="">Status</option><option value="done">Completed</option><option value="pending">Pending</option></select>
                 </div>
 
                 <div class="space-y-4">
                     <div class="overflow-x-auto">
-                        <table class="w-full text-right border-collapse text-xs">
+                        <table class="w-full text-left border-collapse text-xs">
                             <thead>
                                 <tr class="bg-slate-100 text-slate-700 border-b">
-                                    <th class="p-3" data-i18n="col_code">الكود</th>
-                                    <th class="p-3" data-i18n="col_name">اسم الموظف</th>
-                                    <th class="p-3" data-i18n="col_title">الوظيفة</th>
-                                    <th class="p-3" data-i18n="col_department">الإدارة</th>
-                                    <th class="p-3" data-i18n="col_section">القسم</th>
-                                    <th class="p-3 text-center" data-i18n="col_percentage">النسبة المئوية</th>
-                                    <th class="p-3 text-center" data-i18n="col_status">الحالة</th>
-                                    <th class="p-3 text-center" data-i18n="col_actions">الإجراء</th>
+                                    <th class="p-3">Code</th>
+                                    <th class="p-3">Employee Name</th>
+                                    <th class="p-3">Job Title</th>
+                                    <th class="p-3">Department</th>
+                                    <th class="p-3">Section</th>
+                                    <th class="p-3 text-center">Percentage %</th>
+                                    <th class="p-3 text-center">Status</th>
+                                    <th class="p-3 text-center">Action</th>
                                 </tr>
                             </thead>
                             <tbody id="mgrEmpTableBody" class="divide-y"></tbody>
@@ -508,12 +498,12 @@
             </div>
         </div>
 
-        <!-- نافذة إضافة موظف جديد يدويًا -->
+        <!-- Add Employee Modal -->
         <div id="addEmployeeModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 border border-slate-200 space-y-4">
                 <div class="flex justify-between items-center border-b pb-2">
                     <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
-                        <i class="fa-solid fa-user-plus text-emerald-600"></i> <span data-i18n="add_emp_manual">إضافة موظف جديد يدويًا</span>
+                        <i class="fa-solid fa-user-plus text-emerald-600"></i> Add New Employee Manually
                     </h3>
                     <button onclick="closeAddEmployeeModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
                 </div>
@@ -521,92 +511,92 @@
                 <form id="addEmployeeForm" onsubmit="saveNewEmployeeManual(event)" class="space-y-3 text-xs">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div>
-                            <label class="block font-bold text-slate-700 mb-1" data-i18n="col_code">كود الموظف:</label>
+                            <label class="block font-bold text-slate-700 mb-1">Employee Code:</label>
                             <input type="text" id="newEmpCode" required placeholder="EMP105" class="w-full p-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                         <div>
-                            <label class="block font-bold text-slate-700 mb-1" data-i18n="col_name">اسم الموظف:</label>
-                            <input type="text" id="newEmpName" required placeholder="الاسم الرباعي" class="w-full p-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                            <label class="block font-bold text-slate-700 mb-1">Full Name:</label>
+                            <input type="text" id="newEmpName" required placeholder="John Smith" class="w-full p-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <div>
-                            <label class="block font-bold text-slate-700 mb-1" data-i18n="col_title">المسمى الوظيفي:</label>
-                            <input type="text" id="newEmpTitle" required placeholder="أخصائي..." class="w-full p-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                            <label class="block font-bold text-slate-700 mb-1">Job Title:</label>
+                            <input type="text" id="newEmpTitle" required placeholder="Specialist..." class="w-full p-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                         <div>
-                            <label class="block font-bold text-slate-700 mb-1" data-i18n="col_department">الإدارة:</label>
-                            <input type="text" id="newEmpDept" required placeholder="الموارد البشرية" class="w-full p-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                            <label class="block font-bold text-slate-700 mb-1">Department:</label>
+                            <input type="text" id="newEmpDept" required placeholder="Human Resources" class="w-full p-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                         <div>
-                            <label class="block font-bold text-slate-700 mb-1" data-i18n="col_section">القسم:</label>
-                            <input type="text" id="newEmpSection" placeholder="التطوير" class="w-full p-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                            <label class="block font-bold text-slate-700 mb-1">Section:</label>
+                            <input type="text" id="newEmpSection" placeholder="Development" class="w-full p-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                     </div>
 
                     <div class="border-t pt-2 space-y-2">
                         <div class="flex items-center gap-2">
                             <input type="checkbox" id="newEmpIsManager" onchange="toggleNewEmpManagerFields()" class="w-4 h-4 text-blue-600 rounded">
-                            <label for="newEmpIsManager" class="font-bold text-slate-800" data-i18n="set_as_mgr">تعيين كـ (مدير تقييم)</label>
+                            <label for="newEmpIsManager" class="font-bold text-slate-800">Assign as Evaluator / Manager</label>
                         </div>
 
                         <div>
-                            <label class="block font-bold text-slate-700 mb-1" data-i18n="col_direct_mgr">المدير المباشر:</label>
+                            <label class="block font-bold text-slate-700 mb-1">Direct Manager:</label>
                             <select id="newEmpDirectMgr" class="w-full p-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="">-- بدون مدير مباشر --</option>
+                                <option value="">-- No Direct Manager --</option>
                             </select>
                         </div>
 
                         <div id="newEmpAccountFields" class="hidden grid grid-cols-1 md:grid-cols-2 gap-3 bg-slate-50 p-3 rounded-lg border border-slate-200">
                             <div>
-                                <label class="block font-bold text-slate-700 mb-1" data-i18n="col_username">اسم المستخدم للدخول:</label>
+                                <label class="block font-bold text-slate-700 mb-1">Username:</label>
                                 <input type="text" id="newEmpUsername" placeholder="username" class="w-full p-2 border border-slate-300 rounded-lg outline-none">
                             </div>
                             <div>
-                                <label class="block font-bold text-slate-700 mb-1" data-i18n="col_password">كلمة السر:</label>
+                                <label class="block font-bold text-slate-700 mb-1">Password:</label>
                                 <input type="text" id="newEmpPassword" placeholder="••••••••" class="w-full p-2 border border-slate-300 rounded-lg outline-none font-mono">
                             </div>
                         </div>
                     </div>
 
                     <div class="flex justify-end gap-2 pt-3 border-t">
-                        <button type="button" onclick="closeAddEmployeeModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg font-bold" data-i18n="cancel_btn">إلغاء</button>
-                        <button type="submit" class="px-5 py-2 bg-emerald-600 text-white rounded-lg font-bold hover:bg-emerald-700" data-i18n="save_emp_btn">حفظ الموظف</button>
+                        <button type="button" onclick="closeAddEmployeeModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg font-bold">Cancel</button>
+                        <button type="submit" class="px-5 py-2 bg-emerald-600 text-white rounded-lg font-bold hover:bg-emerald-700">Save Employee</button>
                     </div>
                 </form>
             </div>
         </div>
 
-        <!-- نافذة تغيير كلمة السر الشخصية -->
+        <!-- Change Password Modal -->
         <div id="changeMyPassModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 border border-slate-200 space-y-4">
                 <div class="flex justify-between items-center border-b pb-2">
                     <h3 class="font-bold text-slate-800 text-sm flex items-center gap-1.5">
-                        <i class="fa-solid fa-key text-amber-500"></i> <span data-i18n="change_password">تغيير كلمة السر</span>
+                        <i class="fa-solid fa-key text-amber-500"></i> Change Password
                     </h3>
                     <button onclick="closeChangeMyPasswordModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
                 </div>
 
                 <form id="changeMyPassForm" onsubmit="submitMyNewPassword(event)" class="space-y-3 text-xs">
                     <div>
-                        <label class="block font-bold text-slate-700 mb-1" data-i18n="new_password">كلمة السر الجديدة:</label>
+                        <label class="block font-bold text-slate-700 mb-1">New Password:</label>
                         <input type="password" id="newPassInput" required placeholder="••••••••" class="w-full p-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
-                        <label class="block font-bold text-slate-700 mb-1" data-i18n="confirm_password">تأكيد كلمة السر الجديدة:</label>
+                        <label class="block font-bold text-slate-700 mb-1">Confirm New Password:</label>
                         <input type="password" id="confirmNewPassInput" required placeholder="••••••••" class="w-full p-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
 
                     <div class="flex justify-end gap-2 pt-3 border-t">
-                        <button type="button" onclick="closeChangeMyPasswordModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg font-bold" data-i18n="cancel_btn">إلغاء</button>
-                        <button type="submit" class="px-5 py-2 bg-amber-600 text-white rounded-lg font-bold hover:bg-amber-700" data-i18n="update_password">تحديث كلمة السر</button>
+                        <button type="button" onclick="closeChangeMyPasswordModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg font-bold">Cancel</button>
+                        <button type="submit" class="px-5 py-2 bg-amber-600 text-white rounded-lg font-bold hover:bg-amber-700">Update Password</button>
                     </div>
                 </form>
             </div>
         </div>
 
-        <!-- نافذة التقييم (Modal) -->
+        <!-- Evaluation Modal -->
         <div id="evalModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
             <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full my-8 overflow-hidden border border-slate-200 flex flex-col max-h-[90vh]">
                 <div class="bg-slate-900 text-white p-4 flex justify-between items-center">
@@ -622,32 +612,32 @@
                         <input type="hidden" id="evalTargetEmpId">
 
                         <div class="space-y-4">
-                            <p class="text-xs text-slate-500 bg-amber-50 p-2.5 rounded-lg border border-amber-200 font-semibold text-amber-800" data-i18n="eval_modal_hint">
-                                <i class="fa-solid fa-circle-info"></i> اختر الوصف السلوكي الأنسب لكل عنصر وسيتم النشر سحابياً فوراً.
+                            <p class="text-xs text-slate-500 bg-amber-50 p-2.5 rounded-lg border border-amber-200 font-semibold text-amber-800">
+                                <i class="fa-solid fa-circle-info"></i> Select the most suitable behavioral description for each element to sync automatically to cloud.
                             </p>
 
                             <div id="evalCriteriaList" class="space-y-4"></div>
 
                             <div class="bg-white p-4 rounded-xl border border-slate-200 space-y-2">
-                                <label class="block text-xs font-bold text-slate-700" data-i18n="eval_notes_label">التوصيات والملاحظات:</label>
-                                <textarea id="evalNotesInput" rows="3" placeholder="اكتب الملاحظات أو النقاط التطويرية..." class="w-full p-2.5 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+                                <label class="block text-xs font-bold text-slate-700">Notes & Recommendations:</label>
+                                <textarea id="evalNotesInput" rows="3" placeholder="Enter feedback or developmental recommendations..." class="w-full p-2.5 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
                             </div>
                         </div>
 
                         <div class="flex justify-end gap-2 pt-4 border-t sticky bottom-0 bg-white">
-                            <button type="button" onclick="closeEvalModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg text-xs font-bold hover:bg-slate-300" data-i18n="cancel_btn">إلغاء</button>
-                            <button type="submit" id="submitEvalBtn" class="px-6 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 shadow-md" data-i18n="save_eval_btn">حفظ التقييم</button>
+                            <button type="button" onclick="closeEvalModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg text-xs font-bold hover:bg-slate-300">Cancel</button>
+                            <button type="submit" id="submitEvalBtn" class="px-6 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 shadow-md">Save Evaluation</button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
 
-        <!-- نافذة التعديل والحسابات (Modal) -->
+        <!-- Account Settings Modal -->
         <div id="promoteModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-200 space-y-4">
                 <div class="flex justify-between items-center border-b pb-2">
-                    <h3 class="font-bold text-slate-800 text-sm" data-i18n="account_settings">إعداد الحساب والمدير المباشر</h3>
+                    <h3 class="font-bold text-slate-800 text-sm">Account & Manager Settings</h3>
                     <button onclick="closePromoteModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
                 </div>
 
@@ -655,45 +645,45 @@
                     <input type="hidden" id="promoteEmpId">
 
                     <div>
-                        <label class="block font-bold text-slate-700 mb-1" data-i18n="col_name">الموظف:</label>
+                        <label class="block font-bold text-slate-700 mb-1">Employee Name:</label>
                         <input type="text" id="promoteEmpName" readonly class="w-full p-2 bg-slate-100 border border-slate-200 rounded font-bold text-slate-800">
                     </div>
 
                     <div class="flex items-center gap-2 my-2">
                         <input type="checkbox" id="promoteIsManagerCheckbox" class="w-4 h-4 text-blue-600 rounded">
-                        <label for="promoteIsManagerCheckbox" class="font-bold text-slate-800" data-i18n="set_as_mgr">تفعيل صلاحية مدير تقييم</label>
+                        <label for="promoteIsManagerCheckbox" class="font-bold text-slate-800">Assign Evaluator / Manager Permission</label>
                     </div>
 
                     <div>
-                        <label class="block font-bold text-slate-700 mb-1" data-i18n="col_direct_mgr">المدير المباشر:</label>
+                        <label class="block font-bold text-slate-700 mb-1">Direct Manager:</label>
                         <select id="promoteDirectManagerSelect" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                            <option value="">-- بدون مدير مباشر --</option>
+                            <option value="">-- No Direct Manager --</option>
                         </select>
                     </div>
 
                     <div>
-                        <label class="block font-bold text-slate-700 mb-1" data-i18n="col_username">اسم المستخدم:</label>
+                        <label class="block font-bold text-slate-700 mb-1">Username:</label>
                         <input type="text" id="promoteUsername" placeholder="Username" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
                     </div>
 
                     <div>
-                        <label class="block font-bold text-slate-700 mb-1" data-i18n="col_password">كلمة السر:</label>
+                        <label class="block font-bold text-slate-700 mb-1">Password:</label>
                         <input type="text" id="promotePassword" placeholder="Password" class="w-full p-2.5 border border-slate-300 rounded-lg font-mono text-blue-700 font-bold bg-blue-50/50 focus:ring-2 focus:ring-blue-500 outline-none">
                     </div>
 
                     <div class="flex justify-end gap-2 pt-2 border-t">
-                        <button type="button" onclick="closePromoteModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg font-bold" data-i18n="cancel_btn">إلغاء</button>
-                        <button type="submit" class="px-5 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700" data-i18n="save_btn">حفظ</button>
+                        <button type="button" onclick="closePromoteModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg font-bold">Cancel</button>
+                        <button type="submit" class="px-5 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700">Save Changes</button>
                     </div>
                 </form>
             </div>
         </div>
 
-        <!-- نافذة إضافة/تعديل عنصر التقييم والوزن النسبي (KRA Modal) -->
+        <!-- Add/Edit KRA Modal -->
         <div id="kraModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
             <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 border border-slate-200 space-y-4 my-8">
                 <div class="flex justify-between items-center border-b pb-2">
-                    <h3 id="kraModalTitle" class="font-bold text-slate-800 text-sm">إضافة عنصر تقييم جديد</h3>
+                    <h3 id="kraModalTitle" class="font-bold text-slate-800 text-sm">Add New Evaluation Criteria</h3>
                     <button onclick="closeKraModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
                 </div>
 
@@ -702,43 +692,43 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
                         <div class="md:col-span-2">
-                            <label class="block font-bold text-slate-700 mb-1">اسم/عنوان العنصر:</label>
-                            <input type="text" id="kraFormTitle" required placeholder="مثال: الالتزام بالوقت وضوابط العمل" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                            <label class="block font-bold text-slate-700 mb-1">Title / Name:</label>
+                            <input type="text" id="kraFormTitle" required placeholder="e.g. Time Management & Punctuality" class="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
                         </div>
                         <div>
-                            <label class="block font-bold text-slate-700 mb-1">الوزن النسبي (%):</label>
-                            <input type="number" id="kraFormWeight" min="1" max="100" step="0.5" required placeholder="مثال: 15" class="w-full p-2.5 border border-slate-300 rounded-lg font-bold text-blue-700 focus:ring-2 focus:ring-blue-500 outline-none">
+                            <label class="block font-bold text-slate-700 mb-1">Weight (%):</label>
+                            <input type="number" id="kraFormWeight" min="1" max="100" step="0.5" required placeholder="15" class="w-full p-2.5 border border-slate-300 rounded-lg font-bold text-blue-700 focus:ring-2 focus:ring-blue-500 outline-none">
                         </div>
                     </div>
 
                     <div class="space-y-2 border-t pt-2">
-                        <label class="block font-bold text-slate-700">وصف المستويات الخمسة (من 1 إلى 5):</label>
+                        <label class="block font-bold text-slate-700">Level Descriptions (1 to 5):</label>
 
                         <div>
-                            <span class="font-bold text-red-600">المستوى 1 (ضعيف):</span>
-                            <input type="text" id="kraFormLvl1" required placeholder="وصف الأداء للدرجة 1..." class="w-full p-2 border border-slate-300 rounded-lg outline-none mt-0.5">
+                            <span class="font-bold text-red-600">Level 1 (Weak):</span>
+                            <input type="text" id="kraFormLvl1" required placeholder="Description for score 1..." class="w-full p-2 border border-slate-300 rounded-lg outline-none mt-0.5">
                         </div>
                         <div>
-                            <span class="font-bold text-amber-600">المستوى 2 (مقبول):</span>
-                            <input type="text" id="kraFormLvl2" required placeholder="وصف الأداء للدرجة 2..." class="w-full p-2 border border-slate-300 rounded-lg outline-none mt-0.5">
+                            <span class="font-bold text-amber-600">Level 2 (Acceptable):</span>
+                            <input type="text" id="kraFormLvl2" required placeholder="Description for score 2..." class="w-full p-2 border border-slate-300 rounded-lg outline-none mt-0.5">
                         </div>
                         <div>
-                            <span class="font-bold text-blue-600">المستوى 3 (جيد جداً):</span>
-                            <input type="text" id="kraFormLvl3" required placeholder="وصف الأداء للدرجة 3..." class="w-full p-2 border border-slate-300 rounded-lg outline-none mt-0.5">
+                            <span class="font-bold text-blue-600">Level 3 (Very Good):</span>
+                            <input type="text" id="kraFormLvl3" required placeholder="Description for score 3..." class="w-full p-2 border border-slate-300 rounded-lg outline-none mt-0.5">
                         </div>
                         <div>
-                            <span class="font-bold text-indigo-600">المستوى 4 (متقدم):</span>
-                            <input type="text" id="kraFormLvl4" required placeholder="وصف الأداء للدرجة 4..." class="w-full p-2 border border-slate-300 rounded-lg outline-none mt-0.5">
+                            <span class="font-bold text-indigo-600">Level 4 (Advanced):</span>
+                            <input type="text" id="kraFormLvl4" required placeholder="Description for score 4..." class="w-full p-2 border border-slate-300 rounded-lg outline-none mt-0.5">
                         </div>
                         <div>
-                            <span class="font-bold text-emerald-600">المستوى 5 (متميز):</span>
-                            <input type="text" id="kraFormLvl5" required placeholder="وصف الأداء للدرجة 5..." class="w-full p-2 border border-slate-300 rounded-lg outline-none mt-0.5">
+                            <span class="font-bold text-emerald-600">Level 5 (Outstanding):</span>
+                            <input type="text" id="kraFormLvl5" required placeholder="Description for score 5..." class="w-full p-2 border border-slate-300 rounded-lg outline-none mt-0.5">
                         </div>
                     </div>
 
                     <div class="flex justify-end gap-2 pt-3 border-t">
-                        <button type="button" onclick="closeKraModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg font-bold" data-i18n="cancel_btn">إلغاء</button>
-                        <button type="submit" class="px-5 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700" data-i18n="save_kra_btn">حفظ العنصر</button>
+                        <button type="button" onclick="closeKraModal()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg font-bold">Cancel</button>
+                        <button type="submit" class="px-5 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700">Save Element</button>
                     </div>
                 </form>
             </div>
@@ -746,14 +736,14 @@
 
     </main>
 
-    <!-- الهامش السفلي -->
+    <!-- Footer -->
     <footer class="bg-white border-t border-slate-200 py-3 mt-auto">
         <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500">
-            <span data-i18n="footer_text">منظومة تقييم الأداء المؤسسي &copy; 2026 - Firebase Realtime Database</span>
+            Corporate Performance Appraisal System &copy; 2026 - Firebase Realtime Database
         </div>
     </footer>
 
-    <!-- المنطق البرمجي -->
+    <!-- App Logic -->
     <script src="app.js"></script>
 </body>
 </html>
