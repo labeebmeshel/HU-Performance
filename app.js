@@ -254,7 +254,7 @@ function changeLanguage(lang) {
     refreshActiveViews();
 }
 
-// KRAs Master Data dictionary (English & Arabic)
+// Master Dictionary for English & Arabic KRAs
 const DEFAULT_KRAS_DICT = [
     {
         id: "k1",
@@ -432,9 +432,23 @@ function initFirebase() {
     }
 }
 
+// Ensure full English & Arabic definitions are forced onto cloud items
 function syncKrasFromDb() {
     if (db.kras && Array.isArray(db.kras) && db.kras.length > 0) {
-        KRAS = db.kras;
+        KRAS = db.kras.map(cloudKra => {
+            const masterRef = DEFAULT_KRAS_DICT.find(d => d.id === cloudKra.id);
+            if (masterRef) {
+                return {
+                    id: cloudKra.id,
+                    weight: cloudKra.weight || masterRef.weight,
+                    title: masterRef.title,
+                    title_ar: cloudKra.title_ar || cloudKra.title || masterRef.title_ar,
+                    levels: masterRef.levels,
+                    levels_ar: cloudKra.levels_ar || masterRef.levels_ar
+                };
+            }
+            return cloudKra;
+        });
     } else {
         db.kras = KRAS;
     }
@@ -480,27 +494,25 @@ function purgeCloudDatabase() {
     }
 }
 
-// Helpers to get translated KRA title and levels with strong fallback handling
+// Dynamic Helpers to enforce exact English/Arabic Translation Output
 function getKraTitle(kra) {
-    const defaultRef = DEFAULT_KRAS_DICT.find(d => d.id === kra.id);
+    const masterRef = DEFAULT_KRAS_DICT.find(d => d.id === kra.id);
     if (currentLang === 'en') {
-        return kra.title || (defaultRef ? defaultRef.title : kra.title_ar) || "Evaluation Criteria";
+        return (masterRef ? masterRef.title : kra.title) || kra.title_ar || "Evaluation Criteria";
     }
-    return kra.title_ar || kra.title || (defaultRef ? defaultRef.title_ar : "معيار التقييم");
+    return kra.title_ar || (masterRef ? masterRef.title_ar : kra.title) || "معيار التقييم";
 }
 
 function getKraLevelDesc(kra, lvl) {
-    const defaultRef = DEFAULT_KRAS_DICT.find(d => d.id === kra.id);
+    const masterRef = DEFAULT_KRAS_DICT.find(d => d.id === kra.id);
 
     if (currentLang === 'en') {
-        if (kra.levels && kra.levels[lvl] && kra.levels[lvl] !== `مستوى ${lvl}`) return kra.levels[lvl];
-        if (defaultRef && defaultRef.levels && defaultRef.levels[lvl]) return defaultRef.levels[lvl];
-        if (kra.levels_ar && kra.levels_ar[lvl]) return kra.levels_ar[lvl];
+        if (masterRef && masterRef.levels && masterRef.levels[lvl]) return masterRef.levels[lvl];
+        if (kra.levels && kra.levels[lvl]) return kra.levels[lvl];
         return `Level ${lvl}`;
     } else {
         if (kra.levels_ar && kra.levels_ar[lvl]) return kra.levels_ar[lvl];
-        if (defaultRef && defaultRef.levels_ar && defaultRef.levels_ar[lvl]) return defaultRef.levels_ar[lvl];
-        if (kra.levels && kra.levels[lvl]) return kra.levels[lvl];
+        if (masterRef && masterRef.levels_ar && masterRef.levels_ar[lvl]) return masterRef.levels_ar[lvl];
         return `مستوى ${lvl}`;
     }
 }
@@ -1684,7 +1696,7 @@ function filterManagerEmpTable() {
     }).join('');
 }
 
-// Updated Open Modal with Strict Dynamic Fallback Translation Logic
+// Open Evaluation Modal
 function openEvalModal(empId) {
     const emp = db.employees.find(e => e.id === empId || e.id === String(empId) || e.code === String(empId));
     if (!emp) { alert("Employee not found!"); return; }
@@ -1886,5 +1898,5 @@ function exportEvaluationsToExcel() {
 
 window.onload = function() {
     initFirebase();
-    changeLanguage('en'); // اللغة الافتراضية أصبحت بالكامل باللغة الإنجليزية
+    changeLanguage('en');
 };
