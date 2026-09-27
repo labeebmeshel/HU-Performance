@@ -230,6 +230,7 @@ const I18N = {
     }
 };
 
+// Default Language set to English ('en')
 let currentLang = 'en';
 
 function changeLanguage(lang) {
@@ -253,8 +254,8 @@ function changeLanguage(lang) {
     refreshActiveViews();
 }
 
-// KRAs Default Data with Full BILINGUAL Support (AR / EN)
-let KRAS = [
+// KRAs Master Data dictionary (English & Arabic)
+const DEFAULT_KRAS_DICT = [
     {
         id: "k1",
         title: "Technical Skills & Job Competence",
@@ -377,6 +378,8 @@ let KRAS = [
     }
 ];
 
+let KRAS = JSON.parse(JSON.stringify(DEFAULT_KRAS_DICT));
+
 let firebaseApp = null;
 let firebaseDB = null;
 
@@ -479,19 +482,24 @@ function purgeCloudDatabase() {
 
 // Helpers to get translated KRA title and levels with strong fallback handling
 function getKraTitle(kra) {
+    const defaultRef = DEFAULT_KRAS_DICT.find(d => d.id === kra.id);
     if (currentLang === 'en') {
-        return kra.title || kra.title_ar || "Evaluation Criteria";
+        return kra.title || (defaultRef ? defaultRef.title : kra.title_ar) || "Evaluation Criteria";
     }
-    return kra.title_ar || kra.title || "معيار التقييم";
+    return kra.title_ar || kra.title || (defaultRef ? defaultRef.title_ar : "معيار التقييم");
 }
 
 function getKraLevelDesc(kra, lvl) {
+    const defaultRef = DEFAULT_KRAS_DICT.find(d => d.id === kra.id);
+
     if (currentLang === 'en') {
-        if (kra.levels && kra.levels[lvl]) return kra.levels[lvl];
+        if (kra.levels && kra.levels[lvl] && kra.levels[lvl] !== `مستوى ${lvl}`) return kra.levels[lvl];
+        if (defaultRef && defaultRef.levels && defaultRef.levels[lvl]) return defaultRef.levels[lvl];
         if (kra.levels_ar && kra.levels_ar[lvl]) return kra.levels_ar[lvl];
         return `Level ${lvl}`;
     } else {
         if (kra.levels_ar && kra.levels_ar[lvl]) return kra.levels_ar[lvl];
+        if (defaultRef && defaultRef.levels_ar && defaultRef.levels_ar[lvl]) return defaultRef.levels_ar[lvl];
         if (kra.levels && kra.levels[lvl]) return kra.levels[lvl];
         return `مستوى ${lvl}`;
     }
@@ -1151,10 +1159,10 @@ function filterEmployeesTable() {
                     ) : '-'}
                 </td>
                 <td class="p-3 text-center flex justify-center gap-1">
-                    <button onclick="openPromoteModal('${safeId}')" title="تعديل الحساب" class="bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold px-2 py-1 rounded-lg border border-blue-300 transition text-[11px]">
+                    <button onclick="openPromoteModal('${safeId}')" title="Edit Account" class="bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold px-2 py-1 rounded-lg border border-blue-300 transition text-[11px]">
                         <i class="fa-solid fa-user-gear"></i>
                     </button>
-                    <button onclick="deleteEmployee('${safeId}')" title="حذف الموظف" class="bg-red-50 hover:bg-red-100 text-red-600 font-bold px-2 py-1 rounded-lg border border-red-300 transition text-[11px]">
+                    <button onclick="deleteEmployee('${safeId}')" title="Delete Employee" class="bg-red-50 hover:bg-red-100 text-red-600 font-bold px-2 py-1 rounded-lg border border-red-300 transition text-[11px]">
                         <i class="fa-solid fa-trash-can"></i>
                     </button>
                 </td>
@@ -1676,7 +1684,7 @@ function filterManagerEmpTable() {
     }).join('');
 }
 
-// Updated Open Modal with Strict Translation Logic
+// Updated Open Modal with Strict Dynamic Fallback Translation Logic
 function openEvalModal(empId) {
     const emp = db.employees.find(e => e.id === empId || e.id === String(empId) || e.code === String(empId));
     if (!emp) { alert("Employee not found!"); return; }
@@ -1707,11 +1715,7 @@ function openEvalModal(empId) {
     const container = document.getElementById('evalCriteriaList');
     container.innerHTML = activeKras.map((kra, idx) => {
         const selectedVal = existingEval.scores[kra.id] || 0;
-        
-        // جلب عنوان المعيار باللغة الحالية مباشرة
-        const kraTitle = (currentLang === 'en') 
-            ? (kra.title || kra.title_ar) 
-            : (kra.title_ar || kra.title);
+        const kraTitle = getKraTitle(kra);
 
         return `
             <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
@@ -1721,13 +1725,7 @@ function openEvalModal(empId) {
                 </div>
                 <div class="space-y-2">
                     ${[1,2,3,4,5].map(lvl => {
-                        // جلب الوصف السلوكي للمستوى باللغة الحالية مباشرة
-                        let lvlDesc = "";
-                        if (currentLang === 'en') {
-                            lvlDesc = (kra.levels && kra.levels[lvl]) ? kra.levels[lvl] : (kra.levels_ar ? kra.levels_ar[lvl] : `Level ${lvl}`);
-                        } else {
-                            lvlDesc = (kra.levels_ar && kra.levels_ar[lvl]) ? kra.levels_ar[lvl] : (kra.levels ? kra.levels[lvl] : `مستوى ${lvl}`);
-                        }
+                        const lvlDesc = getKraLevelDesc(kra, lvl);
 
                         return `
                             <label class="flex items-start gap-2.5 p-2 rounded-lg border border-slate-200 bg-white hover:border-blue-400 hover:bg-blue-50/30 transition cursor-pointer text-xs">
@@ -1826,10 +1824,10 @@ function filterReportsTable() {
                 <td class="p-3 text-center font-bold text-emerald-700">${res ? `${currentLang === 'ar' ? 'مستوى' : 'Level'} ${res.level}` : '-'}</td>
                 <td class="p-3 text-center flex justify-center gap-1">
                     ${isEval ? `
-                        <button onclick="openEvalModal('${safeId}')" title="تعديل الأدمن" class="px-2 py-1 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded border border-amber-300 font-bold text-[11px] flex items-center gap-1">
+                        <button onclick="openEvalModal('${safeId}')" title="Edit Eval" class="px-2 py-1 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded border border-amber-300 font-bold text-[11px] flex items-center gap-1">
                             <i class="fa-solid fa-pen-to-square"></i> ${I18N[currentLang].edit_eval_btn}
                         </button>
-                        <button onclick="resetEmployeeEvaluation('${safeId}')" title="إعادة ضبط التقييم" class="px-2 py-1 bg-red-50 text-red-600 hover:bg-red-100 rounded border border-red-300 font-bold text-[11px] flex items-center gap-1">
+                        <button onclick="resetEmployeeEvaluation('${safeId}')" title="Reset Eval" class="px-2 py-1 bg-red-50 text-red-600 hover:bg-red-100 rounded border border-red-300 font-bold text-[11px] flex items-center gap-1">
                             <i class="fa-solid fa-rotate-left"></i> ${I18N[currentLang].reset_eval_btn}
                         </button>
                     ` : `
@@ -1888,5 +1886,5 @@ function exportEvaluationsToExcel() {
 
 window.onload = function() {
     initFirebase();
-    changeLanguage('ar'); // الافتراضي للغة العربية
+    changeLanguage('en'); // اللغة الافتراضية أصبحت بالكامل باللغة الإنجليزية
 };
