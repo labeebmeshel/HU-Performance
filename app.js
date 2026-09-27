@@ -110,6 +110,7 @@ const I18N = {
         save_kra_btn: "حفظ العنصر",
         footer_text: "منظومة تقييم الأداء المؤسسي © 2026 - Firebase Realtime Database",
         delete_eval_btn: "حذف التقييم",
+        reset_eval_btn: "إعادة ضبط التقييم (Reset)",
         edit_eval_btn: "تعديل التقييم",
         eval_locked_msg: "مكتمل (محمي من التعديل)",
         freeze_edit_btn: "تجميد التعديل للمدير",
@@ -219,6 +220,7 @@ const I18N = {
         save_kra_btn: "Save Element",
         footer_text: "Corporate Performance Appraisal System © 2026 - Firebase Realtime Database",
         delete_eval_btn: "Delete Eval",
+        reset_eval_btn: "Reset Eval",
         edit_eval_btn: "Edit Eval",
         eval_locked_msg: "Completed (Locked)",
         freeze_edit_btn: "Lock Manager Edits",
@@ -463,25 +465,25 @@ function calculateEmpScore(empId) {
     };
 }
 
-// Delete Evaluation (Admin Only)
-function deleteEmployeeEvaluation(empId) {
+// Reset / Delete Evaluation (Admin Only Feature)
+function resetEmployeeEvaluation(empId) {
     if (currentUser.role !== 'admin') {
         alert(currentLang === 'ar' ? "عفواً، هذه الصلاحية للمسؤول (Admin) فقط!" : "Access denied: Admin only!");
         return;
     }
 
-    const emp = db.employees.find(e => e.id === empId || e.id === String(empId));
+    const emp = db.employees.find(e => e.id === empId || String(e.id) === String(empId) || e.code === String(empId));
     const empName = emp ? emp.name : empId;
 
-    if (confirm(currentLang === 'ar' ? `هل أنت متأكد من حذف تقييم الموظف (${empName})؟` : `Are you sure you want to delete evaluation for (${empName})?`)) {
+    if (confirm(currentLang === 'ar' ? `هل أنت متأكد من إعادة ضبط (مسح) تقييم الموظف (${empName})؟ سيتمكن المدير المباشر من تقييمه من جديد.` : `Are you sure you want to reset/delete evaluation for (${empName})? The direct manager will be able to re-evaluate.`)) {
         delete db.evaluations[empId];
         saveDB();
         refreshActiveViews();
-        alert(currentLang === 'ar' ? "تم حذف التقييم بنجاح." : "Evaluation deleted successfully.");
+        alert(currentLang === 'ar' ? `تمت إعادة ضبط تقييم (${empName}) بنجاح وإتاحته للتقييم مجدداً.` : `Evaluation reset successfully for (${empName}).`);
     }
 }
 
-// Toggle Manager Edit Freeze (Admin Control Fix)
+// Toggle Manager Edit Freeze (Admin Control)
 function toggleManagerEditFreeze(mgrEmpId) {
     if (currentUser.role !== 'admin') {
         alert(currentLang === 'ar' ? "عفواً، هذه الصلاحية للمسؤول فقط!" : "Admin only!");
@@ -1084,7 +1086,7 @@ function filterEmployeesTable() {
                     <button onclick="openPromoteModal('${safeId}')" title="تعديل الحساب" class="bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold px-2 py-1 rounded-lg border border-blue-300 transition text-[11px]">
                         <i class="fa-solid fa-user-gear"></i>
                     </button>
-                    <button onclick="deleteEmployee('${safeId}')" title="حذف" class="bg-red-50 hover:bg-red-100 text-red-600 font-bold px-2 py-1 rounded-lg border border-red-300 transition text-[11px]">
+                    <button onclick="deleteEmployee('${safeId}')" title="حذف الموظف" class="bg-red-50 hover:bg-red-100 text-red-600 font-bold px-2 py-1 rounded-lg border border-red-300 transition text-[11px]">
                         <i class="fa-solid fa-trash-can"></i>
                     </button>
                 </td>
@@ -1507,19 +1509,17 @@ function exportLevelPercentagesToExcel() {
     XLSX.writeFile(wb, `Levels_Distribution_${new Date().toISOString().slice(0,10)}.xlsx`);
 }
 
-// Manager Appraisal Dashboard (Reads directly from db.employees)
+// Manager Appraisal Dashboard
 function renderManagerDashboard() {
     filterManagerEmpTable();
 }
 
 function filterManagerEmpTable() {
-    // جلب أحدث بيانات للمدير المباشر من قاعدة البيانات السحابية الحية بدلاً من الجلسة المخزنة
     const currentMgrInDb = db.employees.find(e => String(e.id) === String(currentUser.empData.id) || e.code === currentUser.empData.code);
     const mgr = currentMgrInDb || currentUser.empData;
     
     document.getElementById('mgrAssignedDeptBadge').innerText = `${currentLang === 'ar' ? 'المرؤوسين المباشرين للمدير:' : 'Subordinates for:'} ${mgr.name} (${mgr.code})`;
 
-    // التأكد من قراءة التجميد كـ Boolean واضح
     const isManagerFrozenByAdmin = Boolean(mgr.editFrozen);
 
     const mySubordinates = db.employees.filter(e => e.directManagerCode === mgr.code);
@@ -1548,7 +1548,6 @@ function filterManagerEmpTable() {
         const res = calculateEmpScore(emp.id);
         const safeId = String(emp.id).replace(/'/g, "\\'");
 
-        // حالة 1: التعديل مجمد ومغلق من قبل الأدمن للمدير
         if (isManagerFrozenByAdmin) {
             return `
                 <tr class="hover:bg-slate-50 transition opacity-80">
@@ -1568,7 +1567,6 @@ function filterManagerEmpTable() {
             `;
         }
 
-        // حالة 2: التعديل مفتوح ومتاح للمدير
         return `
             <tr class="hover:bg-slate-50 transition">
                 <td class="p-3 font-mono font-bold text-slate-600">${emp.code}</td>
@@ -1679,7 +1677,7 @@ function submitEmployeeEval(e) {
     alert(currentLang === 'ar' ? "تم حفظ التقييم بنجاح!" : "Evaluation saved successfully!");
 }
 
-// Reports Log
+// Reports Log Table Renderer
 function renderAdminReportsTable() {
     filterReportsTable();
 }
@@ -1731,8 +1729,8 @@ function filterReportsTable() {
                         <button onclick="openEvalModal('${safeId}')" title="تعديل الأدمن" class="px-2 py-1 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded border border-amber-300 font-bold text-[11px] flex items-center gap-1">
                             <i class="fa-solid fa-pen-to-square"></i> ${I18N[currentLang].edit_eval_btn}
                         </button>
-                        <button onclick="deleteEmployeeEvaluation('${safeId}')" title="حذف التقييم" class="px-2 py-1 bg-red-50 text-red-600 hover:bg-red-100 rounded border border-red-300 font-bold text-[11px] flex items-center gap-1">
-                            <i class="fa-solid fa-trash"></i> ${I18N[currentLang].delete_eval_btn}
+                        <button onclick="resetEmployeeEvaluation('${safeId}')" title="إعادة ضبط التقييم" class="px-2 py-1 bg-red-50 text-red-600 hover:bg-red-100 rounded border border-red-300 font-bold text-[11px] flex items-center gap-1">
+                            <i class="fa-solid fa-rotate-left"></i> ${I18N[currentLang].reset_eval_btn}
                         </button>
                     ` : `
                         <button onclick="openEvalModal('${safeId}')" class="px-2.5 py-1 bg-blue-600 text-white hover:bg-blue-700 rounded font-bold text-[11px] flex items-center gap-1">
