@@ -112,8 +112,8 @@ const I18N = {
         delete_eval_btn: "حذف التقييم",
         edit_eval_btn: "تعديل التقييم",
         eval_locked_msg: "مكتمل (محمي من التعديل)",
-        freeze_edit_btn: "تجميد التعديل",
-        unfreeze_edit_btn: "فتح التعديل",
+        freeze_edit_btn: "تجميد التعديل للمدير",
+        unfreeze_edit_btn: "فتح التعديل للمدير",
         edit_allowed: "مسموح بالتعديل",
         edit_frozen: "مجمد بواسطة الأدمن"
     },
@@ -221,14 +221,13 @@ const I18N = {
         delete_eval_btn: "Delete Eval",
         edit_eval_btn: "Edit Eval",
         eval_locked_msg: "Completed (Locked)",
-        freeze_edit_btn: "Lock Edit",
-        unfreeze_edit_btn: "Unlock Edit",
+        freeze_edit_btn: "Lock Manager Edits",
+        unfreeze_edit_btn: "Unlock Manager Edits",
         edit_allowed: "Editing Allowed",
         edit_frozen: "Locked by Admin"
     }
 };
 
-// Default Language set to English
 let currentLang = 'en';
 
 function changeLanguage(lang) {
@@ -482,7 +481,7 @@ function deleteEmployeeEvaluation(empId) {
     }
 }
 
-// Toggle Manager Edit Freeze (Admin Control)
+// Toggle Manager Edit Freeze (Admin Control Fix)
 function toggleManagerEditFreeze(mgrEmpId) {
     if (currentUser.role !== 'admin') {
         alert(currentLang === 'ar' ? "عفواً، هذه الصلاحية للمسؤول فقط!" : "Admin only!");
@@ -491,7 +490,7 @@ function toggleManagerEditFreeze(mgrEmpId) {
 
     const emp = db.employees.find(e => e.id === mgrEmpId || e.code === mgrEmpId || String(e.id) === String(mgrEmpId));
     if (emp) {
-        emp.editFrozen = !emp.editFrozen;
+        emp.editFrozen = !Boolean(emp.editFrozen);
         saveDB();
         refreshActiveViews();
         const statusText = emp.editFrozen 
@@ -1057,6 +1056,7 @@ function filterEmployeesTable() {
         const mgrObj = db.employees.find(m => m.code === emp.directManagerCode);
         const mgrNameText = mgrObj ? `${mgrObj.name} (${mgrObj.code})` : (emp.directManagerCode || '-');
         const safeId = String(emp.id).replace(/'/g, "\\'");
+        const isFrozen = Boolean(emp.editFrozen);
 
         return `
             <tr class="hover:bg-slate-50 transition">
@@ -1075,7 +1075,7 @@ function filterEmployeesTable() {
                 <td class="p-3 font-mono text-emerald-700 bg-emerald-50/50 font-bold rounded px-2">${emp.isManager ? (emp.password || '-') : '-'}</td>
                 <td class="p-3 text-center">
                     ${emp.isManager ? (
-                        emp.editFrozen 
+                        isFrozen 
                         ? `<button onclick="toggleManagerEditFreeze('${safeId}')" class="px-2 py-1 rounded-lg text-[10px] font-bold bg-red-100 text-red-700 border border-red-300 hover:bg-red-200"><i class="fa-solid fa-lock"></i> ${I18N[currentLang].edit_frozen}</button>`
                         : `<button onclick="toggleManagerEditFreeze('${safeId}')" class="px-2 py-1 rounded-lg text-[10px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-300 hover:bg-emerald-200"><i class="fa-solid fa-lock-open"></i> ${I18N[currentLang].edit_allowed}</button>`
                     ) : '-'}
@@ -1100,7 +1100,7 @@ function openPromoteModal(empId) {
     document.getElementById('promoteEmpId').value = emp.id;
     document.getElementById('promoteEmpName').value = emp.name;
     document.getElementById('promoteIsManagerCheckbox').checked = !!emp.isManager;
-    document.getElementById('promoteFreezeEditCheckbox').checked = !!emp.editFrozen;
+    document.getElementById('promoteFreezeEditCheckbox').checked = Boolean(emp.editFrozen);
 
     const allManagers = db.employees.filter(e => e.isManager && e.id !== emp.id);
     const selectObj = document.getElementById('promoteDirectManagerSelect');
@@ -1124,7 +1124,7 @@ function saveManagerRole(e) {
 
     if (emp) {
         emp.isManager = document.getElementById('promoteIsManagerCheckbox').checked;
-        emp.editFrozen = document.getElementById('promoteFreezeEditCheckbox').checked;
+        emp.editFrozen = Boolean(document.getElementById('promoteFreezeEditCheckbox').checked);
         emp.directManagerCode = document.getElementById('promoteDirectManagerSelect').value;
         emp.username = document.getElementById('promoteUsername').value.trim();
         emp.password = document.getElementById('promotePassword').value.trim();
@@ -1507,18 +1507,20 @@ function exportLevelPercentagesToExcel() {
     XLSX.writeFile(wb, `Levels_Distribution_${new Date().toISOString().slice(0,10)}.xlsx`);
 }
 
-// Manager Appraisal Dashboard
+// Manager Appraisal Dashboard (Reads directly from db.employees)
 function renderManagerDashboard() {
     filterManagerEmpTable();
 }
 
 function filterManagerEmpTable() {
+    // جلب أحدث بيانات للمدير المباشر من قاعدة البيانات السحابية الحية بدلاً من الجلسة المخزنة
     const currentMgrInDb = db.employees.find(e => String(e.id) === String(currentUser.empData.id) || e.code === currentUser.empData.code);
     const mgr = currentMgrInDb || currentUser.empData;
     
     document.getElementById('mgrAssignedDeptBadge').innerText = `${currentLang === 'ar' ? 'المرؤوسين المباشرين للمدير:' : 'Subordinates for:'} ${mgr.name} (${mgr.code})`;
 
-    const isManagerFrozenByAdmin = !!mgr.editFrozen;
+    // التأكد من قراءة التجميد كـ Boolean واضح
+    const isManagerFrozenByAdmin = Boolean(mgr.editFrozen);
 
     const mySubordinates = db.employees.filter(e => e.directManagerCode === mgr.code);
     const evalCount = mySubordinates.filter(e => db.evaluations[e.id]).length;
@@ -1546,6 +1548,7 @@ function filterManagerEmpTable() {
         const res = calculateEmpScore(emp.id);
         const safeId = String(emp.id).replace(/'/g, "\\'");
 
+        // حالة 1: التعديل مجمد ومغلق من قبل الأدمن للمدير
         if (isManagerFrozenByAdmin) {
             return `
                 <tr class="hover:bg-slate-50 transition opacity-80">
@@ -1565,6 +1568,7 @@ function filterManagerEmpTable() {
             `;
         }
 
+        // حالة 2: التعديل مفتوح ومتاح للمدير
         return `
             <tr class="hover:bg-slate-50 transition">
                 <td class="p-3 font-mono font-bold text-slate-600">${emp.code}</td>
@@ -1597,7 +1601,7 @@ function openEvalModal(empId) {
 
     if (currentUser.role !== 'admin') {
         const currentMgrInDb = db.employees.find(e => String(e.id) === String(currentUser.empData.id) || e.code === currentUser.empData.code);
-        if (currentMgrInDb && currentMgrInDb.editFrozen) {
+        if (currentMgrInDb && Boolean(currentMgrInDb.editFrozen)) {
             alert(currentLang === 'ar' ? "عفواً، تم تجميد وإغلاق صلاحية التعديل والتقييم لك بواسطة المسؤول (Admin)!" : "Your edit permissions have been locked by Admin!");
             return;
         }
@@ -1785,5 +1789,5 @@ function exportEvaluationsToExcel() {
 
 window.onload = function() {
     initFirebase();
-    changeLanguage('en'); // Default language set to English on load
+    changeLanguage('en');
 };
