@@ -110,7 +110,7 @@ const I18N = {
         save_kra_btn: "حفظ العنصر",
         footer_text: "منظومة تقييم الأداء المؤسسي © 2026 - Firebase Realtime Database",
         delete_eval_btn: "حذف التقييم",
-        reset_eval_btn: "إعادة ضبط التقييم (Reset)",
+        reset_eval_btn: "إعادة ضبط (Reset)",
         edit_eval_btn: "تعديل التقييم",
         eval_locked_msg: "مكتمل (محمي من التعديل)",
         freeze_edit_btn: "تجميد التعديل للمدير",
@@ -253,11 +253,12 @@ function changeLanguage(lang) {
     refreshActiveViews();
 }
 
-// KRAs Default Data
+// KRAs Default Data with Full BILINGUAL Support (AR / EN)
 let KRAS = [
     {
         id: "k1",
         title: "Technical Skills & Job Competence",
+        title_ar: "المهارات الفنية والقدرات الوظيفية",
         weight: 20,
         levels: {
             1: "Requires continuous intense supervision with minimal completion of basic tasks.",
@@ -265,11 +266,19 @@ let KRAS = [
             3: "Very good performance; executes most tasks independently with high efficiency.",
             4: "Advanced level; applies skills professionally and provides support to colleagues.",
             5: "Expert level; innovates quality solutions and serves as a technical reference."
+        },
+        levels_ar: {
+            1: "مستوى يتطلب توجيه وإشراف مكثف مستمر مع إنجاز محدود للمهام الأساسية.",
+            2: "مستوى يلبي الحد الأدنى من متطلبات العمل الروتينية مع الحاجة لمتابعة في المواقف المعتادة.",
+            3: "مستوى جيد جداً، ينفذ معظم المهام باستقلالية وكفاءة عالية ودعم محدود.",
+            4: "مستوى متقدم، يطبق المهارات الفنية باحترافية وسرعة مع تقديم الدعم والحلول للزملاء.",
+            5: "مستوى خبير ومتميز، يبتكر حلولاً نوعية، ويعد مرجعاً فنياً يطور أساليب العمل."
         }
     },
     {
         id: "k2",
         title: "Communication & Collaboration",
+        title_ar: "مهارات التواصل والتعاون",
         weight: 15,
         levels: {
             1: "Struggles to convey information; needs continuous guidance on communication style.",
@@ -277,11 +286,19 @@ let KRAS = [
             3: "Communicates clearly and effectively; shows positive team collaboration.",
             4: "Excellent communication; facilitates smooth info flow and impacts team results.",
             5: "Highly professional; builds strong collaborative bridges and leads with diplomacy."
+        },
+        levels_ar: {
+            1: "يواجه صعوبة ملحوظة في إيصال المعلومات، ويحتاج توجيه مستمر لأسلوب التواصل.",
+            2: "تواصل مقبول في الظروف المعتادة ولكن يحتاج دعم في مواقف التواصل المركبة.",
+            3: "يتواصل بوضوح وفاعلية، ويظهر تعاوناً إيجابياً ومثمراً مع كافة أفراد الفريق.",
+            4: "تواصل ممتاز يسهل تدفق المعلومات بسلاسة ويؤثر إيجاباً على نتائج الفريق.",
+            5: "احترافي للغاية، يبني جسور تعاون قوية وينسق بدبلوماسية عالية لحل النزاعات."
         }
     },
     {
         id: "k3",
         title: "Problem Solving & Decision Making",
+        title_ar: "حل المشكلات واتخاذ القرارات",
         weight: 20,
         levels: {
             1: "Struggles to diagnose problems or offer preliminary solution ideas.",
@@ -289,11 +306,19 @@ let KRAS = [
             3: "Analyzes standard problems independently and offers practical solutions.",
             4: "Skillfully analyzes complex problems and proposes effective solution options.",
             5: "Anticipates risks, identifies root causes, and creates sustainable solutions."
+        },
+        levels_ar: {
+            1: "يواجه صعوبة في تشخيص المشكلات أو تقديم مقترحات حلول أولية.",
+            2: "يتعامل مع المشكلات البسيطة ويحتاج توجيه مباشر في المواقف غير المألوفة.",
+            3: "يحقق تحليلاً مستقلاً للمشكلات الاعتيادية ويقدم حلولاً عملية وفعالة.",
+            4: "يحلل المشكلات المعقدة ببراعة ويقترح خيارات حلول متعددة ومبتكرة.",
+            5: "يتنبأ بالمخاطر، يحدد الأسباب الجذرية، ويضع حلولاً استراتيجية مستدامة."
         }
     },
     {
         id: "k4",
         title: "Initiative & Continuous Improvement",
+        title_ar: "المبادرة والتطوير المستمر",
         weight: 15,
         levels: {
             1: "Relies entirely on direct instructions without showing extra initiative.",
@@ -301,11 +326,19 @@ let KRAS = [
             3: "Regularly initiates simple ideas and improvements supporting work quality.",
             4: "Active and proactive; seizes opportunities to enhance output quality.",
             5: "Drives innovative development initiatives beyond daily scope."
+        },
+        levels_ar: {
+            1: "يعتمد كلياً على التعليمات المباشرة دون إبداء أي مبادرات إضافية.",
+            2: "يقدم مبادرات بسيطة في أوقات متباعدة وعند الطلب المباشر فقط.",
+            3: "يقدم بانتظام أفكاراً وتحسينات عملية تدعم جودة بيئة وسرعة العمل.",
+            4: "مبادر ونشط، يستغل الفرص لتحسين جودة المخرجات وتطوير الأداء.",
+            5: "يقود مبادرات تطويرية مبتكرة تتجاوز نطاق عمله اليومي وتحدث فارقاً."
         }
     },
     {
         id: "k5",
         title: "Sustainability & Corporate Responsibility",
+        title_ar: "الاستدامة والمسؤولية المؤسسية",
         weight: 15,
         levels: {
             1: "Weak commitment to sustainable practices; needs constant reminders.",
@@ -313,11 +346,19 @@ let KRAS = [
             3: "Good and consistent compliance with corporate standards and policies.",
             4: "Consistently complies and actively participates in awareness initiatives.",
             5: "Role model in practicing and promoting a culture of sustainability."
+        },
+        levels_ar: {
+            1: "التزام ضعيف بالممارسات المستدامة، ويحتاج للتذكير المستمر بالسياسات.",
+            2: "التزام متوسط بضوابط المؤسسة وسياسات ترشيد الموارد بشكل غير منتظم.",
+            3: "التزام جيد ومستمر بمعايير وسياسات المؤسسة والاستخدام الأمثل للموارد.",
+            4: "يلتزم دائماً ويشارك بفاعلية في مبادرات التوعية وترشيد الموارد المؤسسية.",
+            5: "قدوة ونموذج يتغذى بروح المسؤولية وينشر ثقافة الاستدامة والمواطنة."
         }
     },
     {
         id: "k6",
         title: "Leadership & Accountability",
+        title_ar: "القيادة وتحمل المسؤولية",
         weight: 15,
         levels: {
             1: "Avoids direct responsibility and requires follow-up to complete duties.",
@@ -325,6 +366,13 @@ let KRAS = [
             3: "Fully accountable for all core assigned duties and tasks.",
             4: "Clearly takes ownership of results and actively supports team goals.",
             5: "Proactive leader trusted during crises and critical assignments."
+        },
+        levels_ar: {
+            1: "يتحفظ عن تحمل المسؤولية المباشرة ويحتاج متابعة لتنفيذ واجباته.",
+            2: "يتحمل المسؤولية جزئياً ويحتاج إلى إشراف ومتابعة دورية لتفادي الأخطاء.",
+            3: "يتحمل المسؤولية الكاملة عن كافة مهامه وواجباته الوظيفية بكل دقة.",
+            4: "يمتلك زمام المبادرة، يوجه زملائه ويدعم تحقيق أهداف الفريق بكفاءة.",
+            5: "قائد ملهم وموثوق في الأزمات، يتحمل نتائج القرارات الصعبة بكل شجاعة."
         }
     }
 ];
@@ -426,6 +474,26 @@ function purgeCloudDatabase() {
         refreshActiveViews();
     } else if (pass !== null) {
         alert(currentLang === 'ar' ? "كلمة السر غير صحيحة!" : "Incorrect password!");
+    }
+}
+
+// Helpers to get translated KRA title and levels with strong fallback handling
+function getKraTitle(kra) {
+    if (currentLang === 'en') {
+        return kra.title || kra.title_ar || "Evaluation Criteria";
+    }
+    return kra.title_ar || kra.title || "معيار التقييم";
+}
+
+function getKraLevelDesc(kra, lvl) {
+    if (currentLang === 'en') {
+        if (kra.levels && kra.levels[lvl]) return kra.levels[lvl];
+        if (kra.levels_ar && kra.levels_ar[lvl]) return kra.levels_ar[lvl];
+        return `Level ${lvl}`;
+    } else {
+        if (kra.levels_ar && kra.levels_ar[lvl]) return kra.levels_ar[lvl];
+        if (kra.levels && kra.levels[lvl]) return kra.levels[lvl];
+        return `مستوى ${lvl}`;
     }
 }
 
@@ -980,7 +1048,7 @@ function handleEvaluationsUpload(e) {
                 if (emp) {
                     const scores = {};
                     activeKras.forEach(kra => {
-                        const val = row[kra.id] || row[kra.title];
+                        const val = row[kra.id] || row[kra.title] || row[kra.title_ar];
                         if (val !== undefined) {
                             scores[kra.id] = parseInt(val) || 1;
                         }
@@ -1149,10 +1217,12 @@ function renderManageKrasList() {
     container.innerHTML = activeKras.map((kra, idx) => {
         const w = Number(kra.weight) || 0;
         totalWeight += w;
+        const titleText = getKraTitle(kra);
+
         return `
             <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between gap-2">
                 <div class="flex-grow">
-                    <span class="font-bold text-slate-800">${idx + 1}. ${kra.title}</span>
+                    <span class="font-bold text-slate-800">${idx + 1}. ${titleText}</span>
                     <span class="block text-[10px] text-slate-400">ID: ${kra.id}</span>
                 </div>
                 <div class="flex items-center gap-2">
@@ -1214,15 +1284,15 @@ function editKraElement(kraId) {
     if (!kra) return;
 
     document.getElementById('kraFormEditId').value = kra.id;
-    document.getElementById('kraModalTitle').innerText = `${currentLang === 'ar' ? 'تعديل عنصر:' : 'Edit Element:'} ${kra.title}`;
-    document.getElementById('kraFormTitle').value = kra.title;
+    document.getElementById('kraModalTitle').innerText = `${currentLang === 'ar' ? 'تعديل عنصر:' : 'Edit Element:'} ${getKraTitle(kra)}`;
+    document.getElementById('kraFormTitle').value = getKraTitle(kra);
     document.getElementById('kraFormWeight').value = kra.weight || 15;
 
-    document.getElementById('kraFormLvl1').value = kra.levels[1] || "";
-    document.getElementById('kraFormLvl2').value = kra.levels[2] || "";
-    document.getElementById('kraFormLvl3').value = kra.levels[3] || "";
-    document.getElementById('kraFormLvl4').value = kra.levels[4] || "";
-    document.getElementById('kraFormLvl5').value = kra.levels[5] || "";
+    document.getElementById('kraFormLvl1').value = getKraLevelDesc(kra, 1);
+    document.getElementById('kraFormLvl2').value = getKraLevelDesc(kra, 2);
+    document.getElementById('kraFormLvl3').value = getKraLevelDesc(kra, 3);
+    document.getElementById('kraFormLvl4').value = getKraLevelDesc(kra, 4);
+    document.getElementById('kraFormLvl5').value = getKraLevelDesc(kra, 5);
 
     document.getElementById('kraModal').classList.remove('hidden');
 }
@@ -1233,25 +1303,38 @@ function saveKraElement(e) {
     const title = document.getElementById('kraFormTitle').value.trim();
     const weight = parseFloat(document.getElementById('kraFormWeight').value) || 0;
 
-    const levels = {
-        1: document.getElementById('kraFormLvl1').value.trim(),
-        2: document.getElementById('kraFormLvl2').value.trim(),
-        3: document.getElementById('kraFormLvl3').value.trim(),
-        4: document.getElementById('kraFormLvl4').value.trim(),
-        5: document.getElementById('kraFormLvl5').value.trim()
-    };
+    const lvl1 = document.getElementById('kraFormLvl1').value.trim();
+    const lvl2 = document.getElementById('kraFormLvl2').value.trim();
+    const lvl3 = document.getElementById('kraFormLvl3').value.trim();
+    const lvl4 = document.getElementById('kraFormLvl4').value.trim();
+    const lvl5 = document.getElementById('kraFormLvl5').value.trim();
 
     if (!db.kras) db.kras = KRAS;
 
     if (editId) {
         let kra = KRAS.find(k => k.id === editId);
-        if (kra) { kra.title = title; kra.weight = weight; kra.levels = levels; }
+        if (kra) { 
+            if (currentLang === 'ar') { kra.title_ar = title; kra.levels_ar = {1: lvl1, 2: lvl2, 3: lvl3, 4: lvl4, 5: lvl5}; }
+            else { kra.title = title; kra.levels = {1: lvl1, 2: lvl2, 3: lvl3, 4: lvl4, 5: lvl5}; }
+            kra.weight = weight;
+        }
 
         let dbKra = db.kras.find(k => k.id === editId);
-        if (dbKra) { dbKra.title = title; dbKra.weight = weight; dbKra.levels = levels; }
+        if (dbKra) { 
+            if (currentLang === 'ar') { dbKra.title_ar = title; dbKra.levels_ar = {1: lvl1, 2: lvl2, 3: lvl3, 4: lvl4, 5: lvl5}; }
+            else { dbKra.title = title; dbKra.levels = {1: lvl1, 2: lvl2, 3: lvl3, 4: lvl4, 5: lvl5}; }
+            dbKra.weight = weight;
+        }
     } else {
         const newId = 'k' + (Date.now() % 100000);
-        const newObj = { id: newId, title: title, weight: weight, levels: levels };
+        const newObj = { 
+            id: newId, 
+            title: title, 
+            title_ar: title,
+            weight: weight, 
+            levels: { 1: lvl1, 2: lvl2, 3: lvl3, 4: lvl4, 5: lvl5 },
+            levels_ar: { 1: lvl1, 2: lvl2, 3: lvl3, 4: lvl4, 5: lvl5 }
+        };
         KRAS.push(newObj);
         db.kras.push(newObj);
     }
@@ -1422,7 +1505,7 @@ function renderAdminDashboardCharts() {
     chartKrasInstance = new Chart(ctxKras, {
         type: 'bar',
         data: {
-            labels: activeKras.map(k => `${k.title} (${k.weight || 0}%)`),
+            labels: activeKras.map(k => `${getKraTitle(k)} (${k.weight || 0}%)`),
             datasets: [{
                 label: currentLang === 'ar' ? 'مساهمة المعيار الموزونة (%)' : 'Weighted Contribution (%)',
                 data: kraWeightedAverages,
@@ -1593,6 +1676,7 @@ function filterManagerEmpTable() {
     }).join('');
 }
 
+// Updated Open Modal with Strict Translation Logic
 function openEvalModal(empId) {
     const emp = db.employees.find(e => e.id === empId || e.id === String(empId) || e.code === String(empId));
     if (!emp) { alert("Employee not found!"); return; }
@@ -1623,19 +1707,35 @@ function openEvalModal(empId) {
     const container = document.getElementById('evalCriteriaList');
     container.innerHTML = activeKras.map((kra, idx) => {
         const selectedVal = existingEval.scores[kra.id] || 0;
+        
+        // جلب عنوان المعيار باللغة الحالية مباشرة
+        const kraTitle = (currentLang === 'en') 
+            ? (kra.title || kra.title_ar) 
+            : (kra.title_ar || kra.title);
+
         return `
             <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
                 <div class="font-bold text-slate-800 text-xs border-b pb-1 flex justify-between items-center">
-                    <span>${idx + 1}. ${kra.title}</span>
+                    <span>${idx + 1}. ${kraTitle}</span>
                     <span class="text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">${currentLang === 'ar' ? 'الوزن النسبي:' : 'Weight:'} ${kra.weight || 0}%</span>
                 </div>
                 <div class="space-y-2">
-                    ${[1,2,3,4,5].map(lvl => `
-                        <label class="flex items-start gap-2.5 p-2 rounded-lg border border-slate-200 bg-white hover:border-blue-400 hover:bg-blue-50/30 transition cursor-pointer text-xs">
-                            <input type="radio" name="kra_${kra.id}" value="${lvl}" ${selectedVal == lvl ? 'checked' : ''} required class="mt-0.5 text-blue-600 focus:ring-blue-500">
-                            <span class="text-slate-700 leading-relaxed">${kra.levels[lvl]}</span>
-                        </label>
-                    `).join('')}
+                    ${[1,2,3,4,5].map(lvl => {
+                        // جلب الوصف السلوكي للمستوى باللغة الحالية مباشرة
+                        let lvlDesc = "";
+                        if (currentLang === 'en') {
+                            lvlDesc = (kra.levels && kra.levels[lvl]) ? kra.levels[lvl] : (kra.levels_ar ? kra.levels_ar[lvl] : `Level ${lvl}`);
+                        } else {
+                            lvlDesc = (kra.levels_ar && kra.levels_ar[lvl]) ? kra.levels_ar[lvl] : (kra.levels ? kra.levels[lvl] : `مستوى ${lvl}`);
+                        }
+
+                        return `
+                            <label class="flex items-start gap-2.5 p-2 rounded-lg border border-slate-200 bg-white hover:border-blue-400 hover:bg-blue-50/30 transition cursor-pointer text-xs">
+                                <input type="radio" name="kra_${kra.id}" value="${lvl}" ${selectedVal == lvl ? 'checked' : ''} required class="mt-0.5 text-blue-600 focus:ring-blue-500">
+                                <span class="text-slate-700 leading-relaxed">${lvlDesc}</span>
+                            </label>
+                        `;
+                    }).join('')}
                 </div>
             </div>
         `;
@@ -1767,11 +1867,12 @@ function exportEvaluationsToExcel() {
         };
 
         activeKras.forEach(kra => {
+            const titleText = getKraTitle(kra);
             if (evalData && evalData.scores[kra.id]) {
                 const lvl = evalData.scores[kra.id];
-                row[`${kra.title} (${kra.weight || 0}%)`] = `${lvl} - ${kra.levels[lvl]}`;
+                row[`${titleText} (${kra.weight || 0}%)`] = `${lvl} - ${getKraLevelDesc(kra, lvl)}`;
             } else {
-                row[`${kra.title} (${kra.weight || 0}%)`] = "Not Evaluated";
+                row[`${titleText} (${kra.weight || 0}%)`] = "Not Evaluated";
             }
         });
 
@@ -1787,5 +1888,5 @@ function exportEvaluationsToExcel() {
 
 window.onload = function() {
     initFirebase();
-    changeLanguage('en');
+    changeLanguage('ar'); // الافتراضي للغة العربية
 };
